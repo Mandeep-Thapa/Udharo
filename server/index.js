@@ -8,6 +8,4 @@ require("./dbConnection/dbConnection").connect();
 // creating server
 const server = http.createServer(app);
 
-server.listen(process.env.PORT, () =>
-  console.log(`App is running on port:${PORT}`)
-);
+server.listen(process.env.PORT, () => console.log(`John Xina:${PORT}`));
