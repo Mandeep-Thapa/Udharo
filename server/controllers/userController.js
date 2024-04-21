@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/userModel");
+const User = require("../models/registrationModel");
 
 // @desc Register a user
 // @routes POST /api/users/register
@@ -41,7 +41,6 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("User data is not valid");
   }
-  // res.json({ message: "Register the user" });
 });
 
 module.exports = { registerUser };
