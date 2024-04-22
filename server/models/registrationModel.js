@@ -19,7 +19,7 @@ const userSchema = new Schema(
       select: false,
     },
     is_verified: {
-      type: boolen,
+      type: Boolean,
       default: false,
     },
   },
