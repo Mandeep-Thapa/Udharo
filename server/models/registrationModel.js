@@ -18,10 +18,10 @@ const userSchema = new Schema(
       minlength: [8, "Password must be atleast 8 characters long"],
       select: false,
     },
-    is_verified: {
-      type: boolen,
-      default: false,
-    },
+    // is_verified: {
+    //   type: boolen,
+    //   default: false,
+    // },
   },
   { timestamps: true }
 );

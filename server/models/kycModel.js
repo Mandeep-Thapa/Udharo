@@ -17,4 +17,5 @@ const kycSchema = new mongoose.Schema({
   citizenshipNumber: {},
   citizenshipFrontPhoto: {},
   citizenshipBackPhoto: {},
+  panNumber: {},
 });
