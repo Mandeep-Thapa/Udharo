@@ -10,9 +10,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //application routes
+// User Routes
 const userRoute = require("./routes/userRoutes");
 
 app.use("/api/user", userRoute);
+
+// Admin routes
+const adminRoute = require("./routes/adminRoutes");
+
+app.use("/api/admin", adminRoute);
 
 app.use(express.json());
 
