@@ -1,6 +1,6 @@
 const express = require("express");
 
-const route = express.Router();
+const router = express.Router();
 
 router.post("/register", (req, res) => {
   res.json("This is the admin register route");

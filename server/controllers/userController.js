@@ -15,18 +15,15 @@ const registerUser = asyncHandler(async (req, res) => {
   password = password.trim();
 
   if (email == "" || password == "") {
-    res.status(400);
-    throw new Error("All fields are mandatory");
+    res.status(400).json({ message: "Email and password are required" });
   } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-    res.status(400);
-    throw new Error("Invalid Email Entered!");
+    res.status(400).json({ message: "Invalid email address" });
   }
 
   //Checking if user already exists
   const userAvailable = await User.findOne({ email });
   if (userAvailable) {
-    res.status(400);
-    throw new Error("User already registered");
+    res.status(400).json({ message: "User already exists" });
   }
 
   //Hash Password
@@ -39,10 +36,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
   console.log(`User created ${user}`);
   if (user) {
-    res.status(201).json({ _id: user.id, email: user.email });
+    res
+      .status(201)
+      .json({ _id: user.id, email: user.email, password: user.password });
   } else {
-    res.status(400);
-    throw new Error("User data is not valid");
+    res.status(400).json({ message: "User data is not valid" });
   }
 });
 
@@ -53,48 +51,69 @@ const registerUser = asyncHandler(async (req, res) => {
 */
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    console.log("Is Password Valid: ", isPasswordValid);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      "placeholder aile ko lagi config ma replace garne pachi",
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.json({ token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+/*
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
   const user = await User.findOne({ email }).select("+password");
 
-  console.log("Password is", password);
-  console.log("user password is", user.password);
-  console.log("Aba if condition ma chirna lagyo");
-
-  // compare password with hashed password
-  if (user && (await bcrypt.compare(password, user.password))) {
-    const accessToken = jwt.sign(
-      {
-        user: {
-          email: user.email,
-          id: user.id,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
-    );
-    res.status(200).json({ accessToken });
-  } else {
-    res.status(401);
-    throw new Error("Email or Password is not valid ");
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  // const correctPassword =
-  //   user === null ? false : await bcrypt.compare(password, user.password);
+  const trimmedPassword = password.trim();
+  console.log("User: ", trimmedPassword);
 
-  // if (!(user && correctPassword)) {
-  //   console.log("If condition run vayo hai");
-  //   return res.status(401).json({
-  //     error: "Invalid email or password",
-  //   });
+  console.log("Encrpyted passowrd is", user.password);
 
-  //   const userForToken = {
-  //     email: user.email,
-  //     id: user._id,
-  //   };
+  const hashedPassword = user.password;
+  const validPassword = await bcrypt.compare(trimmedPassword, hashedPassword);
+  console.log("Valid Password: ", validPassword);
 
-  //   const token = jwt.sign(userForToken, process.env.ACCESS_TOKEN_SECRET);
-  // }
+  if (!validPassword) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  // If the password is correct then
+  const userForToken = {
+    email: user.email,
+    id: user._id,
+  };
+
+  const token = jwt.sign(userForToken, process.env.JWT_SECRET);
+
+  res.json({ token, email: user.email, id: user._id });
 });
+*/
 
 /*
   @desc Get all unverified users user
