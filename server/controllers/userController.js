@@ -10,12 +10,16 @@ require("dotenv").config();
   @access public
 */
 const registerUser = asyncHandler(async (req, res) => {
-  let { email, password } = req.body;
-  email = email.trim();
-  password = password.trim();
+  let { fullName, email, password } = req.body;
 
-  if (email == "" || password == "") {
-    res.status(400).json({ message: "Email and password are required" });
+  if (!fullName) {
+    res.status(400).json({ message: "Full name is required" });
+  }
+
+  if (email == "" || password == "" || fullName == "") {
+    res
+      .status(400)
+      .json({ message: "Email, password and full name  are required" });
   } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
     res.status(400).json({ message: "Invalid email address" });
   }
@@ -32,13 +36,17 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     email,
     password: hashedPassword,
+    fullName,
   });
 
   console.log(`User created ${user}`);
   if (user) {
-    res
-      .status(201)
-      .json({ _id: user.id, email: user.email, password: user.password });
+    res.status(201).json({
+      _id: user.id,
+      email: user.email,
+      password: user.password,
+      fullName: user.fullName,
+    });
   } else {
     res.status(400).json({ message: "User data is not valid" });
   }
@@ -51,6 +59,8 @@ const registerUser = asyncHandler(async (req, res) => {
 */
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
+  // Aba email bata user nikalne
   try {
     const user = await User.findOne({ email }).select("+password");
 
@@ -58,19 +68,22 @@ const loginUser = asyncHandler(async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // compairing unencrypted password with encrypted password from database
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    console.log("Is Password Valid: ", isPasswordValid);
 
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // Generating jsonwebtoken
     const token = jwt.sign(
-      { userId: user._id },
-      "placeholder aile ko lagi config ma replace garne pachi",
       {
-        expiresIn: "1h",
+        email: user.email,
+        userId: user._id,
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "60m",
       }
     );
 
@@ -80,40 +93,6 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-/*
-const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email }).select("+password");
-
-  if (!user) {
-    return res.status(401).json({ message: "Invalid email or password" });
-  }
-
-  const trimmedPassword = password.trim();
-  console.log("User: ", trimmedPassword);
-
-  console.log("Encrpyted passowrd is", user.password);
-
-  const hashedPassword = user.password;
-  const validPassword = await bcrypt.compare(trimmedPassword, hashedPassword);
-  console.log("Valid Password: ", validPassword);
-
-  if (!validPassword) {
-    return res.status(401).json({ message: "Invalid email or password" });
-  }
-
-  // If the password is correct then
-  const userForToken = {
-    email: user.email,
-    id: user._id,
-  };
-
-  const token = jwt.sign(userForToken, process.env.JWT_SECRET);
-
-  res.json({ token, email: user.email, id: user._id });
-});
-*/
 
 /*
   @desc Get all unverified users user
@@ -125,12 +104,28 @@ const getUnverifiedUsers = asyncHandler(async (req, res) => {
 });
 
 /*
-  @desc Get all users
-  @route GET /api/user/allUsers
-  @access Public
+  @desc Get current users
+  @route GET /api/user/profile
+  @access Private
 */
-const allUser = asyncHandler(async (req, res) => {
-  res.json("This is the get all user api");
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      email: user.email,
+      isVerified: user.isVerified,
+    });
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+  res.json("This is the get user profile controller");
 });
 
-module.exports = { registerUser, loginUser, getUnverifiedUsers, allUser };
+module.exports = {
+  registerUser,
+  loginUser,
+  getUnverifiedUsers,
+  getUserProfile,
+};

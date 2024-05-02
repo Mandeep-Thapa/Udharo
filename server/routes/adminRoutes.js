@@ -13,3 +13,5 @@ router.post("/login", (req, res) => {
 router.get("/allUser", (req, res) => {
   res.json("This is the get all user API");
 });
+
+module.exports = router;
