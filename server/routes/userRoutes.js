@@ -3,7 +3,7 @@ const {
   registerUser,
   loginUser,
   getUnverifiedUsers,
-  allUser,
+  getUserProfile,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -14,6 +14,6 @@ router.post("/login", loginUser);
 
 router.get("/getUnverifiedUsers", getUnverifiedUsers);
 
-router.get("/allUser", allUser);
+router.get("/profile", getUserProfile);
 
 module.exports = router;

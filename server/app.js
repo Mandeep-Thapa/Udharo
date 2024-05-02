@@ -1,9 +1,12 @@
 const express = require("express");
+const config = require("./config/index");
 
 const bodyParser = require("body-parser");
 
+/*
+    import Routes
+*/
 const userRoute = require("./routes/userRoutes");
-
 const adminRoute = require("./routes/adminRoutes");
 
 const app = express();
@@ -14,13 +17,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //application routes
-// User Routes
-
 app.use("/api/user", userRoute);
-
-// Admin routes
-
-// app.use("/api/admin", adminRoute);
+app.use("/api/admin", adminRoute);
 
 app.use(express.json());
 
