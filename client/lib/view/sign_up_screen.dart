@@ -13,6 +13,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isPasswordVisible = false;
 
   // text editing controllers
+  late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
@@ -20,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     // initialize text editing controllers
+    _nameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
@@ -29,6 +31,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -47,8 +53,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Register with email and password',
+                  'Register with name, email and password',
                 ),
+
+                // name field
+                nameFormField(),
+
                 // email field
                 emailFormField(),
 
@@ -97,6 +107,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // form fields
+  TextFormField nameFormField() {
+    return TextFormField(
+      controller: _nameController,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofocus: true,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+        hintText: 'Full Name',
+      ),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'Name cannot be empty';
+        }
+        if (value.startsWith(RegExp(r'[0-9]'))) {
+          return 'Name name cannot start with a number';
+        }
+        bool nameValid = RegExp(
+          r"^[a-zA-Z\-'. ]+$",
+        ).hasMatch(value);
+        if (!nameValid) {
+          return "Enter valid Name";
+        }
+        return null;
+      },
+    );
+  }
+
   TextFormField emailFormField() {
     return TextFormField(
       controller: _emailController,
