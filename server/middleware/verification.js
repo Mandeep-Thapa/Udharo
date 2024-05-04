@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/registrationModel");
+const asyncHandler = require("express-async-handler");
 
 // Middleware to authenticate the user
 const authenticate = asyncHandler(async (req, res, next) => {
@@ -12,7 +13,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      req.user = await User.findById(decoded.id).select("-password");
+      req.user = await User.findById(decoded.id).select("+password");
       next();
     } catch (error) {
       console.log(error);

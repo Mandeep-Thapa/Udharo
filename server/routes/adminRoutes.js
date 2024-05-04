@@ -1,17 +1,9 @@
 const express = require("express");
-
 const router = express.Router();
+const { registerAdmin, loginAdmin } = require("../controllers/adminController");
 
-router.post("/register", (req, res) => {
-  res.json("This is the admin register route");
-});
+router.post("/register", registerAdmin);
 
-router.post("/login", (req, res) => {
-  res.json("This is the admin login route");
-});
-
-router.get("/allUser", (req, res) => {
-  res.json("This is the get all user API");
-});
+router.post("/login", loginAdmin);
 
 module.exports = router;
