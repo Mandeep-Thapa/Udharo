@@ -109,18 +109,22 @@ const getUnverifiedUsers = asyncHandler(async (req, res) => {
   @access Private
 */
 const getUserProfile = asyncHandler(async (req, res) => {
+  console.log("User: ", req.user);
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authorized, token failed" });
+  }
+
   const user = await User.findById(req.user._id);
 
   if (user) {
     res.json({
       userId: user._id,
       email: user.email,
-      isVerified: user.isVerified,
+      isVerified: user.is_verified,
     });
   } else {
-    res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: "User not found" });
   }
-  res.json("This is the get user profile controller");
 });
 
 module.exports = {

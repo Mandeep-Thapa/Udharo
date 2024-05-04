@@ -13,15 +13,20 @@ const authenticate = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      req.user = await User.findById(decoded.id).select("+password");
+      req.user = await User.findById(decoded.userId);
+
+      if (!req.user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
       next();
     } catch (error) {
       console.log(error);
-      res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
 
     if (!token) {
-      res.status(401).json({ message: "Unauthorized token" });
+      return res.status(401).json({ message: "Unauthorized token" });
     }
   }
 });

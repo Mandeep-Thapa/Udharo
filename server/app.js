@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 */
 const userRoute = require("./routes/userRoutes");
 const adminRoute = require("./routes/adminRoutes");
+const borrowRoute = require("./routes/borrowRoutes");
 
 const app = express();
 
@@ -16,12 +17,9 @@ app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//application routes
-const userRoute = require("./routes/userRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-
 app.use("/api/user", userRoute);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminRoute);
+app.use("/api/borrow", borrowRoute);
 
 app.use(express.json());
 
