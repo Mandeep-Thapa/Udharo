@@ -45,7 +45,9 @@ const registerAdmin = asyncHandler(async (req, res) => {
 });
 
 /*
-
+  @desc Login an admin
+  @routes POST /api/admin/login
+  @access public
 */
 const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
