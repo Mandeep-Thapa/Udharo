@@ -42,13 +42,21 @@ const registerUser = asyncHandler(async (req, res) => {
   console.log(`User created ${user}`);
   if (user) {
     res.status(201).json({
-      _id: user.id,
-      email: user.email,
-      password: user.password,
-      fullName: user.fullName,
+      status: "Success",
+      data: {
+        _id: user.id,
+        email: user.email,
+        password: user.password,
+        fullName: user.fullName,
+        riskFactor: user.riskFactor,
+        is_verified: user.is_verified,
+      },
     });
   } else {
-    res.status(400).json({ message: "User data is not valid" });
+    res.status(400).json({
+      status: "Failed",
+      message: "User data is not valid",
+    });
   }
 });
 
@@ -118,9 +126,13 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
   if (user) {
     res.json({
-      userId: user._id,
-      email: user.email,
-      isVerified: user.is_verified,
+      status: "Success",
+      data: {
+        userId: user._id,
+        email: user.email,
+        isVerified: user.is_verified,
+        riskFactor: user.riskFactor,
+      },
     });
   } else {
     return res.status(404).json({ message: "User not found" });

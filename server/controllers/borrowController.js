@@ -141,6 +141,7 @@ const rejectBorrowRequest = asyncHandler(async (req, res) => {
     });
   }
 });
+
 /*
   @desc Borrow Request History
   @routes GET /api/borrow/borrowRequestHistory
@@ -148,6 +149,7 @@ const rejectBorrowRequest = asyncHandler(async (req, res) => {
 */
 const borrowRequestHistory = asyncHandler(async (req, res) => {
   try {
+    // filtering by id and will show all the borrow requests. it does not matter whether they are approved or pending or rejected.
     const userId = req.params.userId;
     const borrowRequest = await BorrowRequest.find({
       $or: [{ borrower: userId }, { lender: userId }],
