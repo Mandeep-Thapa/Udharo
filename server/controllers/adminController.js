@@ -3,6 +3,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
 
+/*
+  @desc Register an admin
+  @routes POST /api/admin/register
+  @access public
+*/
 const registerAdmin = asyncHandler(async (req, res) => {
   let { email, password } = req.body;
   email = email.trim();
@@ -39,6 +44,9 @@ const registerAdmin = asyncHandler(async (req, res) => {
   }
 });
 
+/*
+
+*/
 const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
