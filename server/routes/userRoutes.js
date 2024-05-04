@@ -5,6 +5,7 @@ const {
   getUnverifiedUsers,
   getUserProfile,
 } = require("../controllers/userController");
+const authenticate = require("../middleware/verification");
 
 const router = express.Router();
 
@@ -14,6 +15,6 @@ router.post("/login", loginUser);
 
 router.get("/getUnverifiedUsers", getUnverifiedUsers);
 
-router.get("/profile", getUserProfile);
+router.get("/profile", authenticate, getUserProfile);
 
 module.exports = router;
