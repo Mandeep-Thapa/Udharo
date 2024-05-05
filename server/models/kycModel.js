@@ -34,3 +34,5 @@ const kycSchema = new mongoose.Schema({
     required: [true, "Please provide your pan number"],
   },
 });
+
+module.exports = mongoose.model("Kyc", kycSchema);
