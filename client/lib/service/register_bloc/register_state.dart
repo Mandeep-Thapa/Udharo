@@ -5,6 +5,8 @@ sealed class RegisterState {}
 
 final class RegisterStateInitial extends RegisterState {}
 
+final class RegisterStateSuccess extends RegisterState {}
+
 final class RegisterStateError extends RegisterState {
   final String message;
 

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:udharo/service/register_bloc/register_bloc.dart';
 import 'package:udharo/view/screens/sign_in_screen.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -74,19 +77,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       // sign up button
 
-                      TextButton(
-                        onPressed: () {
-                          if (_formField.currentState!.validate()) {
-                            // form is valid
+                      BlocConsumer<RegisterBloc, RegisterState>(
+                        listener: (context, state) {
+                          if (state is RegisterStateSuccess) {
+                            CustomToast().showToast(
+                              context: context,
+                              message: 'Registration successful',
+                            );
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SignInScreen(),
+                              ),
+                            );
+                          } else if (state is RegisterStateError) {
+                            CustomToast().showToast(
+                              context: context,
+                              message: 'Registration failed: ${state.message}',
+                            );
                           }
                         },
-                        child: const Text('Sign Up'),
+                        builder: (context, state) {
+                          return TextButton(
+                            onPressed: () {
+                              if (_formField.currentState!.validate()) {
+                                // form is valid
+                                context.read<RegisterBloc>().add(
+                                      RegiserEventMakeRegistration(
+                                        name: _nameController.text,
+                                        email: _emailController.text,
+                                        password: _passwordController.text,
+                                      ),
+                                    );
+                              }
+                            },
+                            child: const Text('Sign Up'),
+                          );
+                        },
                       ),
 
                       // already registered button
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const SignInScreen(),
@@ -166,7 +200,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextFormField passwordFormField() {
     return TextFormField(
       controller: _passwordController,
-      obscureText: _isPasswordVisible,
+      obscureText: !_isPasswordVisible,
       enableSuggestions: false,
       autocorrect: false,
       decoration: InputDecoration(
@@ -199,7 +233,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextFormField confirmPasswordFormField() {
     return TextFormField(
       controller: _confirmPasswordController,
-      obscureText: _isPasswordVisible,
+      obscureText: !_isPasswordVisible,
       enableSuggestions: false,
       autocorrect: false,
       decoration: InputDecoration(
