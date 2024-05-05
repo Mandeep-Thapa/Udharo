@@ -14,6 +14,15 @@ const borowRequestSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please specify the purpose of the loan"],
   },
+  interestRate: {
+    type: Number,
+    required: [true, "Please specify the interest rate"],
+    default: 10,
+  },
+  paybackPeriod: {
+    type: Number,
+    required: [true, "Please specify the payback period in days or months"],
+  },
   status: {
     type: String,
     enum: ["pending", "approved", "rejected"],

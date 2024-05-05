@@ -23,6 +23,10 @@ const userSchema = new Schema(
       minlength: [8, "Password must be atleast 8 characters long"],
       select: false,
     },
+    riskFactor: {
+      type: Number,
+      default: 1, //First time users tend to have high risk attached with them
+    },
     is_verified: {
       type: Boolean,
       default: false,

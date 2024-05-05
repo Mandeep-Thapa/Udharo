@@ -17,8 +17,9 @@ const registerAdmin = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("All fields are mandatory");
   } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-    res.status(400);
-    throw new Error("Invalid Email Entered!");
+    res
+      .status(400)
+      .json({ status: "Failed", message: "Invalid Email Entered" });
   }
 
   const adminAvailable = await Admin.findOne({ email });
@@ -45,6 +46,9 @@ const registerAdmin = asyncHandler(async (req, res) => {
 
 /*
 admin login
+  @desc Login an admin
+  @routes POST /api/admin/login
+  @access public
 */
 const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
