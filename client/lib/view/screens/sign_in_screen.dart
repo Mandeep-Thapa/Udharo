@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:udharo/view/sign_up_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:udharo/service/login_bloc/login_bloc.dart';
+import 'package:udharo/view/screens/sign_up_screen.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -45,10 +48,10 @@ class _SignInScreenState extends State<SignInScreen> {
                 'Login with email and password',
               ),
               // email field
-              emailFormField(),
+              emailField(),
 
               // password field
-              passwordFormField(),
+              passwordField(),
 
               // buttons
               Center(
@@ -56,11 +59,33 @@ class _SignInScreenState extends State<SignInScreen> {
                   children: [
                     // sign up button
 
-                    TextButton(
-                      onPressed: () {
-                        // sign in logic
+                    BlocConsumer<LoginBloc, LoginState>(
+                      listener: (context, state) {
+                        if (state is LoginStateSuccess) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'Login successful',
+                          );
+                        } else if (state is LoginStateError) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'Login failed: ${state.message}',
+                          );
+                        }
                       },
-                      child: const Text('Sign In'),
+                      builder: (context, state) {
+                        return TextButton(
+                          onPressed: () async {
+                            context.read<LoginBloc>().add(
+                                  LoginEventSignIn(
+                                    _emailController.text,
+                                    _passwordController.text,
+                                  ),
+                                );
+                          },
+                          child: const Text('Sign In'),
+                        );
+                      },
                     ),
 
                     // already registered button
@@ -86,7 +111,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   // form fields
-  TextField emailFormField() {
+  TextField emailField() {
     return TextField(
       controller: _emailController,
       enableSuggestions: false,
@@ -99,10 +124,10 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  TextField passwordFormField() {
+  TextField passwordField() {
     return TextField(
       controller: _passwordController,
-      obscureText: _isPasswordVisible,
+      obscureText: !_isPasswordVisible,
       enableSuggestions: false,
       autocorrect: false,
       decoration: InputDecoration(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:udharo/view/sign_in_screen.dart';
+import 'package:udharo/view/screens/sign_in_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -188,8 +188,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         if (value!.isEmpty) {
           return 'Password cannot be empty';
         }
-        if (value.length < 6) {
-          return 'Password must be at least 6 characters long';
+        if (value.length < 8) {
+          return 'Password must be at least 8 characters long';
         }
         return null;
       },
