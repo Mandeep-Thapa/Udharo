@@ -28,7 +28,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  console.log("Hashed Password: ", hashedPassword);
 
   const newAdmin = await Admin.create({
     email,
@@ -45,7 +44,7 @@ const registerAdmin = asyncHandler(async (req, res) => {
 });
 
 /*
-
+admin login
 */
 const loginAdmin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -69,7 +68,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
     throw new Error("Invalid email or password");
   }
 
-  const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: admin._id }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "1h",
   });
 
