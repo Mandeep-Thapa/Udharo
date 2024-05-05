@@ -1,5 +1,4 @@
 const express = require("express");
-const config = require("./config/index");
 
 const bodyParser = require("body-parser");
 
@@ -9,6 +8,7 @@ const bodyParser = require("body-parser");
 const userRoute = require("./routes/userRoutes");
 const adminRoute = require("./routes/adminRoutes");
 const borrowRoute = require("./routes/borrowRoutes");
+const kycRoute = require("./routes/kycRoute");
 
 const app = express();
 
@@ -20,6 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/user", userRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/borrow", borrowRoute);
+app.use("/api/kyc", kycRoute);
 
 app.use(express.json());
 
