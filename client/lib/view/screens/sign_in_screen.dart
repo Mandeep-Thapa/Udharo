@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
+import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/screens/sign_up_screen.dart';
 import 'package:udharo/view/widget/custom_toast.dart';
 
@@ -66,6 +67,13 @@ class _SignInScreenState extends State<SignInScreen> {
                             context: context,
                             message: 'Login successful',
                           );
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                          );
                         } else if (state is LoginStateError) {
                           CustomToast().showToast(
                             context: context,
@@ -91,7 +99,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     // already registered button
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const SignUpScreen(),
