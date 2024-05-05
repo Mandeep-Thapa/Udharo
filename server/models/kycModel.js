@@ -13,9 +13,24 @@ const kycSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please specify your gender"],
   },
-  photo: {},
-  citizenshipNumber: {},
-  citizenshipFrontPhoto: {},
-  citizenshipBackPhoto: {},
-  panNumber: {},
+  photo: {
+    type: String,
+    required: [true, "Please provide your photo"],
+  },
+  citizenshipNumber: {
+    type: Number,
+    required: [true, "Please provide your citizenship number"],
+  },
+  citizenshipFrontPhoto: {
+    type: String,
+    required: [true, "Please provide your citizenship front photo"],
+  },
+  citizenshipBackPhoto: {
+    type: String,
+    required: [true, "Please provide your citizenship back photo"],
+  },
+  panNumber: {
+    type: String,
+    required: [true, "Please provide your pan number"],
+  },
 });
