@@ -72,11 +72,36 @@ const loginAdmin = asyncHandler(async (req, res) => {
     throw new Error("Invalid email or password");
   }
 
-  const token = jwt.sign({ id: admin._id }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = jwt.sign(
+    { id: admin._id, email: admin.email },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: "1h",
+    }
+  );
 
   res.status(200).json({ token });
 });
 
-module.exports = { registerAdmin, loginAdmin };
+//to get admin details
+const getAdminDetails = asyncHandler(async (req, res) => {
+  console.log(req.user.email);
+  const adminEmail = req.user.email;
+
+  const admin = await Admin.findOne({ email: adminEmail });
+
+  if (!admin) {
+    res.status(404).json({ message: "Admin not found" });
+    return;
+  }
+
+  res.status(200).json({
+    email: admin.email,
+  });
+});
+
+const admin = (module.exports = {
+  registerAdmin,
+  loginAdmin,
+  getAdminDetails,
+});
