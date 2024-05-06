@@ -48,6 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email: user.email,
         password: user.password,
         fullName: user.fullName,
+        riskFactorDetails: user.riskFactorDetails,
         riskFactor: user.riskFactor,
         is_verified: user.is_verified,
       },
