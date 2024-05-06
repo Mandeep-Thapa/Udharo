@@ -12,7 +12,7 @@ class UserRepository {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
-    print('sending request to: $url with token: $token');
+    // print('sending request to: $url with token: $token');
 
     try {
       Response response = await dio.get(
