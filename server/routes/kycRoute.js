@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { upload } = require("../middleware/multerMiddleware");
-const { uploadKyc } = require("../controllers/kycController");
+const { uploadKyc, viewKyc } = require("../controllers/kycController");
 const authenticate = require("../middleware/verification");
 
 router.post(
@@ -14,5 +14,7 @@ router.post(
   ]),
   uploadKyc
 );
+
+router.get("/viewKyc", authenticate, viewKyc);
 
 module.exports = router;

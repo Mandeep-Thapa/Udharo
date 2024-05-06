@@ -34,6 +34,11 @@ const userSchema = new Schema(
       type: Number,
       default: 1,
     },
+    is_verifiedDetails: {
+      is_emailVErified: { type: Boolean, default: false },
+      is_kycVerified: { type: Boolean, default: false },
+      is_panVerified: { type: Boolean, default: false },
+    },
     is_verified: {
       type: Boolean,
       default: false,
