@@ -123,6 +123,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     res.json({
       status: "Success",
       data: {
+        userName: user.fullName,
         userId: user._id,
         email: user.email,
         isVerified: user.is_verified,
