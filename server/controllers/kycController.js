@@ -1,6 +1,11 @@
 const Kyc = require("../models/kycModel");
 const uploadOnCloudinary = require("../utils/cloudinary");
 
+/*
+  @desc Upload KYC
+  @rotues POST /api/kyc/upload
+  @access private
+*/
 const uploadKyc = async (req, res) => {
   try {
     const photoResponse = await uploadOnCloudinary(req.files.photo[0].path);
