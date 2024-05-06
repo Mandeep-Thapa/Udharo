@@ -17,7 +17,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           event.email,
           event.password,
         );
-        print('message: $message');
         if (message == 'SignUp Success') {
           emit(RegisterStateSuccess());
         } else {
