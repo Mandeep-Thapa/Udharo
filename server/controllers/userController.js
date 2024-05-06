@@ -45,12 +45,6 @@ const registerUser = asyncHandler(async (req, res) => {
       status: "Success",
       data: {
         _id: user.id,
-        email: user.email,
-        password: user.password,
-        fullName: user.fullName,
-        riskFactorDetails: user.riskFactorDetails,
-        riskFactor: user.riskFactor,
-        is_verified: user.is_verified,
       },
     });
   } else {

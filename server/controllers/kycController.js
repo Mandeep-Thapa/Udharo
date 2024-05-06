@@ -52,4 +52,30 @@ const uploadKyc = async (req, res) => {
   }
 };
 
-module.exports = { uploadKyc };
+/*
+  @desc Get KYC details
+  @routes GET /api/kyc/view
+  @access private
+*/
+const viewKyc = async (req, res) => {
+  try {
+    const viewKyc = await Kyc.findOne({ userId: req.user._id });
+
+    if (!viewKyc) {
+      return res.status(404).json({
+        message: "KYC not found",
+      });
+    }
+    res.status(200).json({
+      message: "KYC details found",
+      data: viewKyc,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get KYC details",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { uploadKyc, viewKyc };
