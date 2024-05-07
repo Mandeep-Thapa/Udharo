@@ -1,10 +1,18 @@
 const mongoose = require("mongoose");
 
 const borowRequestSchema = new mongoose.Schema({
-  userId: {
+  borrower: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: [true, "User ID is required"],
+  },
+  lender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  fullName: {
+    type: String,
+    required: true,
   },
   amount: {
     type: Number,
@@ -21,7 +29,7 @@ const borowRequestSchema = new mongoose.Schema({
   },
   paybackPeriod: {
     type: Number,
-    required: [true, "Please specify the payback period in days or months"],
+    required: [true, "Please specify the payback period in days"],
   },
   status: {
     type: String,

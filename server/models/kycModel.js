@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
-const type = require("mongoose/lib/schema/operators/type");
 
 const kycSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   firstName: {
     type: String,
     required: [true, "Please provide your first name"],
