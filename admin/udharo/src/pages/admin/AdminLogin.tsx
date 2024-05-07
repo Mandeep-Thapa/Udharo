@@ -73,6 +73,8 @@ useEffect(() => {
       </div>
       {error && <p className="text-red-500">{error}</p>}
       <button className="bg-gradient-to-b from-orange-300 to-orange-500 font-medium p-2 md:p-4 text-white uppercase w-full rounded" type='submit'>Login</button>
+<div className="flex justify-end">
+      <a href='/register' className='font-bold rounded-md p-2 text-orange-500'>Register</a></div>
     </form>
   </div>
  </div>
