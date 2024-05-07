@@ -45,7 +45,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
 });
 
 /*
-admin login
   @desc Login an admin
   @routes POST /api/admin/login
   @access public
@@ -83,7 +82,11 @@ const loginAdmin = asyncHandler(async (req, res) => {
   res.status(200).json({ token });
 });
 
-//to get admin details
+/*
+  @desc Get admin details
+  @routes GET /api/admin/details
+  @access private
+*/
 const getAdminDetails = asyncHandler(async (req, res) => {
   console.log(req.user.email);
   const adminEmail = req.user.email;

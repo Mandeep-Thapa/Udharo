@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const type = require("mongoose/lib/schema/operators/type");
 
 const kycSchema = new mongoose.Schema({
   firstName: {
@@ -31,7 +32,10 @@ const kycSchema = new mongoose.Schema({
   },
   panNumber: {
     type: String,
-    required: [true, "Please provide your pan number"],
+  },
+  isKYCVerified: {
+    type: Boolean,
+    default: false,
   },
 });
 
