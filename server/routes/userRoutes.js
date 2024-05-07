@@ -18,6 +18,4 @@ router.get("/getUnverifiedUsers", getUnverifiedUsers);
 
 router.get("/profile", authenticate, getUserProfile);
 
-router.get("/userdetails", authenticate, getUserDetails);
-
 module.exports = router;

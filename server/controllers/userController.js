@@ -117,7 +117,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "Not authorized, token failed" });
   }
 
-  const user = await User.findById(req.user._id);
+  const user = await User.findOne({ email: userEmail });
 
   if (user) {
     res.json({
@@ -135,35 +135,9 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-/*
-  @desc Get user details
-  @route GET /api/user/userdetails
-  @access Private
-*/
-const getUserDetails = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const user = await User.findById(userId);
-
-  if (!user || user.length === 0) {
-    res.status(404).json({ message: "No user found" });
-    return;
-  }
-
-  const userDetails = {
-    userName: user.fullName,
-    userId: user._id,
-    email: user.email,
-    isVerified: user.is_verified,
-    riskFactor: user.riskFactor,
-  };
-
-  res.status(200).json(userDetails);
-});
-
 module.exports = {
   registerUser,
   loginUser,
   getUnverifiedUsers,
   getUserProfile,
-  getUserDetails,
 };
