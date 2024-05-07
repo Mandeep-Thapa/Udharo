@@ -45,11 +45,6 @@ const registerUser = asyncHandler(async (req, res) => {
       status: "Success",
       data: {
         _id: user.id,
-        email: user.email,
-        password: user.password,
-        fullName: user.fullName,
-        riskFactor: user.riskFactor,
-        is_verified: user.is_verified,
       },
     });
   } else {
@@ -128,6 +123,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     res.json({
       status: "Success",
       data: {
+        userName: user.fullName,
         userId: user._id,
         email: user.email,
         isVerified: user.is_verified,

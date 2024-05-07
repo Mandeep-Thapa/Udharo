@@ -3,6 +3,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/config.dart';
 
 class AuthRepository {
+  // constants for token expiration
+  static const String _tokenKey = 'token';
+  static const String _expiryKey = 'expiry';
+
+  // method to save the token along with its expiration time
+  Future<void> saveToken(String token, int expiresIn) async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+    final expiryTime = currentTime + (expiresIn * 1000);
+    prefs.setString(_tokenKey, token);
+    prefs.setInt(_expiryKey, expiryTime);
+  }
+
+  // method to check if the token is expired
+  Future<bool> isTokenExpired() async {
+    final prefs = await SharedPreferences.getInstance();
+    final expiryTime = prefs.getInt(_expiryKey);
+    if (expiryTime != null) {
+      final currentTime = DateTime.now().millisecondsSinceEpoch;
+      return currentTime > expiryTime;
+    }
+    // assume token is expired if expiry time is not found
+    return true;
+  }
+
+  // method to clear the token and log out the user
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(_tokenKey);
+    prefs.remove(_expiryKey);
+  }
+
   // sign in
   Future<String> signIn(String email, String password) async {
     String url = '${Config.baseUrl}/user/login';
@@ -28,8 +60,9 @@ class AuthRepository {
         final token = response.data['token'];
 
         // save token to shared preferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('token', token);
+        // SharedPreferences prefs = await SharedPreferences.getInstance();
+        // prefs.setString('token', token);
+        await saveToken(token, 1);
 
         return 'Login Success';
       } else {
@@ -72,8 +105,6 @@ class AuthRepository {
       "password": password,
     };
 
-    print('sending url: $url with data: $data');
-
     try {
       Response response = await dio.post(
         url,
@@ -84,8 +115,6 @@ class AuthRepository {
           },
         ),
       );
-
-      print('response: ${response.data}');
 
       if (response.statusCode == 201) {
         return 'SignUp Success';

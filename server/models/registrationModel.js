@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const type = require("mongoose/lib/schema/operators/type");
 
 const { Schema } = mongoose;
 
@@ -7,7 +8,7 @@ const userSchema = new Schema(
     fullName: {
       type: String,
       required: [true, "Please provide your full name"],
-      unique: true,
+      unique: false,
       trim: true,
     },
     email: {
@@ -23,9 +24,20 @@ const userSchema = new Schema(
       minlength: [8, "Password must be atleast 8 characters long"],
       select: false,
     },
+    riskFactorDetails: {
+      verificationStatus: { type: Number, min: 1, max: 5, default: 1 },
+      moneyInvested: { type: Number, default: 1, min: 1, max: 5 },
+      timelyRepayment: { type: Number, default: 1, min: 1, max: 5 },
+      lateRepayment: { type: Number, default: 1, min: 1, max: 5 },
+    },
     riskFactor: {
       type: Number,
-      default: 1, //First time users tend to have high risk attached with them
+      default: 1,
+    },
+    is_verifiedDetails: {
+      is_emailVErified: { type: Boolean, default: false },
+      is_kycVerified: { type: Boolean, default: false },
+      is_panVerified: { type: Boolean, default: false },
     },
     is_verified: {
       type: Boolean,

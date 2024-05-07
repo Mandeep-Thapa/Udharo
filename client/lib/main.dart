@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/data/repository/auth_repository.dart';
+import 'package:udharo/data/repository/user_repository.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
+import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/screens/sign_up_screen.dart';
 
@@ -37,6 +39,11 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ProfileBloc>(
+          create: (context) => ProfileBloc(
+            UserRepository(),
+          ),
+        ),
         BlocProvider<LoginBloc>(
           create: (context) => LoginBloc(
             AuthRepository(),
@@ -46,7 +53,7 @@ class _MyAppState extends State<MyApp> {
           create: (context) => RegisterBloc(
             AuthRepository(),
           ),
-        )
+        ),
       ],
       child: MaterialApp(
         title: 'Udharo',
