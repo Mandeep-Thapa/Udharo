@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const cors = require('cors');
+const cors = require("cors");
 router.use(cors());
 const {
   registerAdmin,
@@ -13,6 +13,6 @@ router.post("/register", registerAdmin);
 
 router.post("/login", loginAdmin);
 
-router.get("/details", authenticate, getAdminDetails);
+router.get("/admindetails", authenticate, getAdminDetails);
 
 module.exports = router;
