@@ -18,6 +18,6 @@ router.put("/approveBorrowRequest/:id", authenticate, approveBorrowRequest);
 
 router.put("/rejectBorrowRequest/:id", authenticate, rejectBorrowRequest);
 
-router.get("/borrowRequestHistory/:id", authenticate, borrowRequestHistory);
+router.get("/borrowRequestHistory", authenticate, borrowRequestHistory);
 
 module.exports = router;

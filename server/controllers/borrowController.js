@@ -7,12 +7,12 @@ const asyncHandler = require("express-async-handler");
   @access private
 */
 const createBorrowRequest = asyncHandler(async (req, res) => {
-  // declaring the variables which will be sent in the request body
   const { amount, purpose, interestRate, paybackPeriod } = req.body;
 
   try {
     const borrowRequest = new BorrowRequest({
-      userId: req.user._id,
+      borrower: req.user._id,
+      fullName: req.user.fullName,
       amount,
       purpose,
       interestRate,
@@ -22,14 +22,14 @@ const createBorrowRequest = asyncHandler(async (req, res) => {
     await borrowRequest.save();
 
     res.status(200).json({
-      status: "success",
+      status: "Success",
       data: {
         borrowRequest,
       },
     });
   } catch (error) {
     res.status(400).json({
-      status: "fail",
+      status: "Failed",
       message: error.message,
     });
   }
@@ -40,40 +40,40 @@ const createBorrowRequest = asyncHandler(async (req, res) => {
   @routes GET /api/borrow/getBorrowRequests
   @access private
 */
-const browseBorrowRequests = asyncHandler(async (req, res) => {
+const browseBorrowRequests = async (req, res) => {
   try {
-    // checking if the user has already created a borrow request
     const userBorrowRequest = await BorrowRequest.findOne({
-      userId: req.user._id,
+      borrower: req.user._id,
     });
 
     if (userBorrowRequest) {
-      return res.status(403).json({
-        status: "fail",
-        message:
-          "User who creates a borrow request cannot browse borrow requests",
+      const borrowRequests = await BorrowRequest.find({
+        borrower: { $ne: req.user._id },
+      });
+
+      return res.status(200).json({
+        status: "Success",
+        data: {
+          borrowRequests,
+        },
       });
     }
 
-    // if not then checking all the borrow request with stauts pending
-    const borrowRequests = await BorrowRequest.find({
-      status: "pending",
-      userId: { $ne: req.user._id },
-    });
+    const borrowRequests = await BorrowRequest.find({ stauts: "pending" });
 
     res.status(200).json({
-      status: "Success",
+      stuatus: "Success",
       data: {
         borrowRequests,
       },
     });
   } catch (error) {
     res.status(400).json({
-      status: "fail",
+      status: "Failed",
       message: error.message,
     });
   }
-});
+};
 
 /*
   @desc Accept the Borrow request
@@ -149,15 +149,25 @@ const rejectBorrowRequest = asyncHandler(async (req, res) => {
 */
 const borrowRequestHistory = asyncHandler(async (req, res) => {
   try {
+    // Get the user ID from the request user
+    const userId = req.user._id;
+
     // filtering by id and will show all the borrow requests. it does not matter whether they are approved or pending or rejected.
-    const userId = req.params.userId;
     const borrowRequest = await BorrowRequest.find({
       $or: [{ borrower: userId }, { lender: userId }],
-      status: { $in: ["approved", "rejected", "pending"] },
+      status: { $in: ["approved", "pending"] },
     });
+
+    if (borrowRequest.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Borrow request history does not exist",
+      });
+    }
+
     res.json(borrowRequest);
   } catch (error) {
-    re.status(500).json({
+    res.status(500).json({
       status: "Failed",
       message: error.message,
     });
