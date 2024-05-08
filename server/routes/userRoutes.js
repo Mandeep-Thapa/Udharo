@@ -4,6 +4,7 @@ const {
   loginUser,
   getUnverifiedUsers,
   getUserProfile,
+  getUserDetails,
 } = require("../controllers/userController");
 const authenticate = require("../middleware/verification");
 

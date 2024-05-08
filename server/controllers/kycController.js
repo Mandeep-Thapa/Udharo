@@ -8,6 +8,15 @@ const uploadOnCloudinary = require("../utils/cloudinary");
 */
 const uploadKyc = async (req, res) => {
   try {
+    if (
+      !req.files ||
+      !req.files.photo ||
+      !req.files.citizenshipFrontPhoto ||
+      !req.files.citizenshipBackPhoto
+    ) {
+      return res.status(400).json({ message: "All files are required" });
+    }
+
     const photoResponse = await uploadOnCloudinary(req.files.photo[0].path);
     const citizenshipFrontPhotoResponse = await uploadOnCloudinary(
       req.files.citizenshipFrontPhoto[0].path
@@ -16,34 +25,31 @@ const uploadKyc = async (req, res) => {
       req.files.citizenshipBackPhoto[0].path
     );
 
-    if (
-      photoResponse &&
-      citizenshipFrontPhotoResponse &&
-      citizenshipBackPhotoResponse
-    ) {
-      const kyc = new Kyc({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        gender: req.body.gender,
-        photo: photoResponse.secure_url,
-        citizenshipNumber: req.body.citizenshipNumber,
-        citizenshipFrontPhoto: citizenshipFrontPhotoResponse.secure_url,
-        citizenshipBackPhoto: citizenshipBackPhotoResponse.secure_url,
-        panNumber: req.body.panNumber,
-      });
+    const kycData = {
+      userId: req.user._id,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      gender: req.body.gender,
+      photo: photoResponse.secure_url,
+      citizenshipNumber: req.body.citizenshipNumber,
+      citizenshipFrontPhoto: citizenshipFrontPhotoResponse.secure_url,
+      citizenshipBackPhoto: citizenshipBackPhotoResponse.secure_url,
+      panNumber: req.body.panNumber,
+    };
 
-      const savedKyc = await kyc.save();
+    let kyc = await Kyc.findOne({ userId: req.user._id });
 
-      res.status(201).json({
-        message: "KYC uploaded successfully",
-        data: savedKyc,
-      });
+    if (kyc) {
+      kyc = await Kyc.findByIdAndUpdate(kyc._id, kycData, { new: true });
     } else {
-      res.status(500).json({
-        message: "Failed to upload KYC",
-        error: error.message,
-      });
+      kyc = new Kyc(kycData);
+      await kyc.save();
     }
+
+    res.status(201).json({
+      message: "KYC uploaded successfully",
+      data: kyc,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Failed to upload KYC",

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
+const User = require("../models/registrationModel");
 
 /*
   @desc Register an admin
@@ -45,7 +46,6 @@ const registerAdmin = asyncHandler(async (req, res) => {
 });
 
 /*
-admin login
   @desc Login an admin
   @routes POST /api/admin/login
   @access public
@@ -83,7 +83,11 @@ const loginAdmin = asyncHandler(async (req, res) => {
   res.status(200).json({ token });
 });
 
-//to get admin details
+/*
+  @desc admin details
+  @routes POST /api/admin/admindetails
+  @access private
+*/
 const getAdminDetails = asyncHandler(async (req, res) => {
   console.log(req.user.email);
   const adminEmail = req.user.email;
@@ -100,8 +104,38 @@ const getAdminDetails = asyncHandler(async (req, res) => {
   });
 });
 
+/*
+  @desc Get user details
+  @route GET /api/admin/userdetails/:id
+  @access Private
+*/
+
+const getUserById = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.json({
+      status: "Success",
+      data: {
+        userName: user.fullName,
+        email: user.email,
+        isVerified: user.is_verified,
+        riskFactor: user.riskFactor,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 const admin = (module.exports = {
   registerAdmin,
   loginAdmin,
   getAdminDetails,
+  getUserById,
 });
