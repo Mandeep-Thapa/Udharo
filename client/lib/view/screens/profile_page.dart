@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:udharo/view/screens/sign_in_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
-import 'package:udharo/view/screens/sign_up_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -25,11 +25,10 @@ class _ProfilePageState extends State<ProfilePage> {
               SharedPreferences.getInstance().then(
                 (prefs) {
                   prefs.remove('token');
-                  prefs.remove('expiry');
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const SignUpScreen(),
+                      builder: (context) => const SignInScreen(),
                     ),
                   );
                 },

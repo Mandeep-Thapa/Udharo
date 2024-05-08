@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/view/screens/sign_in_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -38,18 +40,29 @@ class _HomePageState extends State<HomePage> {
                 ),
 
                 // this button is for testing purpose
-                // TextButton(
-                //   onPressed: () async {
-
-                //   },
-                //   child: const Text('Test'),
-                // ),
+                TextButton(
+                  onPressed: () async {
+                    // final borrow =
+                    //     await BorrowRepository().browseBorrowRequest();
+                    // print(
+                    //     'borrow request: ${borrow.data?.borrowRequests?[0].purpose}');
+                  },
+                  child: const Text('Test'),
+                ),
               ],
             );
           } else if (state is ProfileStateError) {
-            return Center(
-              child: Text(state.message),
-            );
+            if (state.message
+                .toUpperCase()
+                .contains(('Unauthorized: Please login again').toUpperCase())) {
+              return const Center(
+                child: Text('Session expired. Please login again.'),
+              );
+            } else {
+              return Center(
+                child: Text(state.message),
+              );
+            }
           } else {
             return const Center(
               child: Text('Profile could not be loaded. Please try again.'),
@@ -57,7 +70,32 @@ class _HomePageState extends State<HomePage> {
           }
         },
       ),
-      bottomNavigationBar: const CustomBottomNavigationBar(),
+      bottomNavigationBar: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          // check if the state is not an error, then show the bottom navigation bar
+          if (state is! ProfileStateError) {
+            return const CustomBottomNavigationBar();
+          } else {
+            return TextButton(
+              onPressed: () {
+                // sign out
+                SharedPreferences.getInstance().then(
+                  (prefs) {
+                    prefs.remove('token');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignInScreen(),
+                      ),
+                    );
+                  },
+                );
+              },
+              child: const Text('Sign Out'),
+            );
+          }
+        },
+      ),
     );
   }
 }

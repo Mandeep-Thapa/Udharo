@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:udharo/view/screens/browse_borrow_requests_screen.dart';
 import 'package:udharo/view/screens/create_borrow_request_page.dart';
 import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/screens/profile_page.dart';
@@ -33,8 +34,15 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
           // browse button
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.money),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BrowseBorrowRequestsPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.search),
           ),
 
           // add button
