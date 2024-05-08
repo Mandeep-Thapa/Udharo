@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_bloc.dart';
+import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class CreateBorrowRequestPage extends StatefulWidget {
   const CreateBorrowRequestPage({super.key});
@@ -65,15 +69,61 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
 
               const SizedBox(height: 16),
 
-              ElevatedButton(
-                onPressed: () {
-                  if (_formField.currentState!.validate()) {
-                    // submit the form
+              BlocConsumer<CreateBorrowRequestBloc, CreateBorrowRequestState>(
+                listener: (context, state) {
+                  if (state is CreateBorrowRequestStateSuccess) {
+                    // show success message
+                    CustomToast().showToast(
+                      context: context,
+                      message:
+                          'Your borrow request has been created successfully',
+                    );
+
+                    // clear the form fields
+                    _amountController.clear();
+                    _purposeController.clear();
+                    _interestRateController.clear();
+                    _paybackPeriodController.clear();
+
+                    // navigate to home page
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomePage(),
+                      ),
+                    );
+                  } else if (state is CreateBorrowRequestStateError) {
+                    // show error message
+
+                    CustomToast().showToast(
+                      context: context,
+                      message:
+                          'Error creating borrow request: ${state.message}',
+                    );
                   }
                 },
-                child: const Text(
-                  'Create Request',
-                ),
+                builder: (context, state) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      if (_formField.currentState!.validate()) {
+                        // submit the form
+                        context.read<CreateBorrowRequestBloc>().add(
+                              CreateBorrowRequestEventSubmitRequest(
+                                amount: int.parse(_amountController.text),
+                                purpose: _purposeController.text,
+                                interestRate:
+                                    double.parse(_interestRateController.text),
+                                paybackPeriod:
+                                    int.parse(_paybackPeriodController.text),
+                              ),
+                            );
+                      }
+                    },
+                    child: const Text(
+                      'Create Request',
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -103,6 +153,9 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
         }
         if (double.parse(value) < 100) {
           return 'At least Rs. 100 is required to borrow';
+        }
+        if (double.parse(value) % 1 != 0) {
+          return 'Amount must be a whole number';
         }
         return null;
       },

@@ -24,7 +24,7 @@ class UserRepository {
         ),
       );
       // print('response: ${response.data}');
-      return userProfileFromJson(response.toString());
+      return userProfileModelFromJson(response.toString());
     } on DioException catch (e) {
       // handle DioException
       // print('DioException: $e');

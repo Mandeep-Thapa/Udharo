@@ -32,17 +32,17 @@ class _HomePageState extends State<HomePage> {
           } else if (state is ProfileStateLoaded) {
             return Column(
               children: [
-                // placeholder for user name
+                // display user name
                 Text(
-                  state.user.data?.email ?? 'No email found',
+                  'Hello ${state.user.data?.userName ?? 'User'}',
                 ),
 
                 // this button is for testing purpose
                 // TextButton(
                 //   onPressed: () async {
-                //
+
                 //   },
-                //   child: Text('Test'),
+                //   child: const Text('Test'),
                 // ),
               ],
             );
