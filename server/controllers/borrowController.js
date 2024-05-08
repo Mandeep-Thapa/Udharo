@@ -13,6 +13,7 @@ const createBorrowRequest = asyncHandler(async (req, res) => {
     const borrowRequest = new BorrowRequest({
       borrower: req.user._id,
       fullName: req.user.fullName,
+      riskFactor: req.user.riskFactor,
       amount,
       purpose,
       interestRate,
@@ -78,13 +79,13 @@ const browseBorrowRequests = async (req, res) => {
 
 /*
   @desc Accept the Borrow request
-  @routes PUT /api/borrow/acceptBorrowRequest
+  @routes PUT /api/borrow/acceptBorrowRequest/:id
   @access private
 */
 const approveBorrowRequest = asyncHandler(async (req, res) => {
   try {
     // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findOne({ _id: req.user._id });
+    const borrowRequest = await BorrowRequest.findOne({ _id: req.params._id });
 
     // if id not found
     if (!borrowRequest) {

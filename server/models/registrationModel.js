@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const type = require("mongoose/lib/schema/operators/type");
+const userMethods = require("../utils/userMethods");
 
 const { Schema } = mongoose;
 
@@ -83,6 +83,8 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+
+userSchema.methods = userMethods;
 
 const User = mongoose.model("User", userSchema);
 
