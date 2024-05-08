@@ -25,19 +25,60 @@ const userSchema = new Schema(
       select: false,
     },
     riskFactorDetails: {
-      verificationStatus: { type: Number, default: 1, min: 1, max: 5 },
-      moneyInvested: { type: Number, default: 1, min: 1, max: 5 },
-      timelyRepayment: { type: Number, default: 1, min: 1, max: 5 },
-      lateRepayment: { type: Number, default: 1, min: 1, max: 5 },
+      verificationStatus: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 5,
+      },
+      moneyInvested: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 5,
+      },
+      timelyRepayment: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 5,
+      },
+      lateRepayment: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 5,
+      },
     },
     riskFactor: {
       type: Number,
       default: 1,
     },
     is_verifiedDetails: {
-      is_emailVerified: { type: Boolean, default: false },
-      is_kycVerified: { type: Boolean, default: false },
-      is_panVerified: { type: Boolean, default: false },
+      is_emailVerified: {
+        type: Boolean,
+        default: false,
+      },
+      is_kycVerified: {
+        type: Boolean,
+        default: false,
+      },
+      is_panVerified: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    moneyInvestedDetails: {
+      type: Number,
+      default: 0,
+    },
+    timelyRepaymentDetails: {
+      type: Number,
+      default: 0,
+    },
+    lateRepaymentDetails: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

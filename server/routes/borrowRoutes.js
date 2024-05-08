@@ -14,9 +14,9 @@ router.post("/createBorrowRequest", authenticate, createBorrowRequest);
 
 router.get("/browseBorrowRequests", authenticate, browseBorrowRequests);
 
-router.put("/approveBorrowRequest/:id", authenticate, approveBorrowRequest);
+router.put("/approveBorrowRequest/", authenticate, approveBorrowRequest);
 
-router.put("/rejectBorrowRequest/:id", authenticate, rejectBorrowRequest);
+router.put("/rejectBorrowRequest/", authenticate, rejectBorrowRequest);
 
 router.get("/borrowRequestHistory", authenticate, borrowRequestHistory);
 
