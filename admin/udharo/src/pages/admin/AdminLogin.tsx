@@ -30,7 +30,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       Cookies.set('authToken', token, {expires: 1}); //Expires in 1 day
 
       //  console.log('Response:', response);
-      // console.log('Token', response.data.token);
+      console.log('Token', response.data.token);
       setUsername('');
       setPassword('');
       setError('');
@@ -43,7 +43,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 useEffect(() => {
   //check authentication cookie exist garxaki nai
   const authToken =  Cookies.get('authToken');
-  //if yes then navigate to dashboard.
+  //if yes then navigate to admin.
 
   if(authToken) {
     navigate('/dashboard');

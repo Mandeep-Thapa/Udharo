@@ -1,24 +1,22 @@
 // import React from 'react'
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AdminLogin from './pages/admin/AdminLogin';
-import Admin from "./pages/Admin";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
-
-
+import Dashboard from "./pages/admin/Dashboard";
+import Navigation from "./pages/Navigation";
 
 const MyRoutes = () => {
   return (
- 
-   <BrowserRouter>
-     <Routes>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<AdminLogin />} />
+        <Route path="/register" element={<AdminRegister />} />
+        <Route path="/navigation" element={<Navigation />}/>
+          <Route path="/dashboard" element={<Dashboard />} />
+       
+      </Routes>
+    </Router>
+  );
+};
 
-     <Route path="/"  element={<AdminLogin />} />
-     <Route path="/register"  element={<AdminRegister />} />
-     <Route path="/dashboard"  element={<Admin />} />
-
-     </Routes>
-    </BrowserRouter>
-  )
-}
-
-export default MyRoutes
+export default MyRoutes;
