@@ -14,6 +14,11 @@ const borowRequestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  riskFactor: {
+    type: Number,
+    required: [true, "Please specify the risk factor"],
+    default: 1,
+  },
   amount: {
     type: Number,
     required: [true, "Please specify the amount you want to borrow"],
