@@ -5,7 +5,6 @@ import Cookies from 'js-cookie';
 import Navigationwrap from '../../components/Navigationwrap';
 
 interface AdminDetails {
-   name: string;
    email: string;
 }
 const Dashboard: React.FC = () => {
@@ -16,7 +15,7 @@ const Dashboard: React.FC = () => {
       const fetchAdminDetails = async () => {
          try{
             const authToken = Cookies.get('authToken');
-            const response = await axios.get('http://localhost:3004/api/admin/details', {
+            const response = await axios.get('http://localhost:3004/api/admin/admindetails', {
             headers: {
                Authorization: `Bearer ${authToken}`
             }

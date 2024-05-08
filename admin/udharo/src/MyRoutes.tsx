@@ -9,7 +9,7 @@ const MyRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<AdminLogin />} />
+        <Route path="/" element={<AdminLogin />} />
         <Route path="/register" element={<AdminRegister />} />
         <Route path="/navigation" element={<Navigation />}/>
           <Route path="/dashboard" element={<Dashboard />} />
