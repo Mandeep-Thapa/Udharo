@@ -13,9 +13,13 @@ const Navigation = () => {
          //remove token local storage bata
          localStorage.removeItem('token');
          //Remove token from cookie
-         Cookie.remove('authToken');
+         const logout =  Cookie.remove('authToken');
+         console.log(Cookie.get('authToken'))
          //Navigate to login page
-         navigate('/');
+         if (logout===undefined) {
+            navigate('/');
+         }
+         
       }
    }
   return (
