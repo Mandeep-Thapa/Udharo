@@ -117,7 +117,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "Not authorized, token failed" });
   }
 
-  const user = await User.findOne({ email: userEmail });
+  const user = await User.findById(req.user._id);
 
   if (user) {
     res.json({
@@ -126,8 +126,11 @@ const getUserProfile = asyncHandler(async (req, res) => {
         userName: user.fullName,
         userId: user._id,
         email: user.email,
-        isVerified: user.is_verified,
+        isVerified: user.is_verifiedDetails,
         riskFactor: user.riskFactor,
+        totalMoneyInvested: user.totalMoneyInvested,
+        successfulRepayment: user.successfulRepayment,
+        lateRepayment: user.lateRepayment,
       },
     });
   } else {

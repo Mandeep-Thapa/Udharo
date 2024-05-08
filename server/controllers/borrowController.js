@@ -43,7 +43,8 @@ const createBorrowRequest = asyncHandler(async (req, res) => {
 const browseBorrowRequests = async (req, res) => {
   try {
     const userBorrowRequest = await BorrowRequest.findOne({
-      borrower: req.user._id,
+      borrower: { $ne: req.user._id },
+      status: { $ne: "approved" },
     });
 
     if (userBorrowRequest) {
@@ -77,13 +78,13 @@ const browseBorrowRequests = async (req, res) => {
 
 /*
   @desc Accept the Borrow request
-  @routes PUT /api/borrow/acceptBorrowRequest/:id
+  @routes PUT /api/borrow/acceptBorrowRequest
   @access private
 */
 const approveBorrowRequest = asyncHandler(async (req, res) => {
   try {
     // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findById(req.params.id);
+    const borrowRequest = await BorrowRequest.findOne({ _id: req.user._id });
 
     // if id not found
     if (!borrowRequest) {
