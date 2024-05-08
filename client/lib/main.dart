@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/data/repository/auth_repository.dart';
+import 'package:udharo/data/repository/borrow_repository.dart';
 import 'package:udharo/data/repository/user_repository.dart';
+import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_bloc.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
@@ -52,6 +54,11 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<RegisterBloc>(
           create: (context) => RegisterBloc(
             AuthRepository(),
+          ),
+        ),
+        BlocProvider<CreateBorrowRequestBloc>(
+          create: (context) => CreateBorrowRequestBloc(
+            BorrowRepository(),
           ),
         ),
       ],
