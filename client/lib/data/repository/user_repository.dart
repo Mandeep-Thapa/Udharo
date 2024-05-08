@@ -14,6 +14,19 @@ class UserRepository {
 
     // print('sending request to: $url with token: $token');
 
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) {
+          if (error.response?.statusCode == 401) {
+            throw Exception(
+              'Unauthorized: Please login again',
+            );
+          }
+          return handler.next(error);
+        },
+      ),
+    );
+
     try {
       Response response = await dio.get(
         url,
@@ -28,12 +41,12 @@ class UserRepository {
     } on DioException catch (e) {
       // handle DioException
       // print('DioException: $e');
-      throw 'Something went wrong: $e';
+      throw Exception('Something went wrong: $e');
       // generic error message
     } catch (e) {
       // handle other exceptions
       // print('Exception: $e');
-      throw 'Something went wrong: $e';
+      throw Exception('Something went wrong: $e');
     }
   }
 }

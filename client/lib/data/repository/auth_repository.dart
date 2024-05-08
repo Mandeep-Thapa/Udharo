@@ -5,34 +5,17 @@ import 'package:udharo/config.dart';
 class AuthRepository {
   // constants for token expiration
   static const String _tokenKey = 'token';
-  static const String _expiryKey = 'expiry';
 
   // method to save the token along with its expiration time
-  Future<void> saveToken(String token, int expiresIn) async {
+  Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    final currentTime = DateTime.now().millisecondsSinceEpoch;
-    final expiryTime = currentTime + (expiresIn * 1000);
     prefs.setString(_tokenKey, token);
-    prefs.setInt(_expiryKey, expiryTime);
-  }
-
-  // method to check if the token is expired
-  Future<bool> isTokenExpired() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiryTime = prefs.getInt(_expiryKey);
-    if (expiryTime != null) {
-      final currentTime = DateTime.now().millisecondsSinceEpoch;
-      return currentTime > expiryTime;
-    }
-    // assume token is expired if expiry time is not found
-    return true;
   }
 
   // method to clear the token and log out the user
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(_tokenKey);
-    prefs.remove(_expiryKey);
   }
 
   // sign in
@@ -62,7 +45,7 @@ class AuthRepository {
         // save token to shared preferences
         // SharedPreferences prefs = await SharedPreferences.getInstance();
         // prefs.setString('token', token);
-        await saveToken(token, 1);
+        await saveToken(token);
 
         return 'Login Success';
       } else {
