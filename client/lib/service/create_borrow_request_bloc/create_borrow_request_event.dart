@@ -29,3 +29,5 @@ class CreateBorrowRequestEventSubmitRequest extends CreateBorrowRequestEvent {
         paybackPeriod,
       ];
 }
+
+class CreateBorrowRequestEventResetRequest extends CreateBorrowRequestEvent {}

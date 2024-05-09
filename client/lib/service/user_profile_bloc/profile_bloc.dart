@@ -18,5 +18,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(ProfileStateError(e.toString()));
       }
     });
+    on<ProfileEventResetProfile>((event, emit) {
+      emit(ProfileStateInitial());
+    });
   }
 }

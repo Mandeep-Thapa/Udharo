@@ -74,10 +74,18 @@ class _SignInScreenState extends State<SignInScreen> {
                               builder: (context) => const HomePage(),
                             ),
                           );
+
+                          BlocProvider.of<LoginBloc>(context).add(
+                            LoginEventResetLogin(),
+                          );
                         } else if (state is LoginStateError) {
                           CustomToast().showToast(
                             context: context,
                             message: 'Login failed: ${state.message}',
+                          );
+
+                          BlocProvider.of<LoginBloc>(context).add(
+                            LoginEventResetLogin(),
                           );
                         }
                       },

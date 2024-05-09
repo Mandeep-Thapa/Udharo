@@ -11,3 +11,5 @@ sealed class ProfileEvent extends Equatable {
 class ProfileEventLoadProfile extends ProfileEvent {
   const ProfileEventLoadProfile();
 }
+
+class ProfileEventResetProfile extends ProfileEvent {}

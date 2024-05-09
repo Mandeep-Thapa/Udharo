@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/config.dart';
+import 'package:udharo/data/model/borrow_history_model.dart';
 import 'package:udharo/data/model/browse_borrow_model.dart';
 
 class BorrowRepository {
@@ -126,6 +129,62 @@ class BorrowRepository {
       // handle other exceptions
       // print('dio error: $e');
       throw Exception('Error fetching borrow request');
+    }
+  }
+
+  // browse borrow history
+  Future<List<BorrowHistoryModel>> fetchBorrowHistory() async {
+    String url = '${Config.baseUrl}/borrow/borrowRequestHistory';
+
+    Dio dio = Dio();
+
+    // get token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    // api call
+    // print('sending request to $url with body: $data');
+    try {
+      Response response = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // success response
+        print('response: ${response.data}');
+
+        return borrowHistoryModelFromJson(jsonEncode(response.data));
+      } else {
+        // handle error response
+        if (response.data['message'] != null) {
+          // print('error message: ${response.data['message']}');
+          throw Exception(response.data['message']);
+        } else {
+          // generic error message
+          // print('error innit');
+          throw Exception('Error fetching borrow history');
+        }
+      }
+    } on DioException catch (e) {
+      // handle DioException
+      if (e.response != null && e.response!.data != null) {
+        // handle specific error message from the server
+        if (e.response!.data['message'] != null) {
+          // print('dio error message: ${e.response!.data['message']}');
+          throw Exception(e.response!.data['message']);
+        }
+      }
+      throw Exception('Error fetching borrow history');
+      // generic error message
+    } catch (e) {
+      // handle other exceptions
+      // print('dio error: $e');
+      throw Exception('Error fetching borrow history');
     }
   }
 }

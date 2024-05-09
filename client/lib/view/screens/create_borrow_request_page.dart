@@ -85,6 +85,11 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
                     _interestRateController.clear();
                     _paybackPeriodController.clear();
 
+                    // clear bloc
+                    BlocProvider.of<CreateBorrowRequestBloc>(context).add(
+                      CreateBorrowRequestEventResetRequest(),
+                    );
+
                     // navigate to home page
                     Navigator.pushReplacement(
                       context,

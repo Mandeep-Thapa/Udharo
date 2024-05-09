@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:udharo/view/screens/sign_in_screen.dart';
+import 'package:udharo/view/screens/borrow_history_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
+import 'package:udharo/view/widget/sign_out_button.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -19,22 +19,18 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Column(
         children: [
-          TextButton(
-            onPressed: () {
-              // sign out
-              SharedPreferences.getInstance().then(
-                (prefs) {
-                  prefs.remove('token');
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SignInScreen(),
-                    ),
-                  );
-                },
+          SignOutButton().signOutButton(context),
+          GestureDetector(
+            onTap: () {
+              // navigate to history page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BorrowHistoryScreen(),
+                ),
               );
             },
-            child: const Text('Sign Out'),
+            child: const Text('View History'),
           ),
         ],
       ),
