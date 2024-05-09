@@ -77,7 +77,9 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         BlocProvider<KhaltiPaymentBloc>(
-          create: (context) => KhaltiPaymentBloc(),
+          create: (context) => KhaltiPaymentBloc(
+            BorrowRepository(),
+          ),
         ),
       ],
       child: KhaltiScope(

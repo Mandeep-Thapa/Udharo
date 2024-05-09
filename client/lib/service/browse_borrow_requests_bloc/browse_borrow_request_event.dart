@@ -9,3 +9,5 @@ sealed class BrowseBorrowRequestEvent extends Equatable {
 }
 
 class BrowseBorrowRequestEventLoadRequests extends BrowseBorrowRequestEvent {}
+
+class BrowseBorrowRequestEventResetRequests extends BrowseBorrowRequestEvent {}
