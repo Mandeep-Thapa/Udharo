@@ -41,12 +41,7 @@ class _HomePageState extends State<HomePage> {
 
                 // this button is for testing purpose
                 TextButton(
-                  onPressed: () async {
-                    // final borrow =
-                    //     await BorrowRepository().browseBorrowRequest();
-                    // print(
-                    //     'borrow request: ${borrow.data?.borrowRequests?[0].purpose}');
-                  },
+                  onPressed: () async {},
                   child: const Text('Test'),
                 ),
               ],

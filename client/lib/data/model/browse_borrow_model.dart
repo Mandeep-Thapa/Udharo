@@ -51,49 +51,66 @@ class Data {
 class BorrowRequest {
   String? id;
   String? borrower;
+  String? fullName;
+  int? riskFactor;
+  String? risk;
   int? amount;
   String? purpose;
   int? interestRate;
   int? paybackPeriod;
   String? status;
-  DateTime? createdAt;
-  int? v;
 
   BorrowRequest({
     this.id,
     this.borrower,
+    this.fullName,
+    this.riskFactor,
     this.amount,
     this.purpose,
     this.interestRate,
     this.paybackPeriod,
     this.status,
-    this.createdAt,
-    this.v,
+    this.risk,
   });
 
   factory BorrowRequest.fromJson(Map<String, dynamic> json) => BorrowRequest(
         id: json["_id"],
         borrower: json["borrower"],
+        fullName: json["fullName"],
+        riskFactor: json["riskFactor"],
         amount: json["amount"],
         purpose: json["purpose"],
         interestRate: json["interestRate"],
         paybackPeriod: json["paybackPeriod"],
         status: json["status"],
-        createdAt: json["createdAt"] == null
-            ? null
-            : DateTime.parse(json["createdAt"]),
-        v: json["__v"],
+        risk: mapRisk(json["riskFactor"]),
       );
 
   Map<String, dynamic> toJson() => {
         "_id": id,
         "borrower": borrower,
+        "fullName": fullName,
+        "riskFactor": riskFactor,
         "amount": amount,
         "purpose": purpose,
         "interestRate": interestRate,
         "paybackPeriod": paybackPeriod,
         "status": status,
-        "createdAt": createdAt?.toIso8601String(),
-        "__v": v,
       };
+
+  static String mapRisk(int? riskFactor) {
+    if (riskFactor == 1) {
+      return 'Very High';
+    } else if (riskFactor == 2) {
+      return 'High';
+    } else if (riskFactor == 3) {
+      return 'Moderately High';
+    } else if (riskFactor == 4) {
+      return 'Low';
+    } else if (riskFactor == 5) {
+      return 'Very Low';
+    } else {
+      return 'Unknown';
+    }
+  }
 }
