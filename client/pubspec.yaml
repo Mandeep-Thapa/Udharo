@@ -40,6 +40,8 @@ dependencies:
   equatable: ^2.0.5
   bloc: ^8.1.4
   shared_preferences: ^2.2.3
+  khalti: ^2.0.0
+  khalti_flutter: ^3.0.0
 
 dev_dependencies:
   flutter_test:

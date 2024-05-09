@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:udharo/config.dart';
 import 'package:udharo/data/repository/auth_repository.dart';
 import 'package:udharo/data/repository/borrow_repository.dart';
 import 'package:udharo/data/repository/user_repository.dart';
 import 'package:udharo/service/browse_borrow_requests_bloc/browse_borrow_request_bloc.dart';
 import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_bloc.dart';
+import 'package:udharo/service/khalti_payment_bloc/khalti_payment_bloc.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
@@ -67,15 +70,28 @@ class _MyAppState extends State<MyApp> {
             BorrowRepository(),
           ),
         ),
-      ],
-      child: MaterialApp(
-        title: 'Udharo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+        BlocProvider<KhaltiPaymentBloc>(
+          create: (context) => KhaltiPaymentBloc(),
         ),
-        home: widget.isUserLoggedIn ? const HomePage() : const SignUpScreen(),
+      ],
+      child: KhaltiScope(
+        publicKey: Config.khaltiTestPublicKey,
+        builder: (context, navigatorKey) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            localizationsDelegates: const [
+              KhaltiLocalizations.delegate,
+            ],
+            title: 'Udharo',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+            ),
+            home:
+                widget.isUserLoggedIn ? const HomePage() : const SignUpScreen(),
+          );
+        },
       ),
     );
   }

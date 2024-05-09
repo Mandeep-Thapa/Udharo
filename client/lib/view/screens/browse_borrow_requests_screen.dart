@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/browse_borrow_requests_bloc/browse_borrow_request_bloc.dart';
+import 'package:udharo/service/khalti_payment_bloc/khalti_payment_bloc.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_details_container.dart';
+import 'package:udharo/view/widget/custom_dialog_box.dart';
 
 class BrowseBorrowRequestsPage extends StatefulWidget {
   const BrowseBorrowRequestsPage({super.key});
@@ -39,36 +41,45 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                   itemCount: borrowRequests.length,
                   itemBuilder: (context, index) {
                     final borrowRequest = borrowRequests[index];
-                    return CustomDetailsContainer(
-                      fields: [
-                        Text('Borrower : ${borrowRequest.borrower}'),
-                        Text('Purpose: ${borrowRequest.purpose}'),
-                        Text('Amount: Rs.${borrowRequest.amount}'),
-                        Text('Interest Rate: ${borrowRequest.interestRate}%'),
-                        Text(
-                            'Payback Period: ${borrowRequest.paybackPeriod} days'),
-                      ],
-                      showButton: true,
-                      buttonName: 'Invest',
-                      onPressed: () {
-                        // handle button press
-                        print(
-                            'Button pressed for request: ${borrowRequest.id}');
+                    return BlocBuilder<KhaltiPaymentBloc, KhaltiPaymentState>(
+                      builder: (context, state) {
+                        return CustomDetailsContainer(
+                          fields: [
+                            Text('Borrower : ${borrowRequest.fullName}'),
+                            Text('Purpose: ${borrowRequest.purpose}'),
+                            Text('Amount: Rs.${borrowRequest.amount}'),
+                            Text('Risk Factor: ${borrowRequest.riskFactor}'),
+                            Text('Risk: ${borrowRequest.risk}'),
+                            Text(
+                                'Interest Rate: ${borrowRequest.interestRate}%'),
+                            Text(
+                                'Payback Period: ${borrowRequest.paybackPeriod} days'),
+                          ],
+                          showButton: true,
+                          buttonName: 'Invest',
+                          onPressed: () {
+                            CustomDialogBox.showCustomDialogBox(
+                              context,
+                              'Invest in Borrow Request',
+                              'Investing is a high-risk activity and may result in loss of funds. Are you sure you want to proceed?',
+                              () {
+                                context.read<KhaltiPaymentBloc>().add(
+                                      KhaltiPaymentEventMakePayment(
+                                        context: context,
+                                        amount: borrowRequest.amount!,
+                                        productIdentity: borrowRequest.id!,
+                                        productName:
+                                            'Loan for: ${borrowRequest.id!}',
+                                      ),
+                                    );
+                                Navigator.of(context).pop();
+                              },
+                              buttonName: 'Invest',
+                            );
+                          },
+                        );
                       },
                     );
-                    // Column(
-                    //   children: [
-                    //     Text('Borrower : ${borrowRequest.borrower}'),
-                    //     Text('Purpose: ${borrowRequest.purpose}'),
-                    //     Text('Amount: Rs.${borrowRequest.amount}'),
-                    //     Text('Interest Rate: ${borrowRequest.interestRate}%'),
-                    //     Text(
-                    //         'Payback Period: ${borrowRequest.paybackPeriod} days'),
-                    //     const SizedBox(
-                    //       height: 10,
-                    //     ),
-                    //   ],
-                    // );
                   },
                 ),
               );
