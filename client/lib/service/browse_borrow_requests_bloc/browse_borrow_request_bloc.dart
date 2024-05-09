@@ -13,13 +13,20 @@ class BrowseBorrowRequestBloc
 
   BrowseBorrowRequestBloc(this._borrowRepository)
       : super(BrowseBorrowRequestStateInitial()) {
-    on<BrowseBorrowRequestEventLoadRequests>((event, emit) async {
-      try {
-        final borrowRequests = await _borrowRepository.fetchBorrowRequest();
-        emit(BrowseBorrowRequestStateLoaded(borrowRequests: borrowRequests));
-      } on Exception catch (e) {
-        emit(BrowseBorrowRequestStateError(e.toString()));
-      }
-    });
+    on<BrowseBorrowRequestEventLoadRequests>(
+      (event, emit) async {
+        try {
+          final borrowRequests = await _borrowRepository.fetchBorrowRequest();
+          emit(BrowseBorrowRequestStateLoaded(borrowRequests: borrowRequests));
+        } on Exception catch (e) {
+          emit(BrowseBorrowRequestStateError(e.toString()));
+        }
+      },
+    );
+    on<BrowseBorrowRequestEventResetRequests>(
+      (event, emit) {
+        emit(BrowseBorrowRequestStateInitial());
+      },
+    );
   }
 }
