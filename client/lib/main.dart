@@ -6,6 +6,7 @@ import 'package:udharo/config.dart';
 import 'package:udharo/data/repository/auth_repository.dart';
 import 'package:udharo/data/repository/borrow_repository.dart';
 import 'package:udharo/data/repository/user_repository.dart';
+import 'package:udharo/service/borrow_history_bloc/borrow_history_bloc.dart';
 import 'package:udharo/service/browse_borrow_requests_bloc/browse_borrow_request_bloc.dart';
 import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_bloc.dart';
 import 'package:udharo/service/khalti_payment_bloc/khalti_payment_bloc.dart';
@@ -67,6 +68,11 @@ class _MyAppState extends State<MyApp> {
         ),
         BlocProvider<BrowseBorrowRequestBloc>(
           create: (context) => BrowseBorrowRequestBloc(
+            BorrowRepository(),
+          ),
+        ),
+        BlocProvider<BorrowHistoryBloc>(
+          create: (context) => BorrowHistoryBloc(
             BorrowRepository(),
           ),
         ),

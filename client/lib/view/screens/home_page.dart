@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
-import 'package:udharo/view/screens/sign_in_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
+import 'package:udharo/view/widget/sign_out_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,10 +39,10 @@ class _HomePageState extends State<HomePage> {
                 ),
 
                 // this button is for testing purpose
-                TextButton(
-                  onPressed: () async {},
-                  child: const Text('Test'),
-                ),
+                // TextButton(
+                //   onPressed: () async {},
+                //   child: const Text('Test'),
+                // ),
               ],
             );
           } else if (state is ProfileStateError) {
@@ -71,23 +70,7 @@ class _HomePageState extends State<HomePage> {
           if (state is! ProfileStateError) {
             return const CustomBottomNavigationBar();
           } else {
-            return TextButton(
-              onPressed: () {
-                // sign out
-                SharedPreferences.getInstance().then(
-                  (prefs) {
-                    prefs.remove('token');
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignInScreen(),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: const Text('Sign Out'),
-            );
+            return SignOutButton().signOutButton(context);
           }
         },
       ),
