@@ -85,7 +85,7 @@ const browseBorrowRequests = async (req, res) => {
 const approveBorrowRequest = asyncHandler(async (req, res) => {
   try {
     // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findOne({ _id: req.params._id });
+    const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
 
     // if id not found
     if (!borrowRequest) {
