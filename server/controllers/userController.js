@@ -138,9 +138,22 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+/*
+  @desc Post Khalti payment details
+  @route POST /api/user/khaltiDetails
+  @access private
+*/
+const khaltiPaymentDetails = async (req, res) => {
+  res.json({
+    status: "Success",
+    message: "This is the khalti payment details post api",
+  });
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUnverifiedUsers,
   getUserProfile,
+  khaltiPaymentDetails,
 };

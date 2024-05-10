@@ -4,7 +4,7 @@ const {
   loginUser,
   getUnverifiedUsers,
   getUserProfile,
-  getUserDetails,
+  khaltiPaymentDetails,
 } = require("../controllers/userController");
 const authenticate = require("../middleware/verification");
 
@@ -17,5 +17,7 @@ router.post("/login", loginUser);
 router.get("/getUnverifiedUsers", getUnverifiedUsers);
 
 router.get("/profile", authenticate, getUserProfile);
+
+router.post("/khaltiDetails", khaltiPaymentDetails);
 
 module.exports = router;

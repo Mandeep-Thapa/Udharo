@@ -133,9 +133,9 @@ const getUserById = asyncHandler(async (req, res) => {
   }
 });
 
-const admin = (module.exports = {
+module.exports = {
   registerAdmin,
   loginAdmin,
   getAdminDetails,
   getUserById,
-});
+};
