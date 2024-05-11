@@ -9,7 +9,7 @@ import 'package:udharo/data/repository/user_repository.dart';
 import 'package:udharo/service/borrow_history_bloc/borrow_history_bloc.dart';
 import 'package:udharo/service/browse_borrow_requests_bloc/browse_borrow_request_bloc.dart';
 import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_bloc.dart';
-import 'package:udharo/service/khalti_payment_bloc/khalti_payment_bloc.dart';
+import 'package:udharo/service/payment_bloc/payment_bloc.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
@@ -76,8 +76,8 @@ class _MyAppState extends State<MyApp> {
             BorrowRepository(),
           ),
         ),
-        BlocProvider<KhaltiPaymentBloc>(
-          create: (context) => KhaltiPaymentBloc(
+        BlocProvider<PaymentBloc>(
+          create: (context) => PaymentBloc(
             BorrowRepository(),
           ),
         ),
