@@ -156,7 +156,6 @@ class BorrowRepository {
 
       if (response.statusCode == 200) {
         // success response
-        print('response: ${response.data}');
 
         return borrowHistoryModelFromJson(jsonEncode(response.data));
       } else {
