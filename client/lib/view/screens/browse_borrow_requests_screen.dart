@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/browse_borrow_requests_bloc/browse_borrow_request_bloc.dart';
-import 'package:udharo/service/khalti_payment_bloc/khalti_payment_bloc.dart';
+import 'package:udharo/service/payment_bloc/payment_bloc.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_details_container.dart';
 import 'package:udharo/view/widget/custom_dialog_box.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class BrowseBorrowRequestsPage extends StatefulWidget {
   const BrowseBorrowRequestsPage({super.key});
@@ -41,7 +42,31 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                   itemCount: borrowRequests.length,
                   itemBuilder: (context, index) {
                     final borrowRequest = borrowRequests[index];
-                    return BlocBuilder<KhaltiPaymentBloc, KhaltiPaymentState>(
+
+                    // payment bloc
+                    return BlocConsumer<PaymentBloc, PaymentState>(
+                      listener: (context, state) {
+                        if (state is PaymentStateKhaltiPaymentSuccess) {
+                          // khalti payment success, accept borrow request
+                          context.read<PaymentBloc>().add(
+                                PaymentEventAcceptBorrowRequest(
+                                  productIdentity: borrowRequest.id!,
+                                ),
+                              );
+                        }
+                        if (state is PaymentStateAcceptSuccess) {
+                          // accept borrow request success
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'Borrow request accepted successfully.',
+                          );
+
+                          // reset payment bloc
+                          context.read<PaymentBloc>().add(
+                                PaymentEventResetPayment(),
+                              );
+                        }
+                      },
                       builder: (context, state) {
                         return CustomDetailsContainer(
                           fields: [
@@ -63,8 +88,8 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                               'Invest in Borrow Request',
                               'Investing is a high-risk activity and may result in loss of funds. Are you sure you want to proceed?',
                               () {
-                                context.read<KhaltiPaymentBloc>().add(
-                                      KhaltiPaymentEventMakePayment(
+                                context.read<PaymentBloc>().add(
+                                      PaymentEventMakeKhaltiPayment(
                                         context: context,
                                         amount: borrowRequest.amount!,
                                         productIdentity: borrowRequest.id!,
