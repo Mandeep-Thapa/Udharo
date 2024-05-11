@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/view/screens/kyc_form_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/sign_out_button.dart';
 
@@ -31,11 +32,37 @@ class _HomePageState extends State<HomePage> {
               child: CircularProgressIndicator(),
             );
           } else if (state is ProfileStateLoaded) {
+            final user = state.user.data;
+            final isKycVerified = user?.isVerified?.isKycVerified ?? false;
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // warning message if the user is not KYC verified
+                (!isKycVerified)
+                    ? GestureDetector(
+                        onTap: () {
+                          // navigate to the KYC verification screen
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const KYCFormScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 30,
+                          // color: Colors.red,
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'Your KYC is not verified. Please verify your KYC.',
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+
                 // display user name
                 Text(
-                  'Hello ${state.user.data?.userName ?? 'User'}',
+                  'Hello ${user?.userName ?? 'User'}',
                 ),
 
                 // this button is for testing purpose

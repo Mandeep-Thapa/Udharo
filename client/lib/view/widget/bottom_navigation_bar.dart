@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:udharo/view/screens/browse_borrow_requests_screen.dart';
 import 'package:udharo/view/screens/create_borrow_request_page.dart';
 import 'package:udharo/view/screens/home_page.dart';
-import 'package:udharo/view/screens/profile_page.dart';
+import 'package:udharo/view/screens/settings_page.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   // final int currentIndex;
@@ -64,7 +64,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProfilePage(),
+                  builder: (context) => const SettingsPage(),
                 ),
               );
             },
