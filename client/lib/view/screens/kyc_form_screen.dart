@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:udharo/data/repository/kyc_repository.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_image_selector_button.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class KYCFormScreen extends StatefulWidget {
   const KYCFormScreen({super.key});
@@ -121,9 +123,29 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
 
                 // submit button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formField.currentState!.validate()) {
+                      if (_citizenshipBackPhoto == null ||
+                          _citizenshipFrontPhoto == null ||
+                          _passportSizePhoto == null) {
+                        CustomToast().showToast(
+                          context: context,
+                          message: 'Please upload all the required photos',
+                        );
+                        return;
+                      }
                       // submit the form
+                      await KYCRepository().uploadKYC(
+                        firstName: _firstNameController.text,
+                        lastName: _lastNameController.text,
+                        gender: _selectedGender!,
+                        citizenshipNumber:
+                            _citizenshipNumberController.text.toString(),
+                        panNumber: _panNumberController.text.toString(),
+                        citizenshipFrontPhoto: _citizenshipFrontPhoto!,
+                        citizenshipBackPhoto: _citizenshipBackPhoto!,
+                        passportSizePhoto: _passportSizePhoto!,
+                      );
                     }
                   },
                   child: const Text('Submit'),
@@ -231,7 +253,7 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
 
   TextFormField panNumberFormField() {
     return TextFormField(
-      controller: _citizenshipNumberController,
+      controller: _panNumberController,
       keyboardType: TextInputType.number,
       decoration: const InputDecoration(
         labelText: 'Pan Number',
@@ -254,11 +276,11 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
     );
   }
 
-  Column imageFormField(
+  Stack imageFormField(
     File? image,
     String label,
   ) {
-    return Column(
+    return Stack(
       children: [
         if (image != null) Image.file(image),
         CustomImageSelectionButton(
