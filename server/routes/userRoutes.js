@@ -18,6 +18,6 @@ router.get("/getUnverifiedUsers", getUnverifiedUsers);
 
 router.get("/profile", authenticate, getUserProfile);
 
-router.post("/khaltiDetails", khaltiPaymentDetails);
+router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
 
 module.exports = router;

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/registrationModel");
 require("dotenv").config();
+const transaction = require("../models/khaltiPaymentModel");
 
 /*
   @desc Register a user
@@ -144,10 +145,38 @@ const getUserProfile = asyncHandler(async (req, res) => {
   @access private
 */
 const khaltiPaymentDetails = async (req, res) => {
-  res.json({
-    status: "Success",
-    message: "This is the khalti payment details post api",
-  });
+  try {
+    const {
+      idx,
+      amount,
+      mobile,
+      product_identity,
+      product_name,
+      product_url,
+      token,
+    } = req.body;
+
+    const transction = new Transaction({
+      idx,
+      amount,
+      mobile,
+      product_identity,
+      product_name,
+      product_url,
+      token,
+    });
+
+    await transaction.save();
+
+    res.status(200).json({
+      message: "Khalti payment details saved successfully",
+      transaction,
+    });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error in saving khalti payment details", error });
+  }
 };
 
 module.exports = {
