@@ -6,7 +6,7 @@ import 'package:udharo/config.dart';
 import 'package:http_parser/http_parser.dart';
 
 class KYCRepository {
-  Future<void> uploadKYC({
+  Future<String> uploadKYC({
     required String firstName,
     required String lastName,
     required String gender,
@@ -78,11 +78,11 @@ class KYCRepository {
       );
 
       // print('response status code: ${response.statusCode}');
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
+        // success response
         print('response: ${response.data}');
 
-        return;
-        // success response
+        return 'success';
       } else {
         // handle error response
         if (response.data['message'] != null) {
@@ -103,11 +103,65 @@ class KYCRepository {
           throw Exception(e.response!.data['message']);
         }
       }
+      throw Exception('Error uploading KYC');
       // generic error message
     } catch (e) {
       // handle other exceptions
       // print('dio error: $e');
       throw Exception('Error uploading KYC');
+    }
+  }
+
+  // view KYC history
+  Future<void> fetchKYC() async {
+    String url = '${Config.baseUrl}/kyc/viewKyc';
+
+    Dio dio = Dio();
+
+    // get token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    // api call
+    try {
+      Response response = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // success response
+        print('response: ${response.data}');
+      } else {
+        // handle error response
+        if (response.data['message'] != null) {
+          // print('error message: ${response.data['message']}');
+          throw Exception(response.data['message']);
+        } else {
+          // generic error message
+          // print('error innit');
+          throw Exception('Error fetching KYC');
+        }
+      }
+    } on DioException catch (e) {
+      // handle DioException
+      if (e.response != null && e.response!.data != null) {
+        // handle specific error message from the server
+        if (e.response!.data['message'] != null) {
+          // print('dio error message: ${e.response!.data['message']}');
+          throw Exception(e.response!.data['message']);
+        }
+      }
+      throw Exception('Error fetching KYC');
+      // generic error message
+    } catch (e) {
+      // handle other exceptions
+      // print('dio error: $e');
+      throw Exception('Error fetching KYC: $e');
     }
   }
 }

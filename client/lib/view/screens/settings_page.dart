@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:udharo/view/screens/borrow_history_screen.dart';
 import 'package:udharo/view/screens/kyc_form_screen.dart';
+import 'package:udharo/view/screens/view_kyc_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/sign_out_button.dart';
 
@@ -40,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const SizedBox(height: 20),
 
-          // kyc page
+          // upload kyc page
           GestureDetector(
             onTap: () {
               // navigate to history page
@@ -52,6 +53,22 @@ class _SettingsPageState extends State<SettingsPage> {
               );
             },
             child: const Text('KYC Verification'),
+          ),
+
+          const SizedBox(height: 20),
+
+          // view KYC page
+          GestureDetector(
+            onTap: () {
+              // navigate to history page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ViewKYCScreen(),
+                ),
+              );
+            },
+            child: const Text('View KYC'),
           ),
         ],
       ),

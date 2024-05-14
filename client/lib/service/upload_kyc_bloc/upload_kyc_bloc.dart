@@ -13,7 +13,9 @@ class UploadKycBloc extends Bloc<UploadKycEvent, UploadKycState> {
   UploadKycBloc(this._kycRepository) : super(UploadKycStateInitial()) {
     on<UploadKycEventSubmitKYC>((event, emit) async {
       try {
-        _kycRepository.uploadKYC(
+        emit(UploadKycStateLoading());
+
+        final response = await _kycRepository.uploadKYC(
           firstName: event.firstName,
           lastName: event.lastName,
           gender: event.gender,
@@ -23,7 +25,13 @@ class UploadKycBloc extends Bloc<UploadKycEvent, UploadKycState> {
           passportSizePhoto: event.passportSizePhoto,
           panNumber: event.panNumber,
         );
-        emit(UploadKycStateSuccess());
+        if (response == 'success') {
+          emit(UploadKycStateSuccess());
+          return;
+        } else {
+          emit(UploadKycStateError(response.toString()));
+          return;
+        }
       } on Exception catch (e) {
         emit(UploadKycStateError(e.toString()));
       }

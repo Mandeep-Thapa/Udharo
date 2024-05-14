@@ -15,6 +15,7 @@ import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
 import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/screens/sign_up_screen.dart';
 
@@ -85,6 +86,11 @@ class _MyAppState extends State<MyApp> {
         ),
         BlocProvider<UploadKycBloc>(
           create: (context) => UploadKycBloc(
+            KYCRepository(),
+          ),
+        ),
+        BlocProvider<ViewKycBloc>(
+          create: (context) => ViewKycBloc(
             KYCRepository(),
           ),
         ),

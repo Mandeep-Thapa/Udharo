@@ -12,3 +12,5 @@ final class UploadKycStateError extends UploadKycState {
 
   UploadKycStateError(this.message);
 }
+
+final class UploadKycStateLoading extends UploadKycState {}
