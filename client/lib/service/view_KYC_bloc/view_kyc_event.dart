@@ -9,3 +9,5 @@ sealed class ViewKycEvent extends Equatable {
 }
 
 class ViewKycEventLoadKYC extends ViewKycEvent {}
+
+class ViewKycEventResetKYC extends ViewKycEvent {}
