@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/config.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:udharo/data/model/view_kyc_model.dart';
 
 class KYCRepository {
   Future<String> uploadKYC({
@@ -113,7 +114,7 @@ class KYCRepository {
   }
 
   // view KYC history
-  Future<void> fetchKYC() async {
+  Future<ViewKycModel> fetchKYC() async {
     String url = '${Config.baseUrl}/kyc/viewKyc';
 
     Dio dio = Dio();
@@ -135,7 +136,8 @@ class KYCRepository {
 
       if (response.statusCode == 200) {
         // success response
-        print('response: ${response.data}');
+        // print('response: ${response.data}');
+        return ViewKycModel.fromJson(response.data);
       } else {
         // handle error response
         if (response.data['message'] != null) {

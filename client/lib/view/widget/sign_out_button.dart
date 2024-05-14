@@ -23,6 +23,10 @@ class SignOutButton {
           LoginEventResetLogin(),
         );
 
+        BlocProvider.of<LoginBloc>(context).add(
+          LoginEventResetLogin(),
+        );
+
         // remove token from shared preference and navigate to login screen
         SharedPreferences.getInstance().then(
           (prefs) {
