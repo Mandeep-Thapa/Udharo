@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:udharo/view/screens/borrow_history_screen.dart';
 import 'package:udharo/view/screens/kyc_form_screen.dart';
+import 'package:udharo/view/screens/profile_screen.dart';
 import 'package:udharo/view/screens/view_kyc_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/sign_out_button.dart';
@@ -24,6 +25,22 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           // sign out button
           SignOutButton().signOutButton(context),
+
+          // view profile page
+          GestureDetector(
+            onTap: () {
+              // navigate to history page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+              );
+            },
+            child: const Text('View Profile'),
+          ),
+
+          const SizedBox(height: 20),
 
           // history page
           GestureDetector(

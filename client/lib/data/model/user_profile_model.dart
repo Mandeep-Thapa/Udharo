@@ -33,6 +33,7 @@ class Data {
   String? email;
   IsVerified? isVerified;
   int? riskFactor;
+  String? risk;
 
   Data({
     this.userName,
@@ -40,6 +41,7 @@ class Data {
     this.email,
     this.isVerified,
     this.riskFactor,
+    this.risk,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -50,6 +52,7 @@ class Data {
             ? null
             : IsVerified.fromJson(json["isVerified"]),
         riskFactor: json["riskFactor"],
+        risk: mapRisk(json["riskFactor"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +62,22 @@ class Data {
         "isVerified": isVerified?.toJson(),
         "riskFactor": riskFactor,
       };
+
+  static String mapRisk(int? riskFactor) {
+    if (riskFactor == 1) {
+      return 'Very High';
+    } else if (riskFactor == 2) {
+      return 'High';
+    } else if (riskFactor == 3) {
+      return 'Moderately High';
+    } else if (riskFactor == 4) {
+      return 'Low';
+    } else if (riskFactor == 5) {
+      return 'Very Low';
+    } else {
+      return 'Unknown';
+    }
+  }
 }
 
 class IsVerified {
