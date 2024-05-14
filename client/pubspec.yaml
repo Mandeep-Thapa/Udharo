@@ -43,6 +43,9 @@ dependencies:
   khalti: ^2.0.0
   khalti_flutter: ^3.0.0
   image_picker: ^1.1.1
+  flutter_cache_manager: ^3.3.2
+  cached_network_image: ^3.3.1
+  http_parser: any
 
 dev_dependencies:
   flutter_test:

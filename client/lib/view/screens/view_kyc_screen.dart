@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_details_container.dart';
+import 'package:udharo/view/widget/custom_image_with_label.dart';
 
 class ViewKYCScreen extends StatefulWidget {
   const ViewKYCScreen({super.key});
@@ -42,17 +43,40 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
             final kyc = kycModel.data;
             if (kyc == null) {
               return const Center(
-                child: Text('No KYC history found.'),
+                child: Text('No KYC found.'),
               );
             } else {
-              return CustomDetailsContainer(
-                fields: [
-                  Text('First Name : ${kyc.firstName}'),
-                  Text('Last Name: ${kyc.lastName}'),
-                  Text('Gender: ${kyc.gender}'),
-                  Text('Citizenship Number: ${kyc.citizenshipNumber}'),
-                  Text('Pan Number: ${kyc.panNumber}'),
-                ],
+              return SingleChildScrollView(
+                child: CustomDetailsContainer(
+                  fields: [
+                    Text('First Name : ${kyc.firstName}'),
+                    Text('Last Name: ${kyc.lastName}'),
+                    Text('Gender: ${kyc.gender}'),
+                    Text('Citizenship Number: ${kyc.citizenshipNumber}'),
+                    Text('Pan Number: ${kyc.panNumber ?? 'N/A'}'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomImagewithLabel(
+                            label: 'Citizenship Back',
+                            imageUrl: kyc.citizenshipBackPhoto ?? '',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: CustomImagewithLabel(
+                            label: 'Citizenship Front',
+                            imageUrl: kyc.citizenshipFrontPhoto ?? '',
+                          ),
+                        ),
+                      ],
+                    ),
+                    CustomImagewithLabel(
+                      label: 'Photo',
+                      imageUrl: kyc.photo ?? '',
+                    ),
+                  ],
+                ),
               );
             }
           } else {

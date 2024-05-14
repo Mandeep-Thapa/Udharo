@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/service/borrow_history_bloc/borrow_history_bloc.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/view/screens/sign_in_screen.dart';
 
 class SignOutButton {
@@ -23,8 +24,8 @@ class SignOutButton {
           LoginEventResetLogin(),
         );
 
-        BlocProvider.of<LoginBloc>(context).add(
-          LoginEventResetLogin(),
+        BlocProvider.of<ViewKycBloc>(context).add(
+          ViewKycEventResetKYC(),
         );
 
         // remove token from shared preference and navigate to login screen

@@ -21,9 +21,9 @@ class KYCRepository {
 
     Dio dio = Dio();
 
-    print(
-      'received data: $firstName, $lastName, $citizenshipNumber, $panNumber, $citizenshipFrontPhoto, $citizenshipBackPhoto, $passportSizePhoto',
-    );
+    // print(
+    //   'received data: $firstName, $lastName, $citizenshipNumber, $panNumber, $citizenshipFrontPhoto, $citizenshipBackPhoto, $passportSizePhoto',
+    // );
 
     // print('type of: ${passportSizePhoto.runtimeType}');
 
@@ -64,7 +64,7 @@ class KYCRepository {
     );
 
 // api call
-    print('sending request to $url with body: ${data.fields}');
+    // print('sending request to $url with body: ${data.fields}');
 
     try {
       Response response = await dio.post(
@@ -81,7 +81,7 @@ class KYCRepository {
       // print('response status code: ${response.statusCode}');
       if (response.statusCode == 201) {
         // success response
-        print('response: ${response.data}');
+        // print('response: ${response.data}');
 
         return 'success';
       } else {
