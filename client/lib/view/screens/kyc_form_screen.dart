@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_image_selector_button.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class KYCFormScreen extends StatefulWidget {
   const KYCFormScreen({super.key});
@@ -120,13 +123,65 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
                 const SizedBox(height: 20),
 
                 // submit button
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formField.currentState!.validate()) {
-                      // submit the form
+                BlocConsumer<UploadKycBloc, UploadKycState>(
+                  listener: (context, state) {
+                    if (state is UploadKycStateLoading) {
+                      CustomToast().showToast(
+                        context: context,
+                        message: 'Submitting KYC...',
+                      );
+                    }
+                    if (state is UploadKycStateSuccess) {
+                      CustomToast().showToast(
+                        context: context,
+                        message: 'KYC submitted successfully',
+                      );
+                    } else if (state is UploadKycStateError) {
+                      CustomToast().showToast(
+                        context: context,
+                        message: 'KYC submission failed: ${state.message}',
+                      );
                     }
                   },
-                  child: const Text('Submit'),
+                  builder: (context, state) {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (_formField.currentState!.validate()) {
+                          if (_citizenshipBackPhoto == null ||
+                              _citizenshipFrontPhoto == null ||
+                              _passportSizePhoto == null) {
+                            CustomToast().showToast(
+                              context: context,
+                              message: 'Please upload all the required photos',
+                            );
+                            return;
+                          }
+
+                          // form is valid
+                          // submit the form
+
+                          context
+                              .read<UploadKycBloc>()
+                              .add(UploadKycEventSubmitKYC(
+                                firstName: _firstNameController.text,
+                                lastName: _lastNameController.text,
+                                gender: _selectedGender!,
+                                citizenshipNumber: _citizenshipNumberController
+                                    .text
+                                    .toString(),
+                                panNumber:
+                                    (_panNumberController.text.isNotEmpty)
+                                        ? _panNumberController.text.toString()
+                                        : null,
+                                citizenshipFrontPhoto: _citizenshipFrontPhoto!,
+                                citizenshipBackPhoto: _citizenshipBackPhoto!,
+                                passportSizePhoto: _passportSizePhoto!,
+                              ));
+                        }
+                      },
+                      child: const Text('Submit'),
+                    );
+                  },
                 ),
               ],
             ),
@@ -231,7 +286,7 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
 
   TextFormField panNumberFormField() {
     return TextFormField(
-      controller: _citizenshipNumberController,
+      controller: _panNumberController,
       keyboardType: TextInputType.number,
       decoration: const InputDecoration(
         labelText: 'Pan Number',
@@ -254,11 +309,11 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
     );
   }
 
-  Column imageFormField(
+  Stack imageFormField(
     File? image,
     String label,
   ) {
-    return Column(
+    return Stack(
       children: [
         if (image != null) Image.file(image),
         CustomImageSelectionButton(

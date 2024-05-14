@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/config.dart';
 import 'package:udharo/data/repository/auth_repository.dart';
 import 'package:udharo/data/repository/borrow_repository.dart';
+import 'package:udharo/data/repository/kyc_repository.dart';
 import 'package:udharo/data/repository/user_repository.dart';
 import 'package:udharo/service/borrow_history_bloc/borrow_history_bloc.dart';
 import 'package:udharo/service/browse_borrow_requests_bloc/browse_borrow_request_bloc.dart';
@@ -12,7 +13,9 @@ import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_
 import 'package:udharo/service/payment_bloc/payment_bloc.dart';
 import 'package:udharo/service/login_bloc/login_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
+import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/screens/sign_up_screen.dart';
 
@@ -79,6 +82,16 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<PaymentBloc>(
           create: (context) => PaymentBloc(
             BorrowRepository(),
+          ),
+        ),
+        BlocProvider<UploadKycBloc>(
+          create: (context) => UploadKycBloc(
+            KYCRepository(),
+          ),
+        ),
+        BlocProvider<ViewKycBloc>(
+          create: (context) => ViewKycBloc(
+            KYCRepository(),
           ),
         ),
       ],
