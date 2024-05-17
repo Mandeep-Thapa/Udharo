@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
+const { updateMoneyInvested } = require("../utils/userMethods");
 
 /*
   @desc Register an admin
@@ -105,12 +106,34 @@ const getAdminDetails = asyncHandler(async (req, res) => {
 });
 
 /*
+  @desc Get all users
+  @route GET /api/admin/allUsers
+  @access Private
+*/
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, "fullName email riskFactor");
+
+    res.status(200).json({
+      status: "Success",
+      message: users,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failure",
+      message: "Failed to fetch users",
+      error,
+    });
+  }
+};
+
+/*
   @desc Get user details
   @route GET /api/admin/userdetails/:id
   @access Private
 */
 
-const getUserById = asyncHandler(async (req, res) => {
+const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 
@@ -126,16 +149,32 @@ const getUserById = asyncHandler(async (req, res) => {
         email: user.email,
         isVerified: user.is_verified,
         riskFactor: user.riskFactor,
+        riskFactorDetails: user.riskFactorDetails,
+        moneyInvestedDetails: user.moneyInvestedDetails,
+        timelyRepaymentDetails: user.timelyRepaymentDetails,
+        lateRepaymentDetails: user.lateRepaymentDetails,
       },
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
-});
+};
+
+/*
+  @desc Get KYC details from user
+  @route GET /api/admin/kycdetails/:id
+  @access Private
+*/
+
+const getKycDetailsFromUser = async (req, res) => {
+  res.send("Get KYC details from user");
+};
 
 module.exports = {
   registerAdmin,
   loginAdmin,
   getAdminDetails,
   getUserById,
+  getKycDetailsFromUser,
+  getAllUsers,
 };
