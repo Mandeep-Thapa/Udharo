@@ -1,9 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
-require("dotenv").config();
 const transaction = require("../models/khaltiPaymentModel");
+require("dotenv").config();
 
 /*
   @desc Register a user
@@ -99,6 +100,91 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 /*
+@desc Send verification email
+@route POST /api/user/sendVerificationEmail
+@access Public
+*/
+
+const sendVerificationEmail = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const token = jwt.sign(
+      { email: user.email, userId: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Account Verification",
+      html: `<h2>Click on the link below to verify your account</h2>
+<p>${process.env.BACKEND_URL}/api/user/verify-email/${token}</p>`,
+    };
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "Verification email sent successfully" });
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+const verifyEmail = asyncHandler(async (req, res) => {
+  try {
+    console.log("Request params:", req.params);
+
+    let { token } = req.params;
+    console.log("Token received:", token);
+    token = token.trim();
+    if (!token) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log("Decoded token:", decodedToken);
+
+    const { userId } = decodedToken;
+    console.log("User ID from token:", userId);
+
+    const user = await User.findById(userId);
+    console.log("User found:", user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.is_emailVerified) {
+      console.log("Email already verified");
+      return res.status(400).json({ message: "Email already verified" });
+    }
+
+    user.is_verifiedDetails.is_emailVerified = true;
+    await user.save();
+    console.log("User updated to verified:", user);
+
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/*
   @desc Get all unverified users user
   @route GET /api/user/unverified
   @access Public
@@ -156,16 +242,6 @@ const khaltiPaymentDetails = async (req, res) => {
       token,
     } = req.body;
 
-    const transction = new Transaction({
-      idx,
-      amount,
-      mobile,
-      product_identity,
-      product_name,
-      product_url,
-      token,
-    });
-
     await transaction.save();
 
     res.status(200).json({
@@ -185,4 +261,6 @@ module.exports = {
   getUnverifiedUsers,
   getUserProfile,
   khaltiPaymentDetails,
+  sendVerificationEmail,
+  verifyEmail,
 };
