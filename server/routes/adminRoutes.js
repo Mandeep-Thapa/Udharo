@@ -7,6 +7,8 @@ const {
   loginAdmin,
   getAdminDetails,
   getUserById,
+  getKycDetailsFromUser,
+  getAllUsers,
 } = require("../controllers/adminController");
 const authenticate = require("../middleware/adminVerification");
 
@@ -16,6 +18,10 @@ router.post("/login", loginAdmin);
 
 router.get("/admindetails", authenticate, getAdminDetails);
 
+router.get("/allUsers", authenticate, getAllUsers);
+
 router.get("/userdetails/:id", authenticate, getUserById);
+
+router.get("/kycDetails/:id", authenticate, getKycDetailsFromUser);
 
 module.exports = router;
