@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
+const Kyc = require("../models/kycModel");
 const { updateMoneyInvested } = require("../utils/userMethods");
 
 /*
@@ -165,9 +166,28 @@ const getUserById = async (req, res) => {
   @route GET /api/admin/kycdetails/:id
   @access Private
 */
-
 const getKycDetailsFromUser = async (req, res) => {
-  res.send("Get KYC details from user");
+  try {
+    const viewKyc = await Kyc.findOne({ userId: req.params.id });
+
+    if (!viewKyc) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "KYC not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "Success",
+      messgae: viewKyc,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Failed to get kyc details",
+      error: error.message,
+    });
+  }
 };
 
 module.exports = {
