@@ -241,7 +241,7 @@ const khaltiPaymentDetails = async (req, res) => {
         headers: {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json",
-          Authorization: `Key 961d3709d93642eea5d4166603c7b601`,
+          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
           "User-Agemt": "axios/1.6.8",
           "Content-Length": "519",
           "Accept-Encoding": "gzip,compress, deflate, br ",
