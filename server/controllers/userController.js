@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
-const transaction = require("../models/khaltiPaymentModel");
+const axios = require("axios");
 require("dotenv").config();
 
 /*
@@ -99,10 +99,10 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-/*
-@desc Send verification email
-@route POST /api/user/sendVerificationEmail
-@access Public
+/*  
+  @desc Send verification email
+  @route POST /api/user/sendVerificationEmail
+  @access Public
 */
 
 const sendVerificationEmail = asyncHandler(async (req, res) => {
@@ -232,26 +232,37 @@ const getUserProfile = asyncHandler(async (req, res) => {
 */
 const khaltiPaymentDetails = async (req, res) => {
   try {
-    const {
-      idx,
-      amount,
-      mobile,
-      product_identity,
-      product_name,
-      product_url,
-      token,
-    } = req.body;
+    const payload = req.body;
 
-    await transaction.save();
+    const khaltiResponse = await axios.post(
+      "https://a.khalti.com/api/v2/epayment/initiate/",
+      payload,
+      {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          Authorization: `Key 961d3709d93642eea5d4166603c7b601`,
+          "User-Agemt": "axios/1.6.8",
+          "Content-Length": "519",
+          "Accept-Encoding": "gzip,compress, deflate, br ",
+        },
+      }
+    );
+
+    console.log(khaltiResponse.data);
 
     res.status(200).json({
-      message: "Khalti payment details saved successfully",
-      transaction,
+      status: "Success",
+      message: "Khalti payment details retrived successfully",
+      data: khaltiResponse.data,
     });
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Error in saving khalti payment details", error });
+    res.status(400).json({
+      status: "Failed",
+      message: "Error in khalti payment details",
+      error: error.message,
+    });
+    console.log(error);
   }
 };
 
