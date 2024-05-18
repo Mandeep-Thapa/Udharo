@@ -113,7 +113,7 @@ const getAdminDetails = asyncHandler(async (req, res) => {
 const getUserById = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-
+console.log(user);
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
