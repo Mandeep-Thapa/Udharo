@@ -20,10 +20,10 @@ router.get("/getUnverifiedUsers", getUnverifiedUsers);
 
 router.get("/profile", authenticate, getUserProfile);
 
-router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
-
 router.post("/send-verification-email", sendVerificationEmail);
 
 router.get("/verify-email/:token", verifyEmail);
+
+router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
 
 module.exports = router;
