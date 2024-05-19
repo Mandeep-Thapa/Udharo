@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import Navigationwrap from '../../components/Navigationwrap'
 import axios from 'axios';
 import { MdDelete } from "react-icons/md";
+import { useNavigate } from 'react-router-dom';
 
 interface User{
-  id: number;
+  _id: number;
   fullName: string;
   email: string;
   riskFactor: number;
@@ -13,6 +14,7 @@ const AllUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 useEffect(() => {
   let isMounted = true;
 
@@ -57,6 +59,11 @@ useEffect(() => {
   };
 }, []);
 
+const handleUserClick = (_id: number) => {
+  console.log('Navigating to user details with id:', _id);
+  navigate(`/userdetails/${_id}`);
+}
+
   return (
     <>
     <Navigationwrap>
@@ -71,7 +78,8 @@ useEffect(() => {
       <ul>
         <div className="grid grid-cols-2">
         {users.map(user => (
-          <div className="border-2 m-2 p-2 rounded-md border-yellow-500 flex justify-between items-center" key={user.id}>
+          <div className="border-2 m-2 p-2 rounded-md border-orange-300 flex justify-between items-center hover:cursor-pointer transition duration-300 ease-in-out hover:bg-orange-300" key={user._id}
+          onClick={() => handleUserClick(user._id)} >
             <div className="">
           <p className='font-bold'>{user.fullName.charAt(0).toUpperCase() + user.fullName.slice(1)}</p>
           <p className=''>{user.email}</p>
@@ -92,49 +100,3 @@ useEffect(() => {
 };
 
 export default AllUsers;
-
-// import React, { useState, useEffect } from 'react';
-// import axios, { AxiosResponse } from 'axios';
-
-// interface User {
-//   id: number;
-//   firstName: string;
-//   // Add other properties as needed
-// }
-
-// const MyComponent: React.FC = () => {
-//   // Define state to store the fetched data
-//   const [userData, setUserData] = useState<User[] | null>(null);
-
-//   // Use useEffect to fetch data when the component mounts
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const response: AxiosResponse<User[]> = await axios.get('http://localhost:3004/api/admin/allUsers');
-//         setUserData(response.data);
-//       } catch (error) {
-//         console.error('Error fetching data:', error);
-//       }
-//     };
-
-//     fetchData(); // Call the async function
-//   }, []); // Empty dependency array ensures useEffect runs only once on mount
-
-//   // Render the fetched data
-//   return (
-//     <div>
-//       <h1>User Data</h1>
-//       {userData ? (
-//         <ul>
-//           {userData.map(user => (
-//             <li key={user.id}>{user.firstName}</li>
-//           ))}
-//         </ul>
-//       ) : (
-//         <p>Loading...</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default MyComponent;
