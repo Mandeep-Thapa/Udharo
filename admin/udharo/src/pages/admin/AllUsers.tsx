@@ -3,7 +3,6 @@ import Navigationwrap from '../../components/Navigationwrap'
 import axios from 'axios';
 import { MdDelete } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-
 interface User{
   _id: number;
   fullName: string;
@@ -73,8 +72,15 @@ const handleUserClick = (_id: number) => {
       <h1 className='font-bold text-3xl mx-3'>All Users</h1>
       {error && <p className="error">{error}</p>}
       {loading ? (
-          <p>Loading...</p>
-        ) : (
+            <div className="flex justify-center mt-20 h-screen">
+              <div className="newtons-cradle">
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+              </div>
+            </div>
+          ) : (
       <ul>
         <div className="grid grid-cols-2">
         {users.map(user => (

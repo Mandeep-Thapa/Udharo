@@ -65,7 +65,14 @@ const UserDetails: React.FC = () => {
   }, [_id]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>  <div className="flex justify-center mt-20 h-screen">
+              <div className="newtons-cradle">
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+              </div>
+            </div></p>;
   }
 
   if (error) {

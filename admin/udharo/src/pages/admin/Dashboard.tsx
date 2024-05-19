@@ -17,6 +17,7 @@ const Dashboard: React.FC = () => {
    const [adminDetails, setAdminDetails] = useState<AdminDetails | null>(null);
    // const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
    // const { id } = useParams<{ id: string }>();
+   const [loading, setLoading] = useState<boolean>(true);
    const navigate = useNavigate();
 
    useEffect(() => {
@@ -29,12 +30,14 @@ const Dashboard: React.FC = () => {
             }
             });
             setAdminDetails(response.data);
+            setLoading(false);
 
             if(!response.data){
                navigate('/')
             }
          }catch{
             console.log("Error fetching admin details:", Error);
+            setLoading(false);
          }
       };
       fetchAdminDetails();
@@ -66,11 +69,22 @@ const Dashboard: React.FC = () => {
       <div className=" mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
          <h1 className='text-3xl font-bold'></h1>
          {
+            loading ? (
+               <div className="flex justify-center mt-10 h-screen">
+                  <div className="newtons-cradle">
+                     <div className="newtons-cradle__dot"></div>
+                     <div className="newtons-cradle__dot"></div>
+                     <div className="newtons-cradle__dot"></div>
+                     <div className="newtons-cradle__dot"></div>
+                  </div>
+               </div>
+            ) : (
             adminDetails && (
                <div className="text-xl font-bold flex flex-wrap">
                   <div className='border rounded-md flex p-3 justify-start items-center mt-2'><span className='mx-3'>Admin:</span> {adminDetails.email}</div>
                </div>
             )
+         )
          }
 <div className="rounded-lg grid xs:grid-cols-1 md:grid-cols-3 m-4">
    <a href="/users">
