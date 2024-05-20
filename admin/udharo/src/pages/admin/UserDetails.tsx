@@ -64,16 +64,6 @@ const UserDetails: React.FC = () => {
     fetchUserDetails();
   }, [_id]);
 
-  if (loading) {
-    return <p>  <div className="flex justify-center mt-20 h-screen">
-              <div className="newtons-cradle">
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-              </div>
-            </div></p>;
-  }
 
   if (error) {
     return <p className="error">{error}</p>;
@@ -83,7 +73,18 @@ const UserDetails: React.FC = () => {
    <Navigationwrap>
     <div className="mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
       <h1 className='font-bold text-3xl mx-3'>User Details</h1>
-      {userDetails && (
+
+      {loading ? (
+          <div className="flex justify-center mt-20 h-screen">
+            <div className="newtons-cradle">
+              <div className="newtons-cradle__dot"></div>
+              <div className="newtons-cradle__dot"></div>
+              <div className="newtons-cradle__dot"></div>
+              <div className="newtons-cradle__dot"></div>
+            </div>
+          </div>
+        ) : (
+      userDetails && (
       <div className="mt-3 m-2 p-2 rounded-md flex justify-center items-start flex-col w-[700px] border border-orange-300" key={_id}>
       <table className="w-full border-collapse">
         <tbody>
@@ -130,7 +131,7 @@ const UserDetails: React.FC = () => {
         </tbody>
       </table>
     </div>
-    
+      )
       )}
     </div>
     </Navigationwrap>

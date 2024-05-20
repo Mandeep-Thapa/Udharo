@@ -6,6 +6,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Protected from "./components/Protected";
 import AllUsers from "./pages/admin/AllUsers";
 import UserDetails from "./pages/admin/UserDetails";
+import KycDetails from "./pages/admin/KycDetails";
 
 const MyRoutes = () => {
   
@@ -18,6 +19,7 @@ const MyRoutes = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<AllUsers />} />
           <Route path="/userdetails/:_id" element={<UserDetails />} />
+          <Route path="/kycdetails/:_id" element={<KycDetails />} />
         </Route>
         
        

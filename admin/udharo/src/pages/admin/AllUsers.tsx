@@ -58,9 +58,13 @@ useEffect(() => {
   };
 }, []);
 
-const handleUserClick = (_id: number) => {
+const handleUserDetailsClick = (_id: number) => {
   console.log('Navigating to user details with id:', _id);
   navigate(`/userdetails/${_id}`);
+}
+const handleKycDetailsClick = (_id: number) => {
+  console.log('Navigating to Kyc details with id:', _id);
+  navigate(`/kycdetails/${_id}`);
 }
 
   return (
@@ -84,15 +88,19 @@ const handleUserClick = (_id: number) => {
       <ul>
         <div className="grid grid-cols-2">
         {users.map(user => (
-          <div className="border-2 m-2 p-2 rounded-md border-orange-300 flex justify-between items-center hover:cursor-pointer transition duration-300 ease-in-out hover:bg-orange-300" key={user._id}
-          onClick={() => handleUserClick(user._id)} >
+          <div className="border-2 m-2 p-2 rounded-md border-orange-300 shadow-md flex justify-between items-center hover:cursor-pointer transition duration-300 ease-in-out" key={user._id}
+          >
             <div className="">
-          <p className='font-bold'>{user.fullName.charAt(0).toUpperCase() + user.fullName.slice(1)}</p>
-          <p className=''>{user.email}</p>
-          <p className=''>Risk Factor - {user.riskFactor}</p>
+          <p className='p-2 font-bold'>{user.fullName.charAt(0).toUpperCase() + user.fullName.slice(1)}</p>
+          <p className='p-2 '>{user.email}</p>
+          <p className='p-2 '>Risk Factor - {user.riskFactor}</p>
           </div>
-          <div className="">
+          <div className="flex flex-col">
+          <div className=""><button className='border border-orange-300 rounded-md p-2 m-2 hover:bg-orange-300 transition duration-500 '  onClick={() => handleUserDetailsClick(user._id)}>User Details</button></div>
+          <div className=""><button className='border border-orange-300 rounded-md p-2 m-2 hover:bg-orange-300 transition duration-500'  onClick={() => handleKycDetailsClick(user._id)}>KYC Details</button></div>
+          <div className="flex justify-center">
             <button className='bg-red-400 rounded-full hover:transition duration-700 text-2xl hover:bg-red-600 m-1 p-2 text-white font-bold'><MdDelete /></button>
+          </div>
           </div>
           </div>
         ))}
