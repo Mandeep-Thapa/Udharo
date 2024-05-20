@@ -266,6 +266,41 @@ const khaltiPaymentDetails = async (req, res) => {
   }
 };
 
+/*
+  @desc Khalti payment verification
+  @route POST /api/user/khaltiPaymentVerification
+  @access private
+*/
+const paymentVerification = async (req, res) => {
+  try {
+    const payload = {
+      token: req.body.token,
+      amount: req.body.amount,
+    };
+
+    const khaltiResponse = await axios.post(
+      "https://khalti.com/api/v2/payment/verify/",
+      payload,
+      { headers: { Authorization: `Key ${process.env.KHALTI_SECRET_KEY}` } }
+    );
+
+    console.log(khaltiResponse.data);
+
+    res.stauts(200).json({
+      status: "Success",
+      message: "Khalti payment verification successful",
+      data: khaltiResponse.data,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Error in khalti payment verification",
+      error: error.message,
+    });
+    console.log(error);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -274,4 +309,5 @@ module.exports = {
   khaltiPaymentDetails,
   sendVerificationEmail,
   verifyEmail,
+  paymentVerification,
 };
