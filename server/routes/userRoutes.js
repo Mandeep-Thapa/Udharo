@@ -7,6 +7,7 @@ const {
   khaltiPaymentDetails,
   sendVerificationEmail,
   verifyEmail,
+  paymentVerification,
 } = require("../controllers/userController");
 const authenticate = require("../middleware/verification");
 
@@ -25,5 +26,7 @@ router.post("/send-verification-email", sendVerificationEmail);
 router.get("/verify-email/:token", verifyEmail);
 
 router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
+
+router.post("/khaltiPaymentVerification", paymentVerification);
 
 module.exports = router;

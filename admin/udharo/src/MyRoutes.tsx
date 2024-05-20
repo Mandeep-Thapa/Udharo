@@ -4,7 +4,8 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
 import Dashboard from "./pages/admin/Dashboard";
 import Protected from "./components/Protected";
-import Userdetails from "./pages/admin/Userdetails";
+import AllUsers from "./pages/admin/AllUsers";
+import UserDetails from "./pages/admin/UserDetails";
 
 const MyRoutes = () => {
   
@@ -15,7 +16,8 @@ const MyRoutes = () => {
         <Route path="/register" element={<AdminRegister />} />
         <Route element={<Protected/>}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/details" element={<Userdetails />} />
+          <Route path="/users" element={<AllUsers />} />
+          <Route path="/userdetails/:_id" element={<UserDetails />} />
         </Route>
         
        
