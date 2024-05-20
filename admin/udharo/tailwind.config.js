@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+       fontFamily: {
+       sans: ['Lato', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+    
       colors: {
         'uib-color': '#474554',
       },

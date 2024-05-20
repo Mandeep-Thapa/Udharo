@@ -94,12 +94,7 @@ const Dashboard: React.FC = () => {
 </div>
 </a>
 
-<a href="/details">
-<div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
-<h1 className='text-2xl font-bold m-3'>KYC Details</h1>
-<span className=' text-4xl'><FaUser /></span>
-</div>
-</a>
+
 <div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Lenders</h1>
 <span className=' text-4xl'><FaRegMoneyBillAlt /></span>
