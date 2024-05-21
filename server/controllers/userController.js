@@ -185,6 +185,43 @@ const verifyEmail = asyncHandler(async (req, res) => {
 });
 
 /*
+@desc pan verficication(is_panVerified)
+@route POST /api/user/panVerification
+@access private
+*/
+const panVerification = asyncHandler(async (req, res) => {
+  try {
+    const { panNumber } = req.body;
+
+    // Validate PAN number format
+    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panPattern.test(panNumber)) {
+      return res.status(400).json({ message: "Invalid PAN format" });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if PAN is already verified
+    if (user.is_verifiedDetails.is_panVerified) {
+      return res.status(400).json({ message: "PAN already verified" });
+    }
+
+    // Update PAN verification status
+    user.is_verifiedDetails.is_panVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "PAN verified successfully" });
+  } catch (error) {
+    console.error("Error verifying PAN:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+/*
   @desc Get all unverified users user
   @route GET /api/user/unverified
   @access Public
@@ -313,4 +350,5 @@ module.exports = {
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,
+  panVerification,
 };

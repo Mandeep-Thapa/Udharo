@@ -8,6 +8,7 @@ const {
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,
+  panVerification,
 } = require("../controllers/userController");
 const authenticate = require("../middleware/verification");
 
@@ -28,5 +29,7 @@ router.get("/verify-email/:token", verifyEmail);
 router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
 
 router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
+
+router.post("/verify-pan", authenticate, panVerification);
 
 module.exports = router;
