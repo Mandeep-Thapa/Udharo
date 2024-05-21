@@ -5,6 +5,7 @@ const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
 const Kyc = require("../models/kycModel");
 const { updateMoneyInvested } = require("../utils/userMethods");
+const mongoose = require("mongoose");
 
 /*
   @desc Register an admin
@@ -137,7 +138,7 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-console.log(user);
+    console.log(user);
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -190,6 +191,54 @@ const getKycDetailsFromUser = async (req, res) => {
   }
 };
 
+/*
+  @desc Verify KYC details  
+  @route POST /api/admin/verifykyc/:id
+  @access Private
+*/
+const verifyKYC = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { "is_verifiedDetails.is_kycVerified": true },
+      { new: true }
+    );
+
+    if (user.is_verifiedDetails.is_kycVerified) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "KYC already verified",
+      });
+    }
+
+    const kyc = await Kyc.findOneAndUpdate(
+      { userId: userId },
+      { isKYCVerified: true },
+      { new: true }
+    );
+
+    if (!user || !kyc) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User or KYC details not found",
+      });
+    }
+
+    res.json({
+      status: "Success",
+      message: "KYC verified successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Failed to verify kyc",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -197,4 +246,5 @@ module.exports = {
   getUserById,
   getKycDetailsFromUser,
   getAllUsers,
+  verifyKYC,
 };

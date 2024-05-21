@@ -273,20 +273,23 @@ const khaltiPaymentDetails = async (req, res) => {
 */
 const paymentVerification = async (req, res) => {
   try {
-    const payload = {
-      token: req.body.token,
-      amount: req.body.amount,
-    };
+    const pidx = req.body;
 
     const khaltiResponse = await axios.post(
-      "https://khalti.com/api/v2/payment/verify/",
-      payload,
-      { headers: { Authorization: `Key ${process.env.KHALTI_SECRET_KEY}` } }
+      "https://a.khalti.com/api/v2/epayment/lookup/",
+      pidx,
+      {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+        },
+      }
     );
 
     console.log(khaltiResponse.data);
 
-    res.stauts(200).json({
+    res.status(200).json({
       status: "Success",
       message: "Khalti payment verification successful",
       data: khaltiResponse.data,

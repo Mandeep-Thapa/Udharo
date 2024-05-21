@@ -27,6 +27,6 @@ router.get("/verify-email/:token", verifyEmail);
 
 router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
 
-router.post("/khaltiPaymentVerification", paymentVerification);
+router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
 
 module.exports = router;
