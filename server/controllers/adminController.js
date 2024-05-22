@@ -192,48 +192,54 @@ const getKycDetailsFromUser = async (req, res) => {
 };
 
 /*
-  @desc Verify KYC details  
-  @route POST /api/admin/verifykyc/:id
+  @desc Verify KYC details
+  @route POST /api/admin/verifykyc/:userId
   @access Private
 */
+
 const verifyKYC = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { "is_verifiedDetails.is_kycVerified": true },
-      { new: true }
-    );
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
 
     if (user.is_verifiedDetails.is_kycVerified) {
       return res.status(400).json({
-        status: "Failed",
+        status: "Success",
         message: "KYC already verified",
       });
     }
 
-    const kyc = await Kyc.findOneAndUpdate(
-      { userId: userId },
-      { isKYCVerified: true },
-      { new: true }
-    );
+    const kyc = await Kyc.findOne({ userId: userId });
 
-    if (!user || !kyc) {
+    if (!kyc) {
       return res.status(404).json({
         status: "Failed",
-        message: "User or KYC details not found",
+        message: "KYC details not found",
       });
     }
+
+    user.is_verifiedDetails.is_kycVerified = true;
+    await user.save();
+
+    kyc.isKYCVerified = true;
+    await kyc.save();
 
     res.json({
       status: "Success",
       message: "KYC verified successfully",
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: "Failed",
-      message: "Failed to verify kyc",
+      message: "Failed to verify KYC",
       error: error.message,
     });
   }
