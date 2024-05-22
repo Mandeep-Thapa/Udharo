@@ -30,6 +30,4 @@ router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
 
 router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
 
-router.post("/verify-pan", authenticate, panVerification);
-
 module.exports = router;
