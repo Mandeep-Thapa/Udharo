@@ -25,6 +25,6 @@ router.get("/userdetails/:id", authenticate, getUserById);
 
 router.get("/kycDetails/:id", authenticate, getKycDetailsFromUser);
 
-router.put("/verifykyc/:id", authenticate, verifyKYC);
+router.put("/verifyKYC/:userId", authenticate, verifyKYC);
 
 module.exports = router;
