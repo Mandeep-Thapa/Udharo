@@ -149,7 +149,13 @@ const getUserById = async (req, res) => {
       data: {
         userName: user.fullName,
         email: user.email,
-        isVerified: user.is_verified,
+        occupation: user.occupation,
+        hasActiveTransaction: user.hasActiveTransaction,
+        isVerified: {
+          email: user.is_verifiedDetails.is_emailVerified,
+          kyc: user.is_verifiedDetails.is_kycVerified,
+          pan: user.is_verifiedDetails.is_panVerified,
+        },
         riskFactor: user.riskFactor,
         riskFactorDetails: user.riskFactorDetails,
         moneyInvestedDetails: user.moneyInvestedDetails,
@@ -247,7 +253,7 @@ const verifyKYC = async (req, res) => {
 
 /*
   desc Verify Pan number
-  @route POST /api/admin/verifypan/:userId
+  @route POST /api/admin/verifyPan/:userId
   @access Private
 */
 
