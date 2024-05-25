@@ -169,6 +169,38 @@ const getUserById = async (req, res) => {
 };
 
 /*
+  @desc Get unverified user details
+  @route GET /api/admin/unverifiedUsers
+  @access Private
+*/
+
+const getUnverifiedUsers = async (req, res) => {
+  try {
+    const users = await User.find(
+      {
+        $or: [
+          { "is_verifiedDetails.is_emailVerified": false },
+          { "is_verifiedDetails.is_kycVerified": false },
+          { "is_verifiedDetails.is_panVerified": false },
+        ],
+      },
+      "fullName email riskFactor"
+    );
+
+    res.status(200).json({
+      status: "Success",
+      message: users,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failure",
+      message: "Failed to fetch users",
+      error,
+    });
+  }
+};
+
+/*
   @desc Get KYC details from user
   @route GET /api/admin/kycdetails/:id
   @access Private
@@ -301,4 +333,5 @@ module.exports = {
   getAllUsers,
   verifyKYC,
   verifyPan,
+  getUnverifiedUsers,
 };
