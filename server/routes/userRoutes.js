@@ -9,6 +9,7 @@ const {
   verifyEmail,
   paymentVerification,
   panVerification,
+  savePayment,
 } = require("../controllers/userController");
 const authenticate = require("../middleware/verification");
 
@@ -31,5 +32,7 @@ router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
 router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
 
 router.post("/verify-pan", authenticate, panVerification);
+
+router.post("/saveKhaltiPaymentDetails", authenticate, savePayment);
 
 module.exports = router;

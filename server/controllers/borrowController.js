@@ -1,12 +1,12 @@
 const BorrowRequest = require("../models/borrowRequestModel");
-const asyncHandler = require("express-async-handler");
+const User = require("../models/registrationModel");
 
 /*
   @desc Create a borrow request
   @routes POST /api/borrow/createBorrowRequest
   @access private
 */
-const createBorrowRequest = asyncHandler(async (req, res) => {
+const createBorrowRequest = async (req, res) => {
   const { amount, purpose, interestRate, paybackPeriod } = req.body;
 
   try {
@@ -22,6 +22,8 @@ const createBorrowRequest = asyncHandler(async (req, res) => {
 
     await borrowRequest.save();
 
+    await User.findByIdAndUpdate(req.user._id, { hasActiveTransaction: true });
+
     res.status(200).json({
       status: "Success",
       data: {
@@ -34,7 +36,7 @@ const createBorrowRequest = asyncHandler(async (req, res) => {
       message: error.message,
     });
   }
-});
+};
 
 /*
   @desc Get all borrow requests
@@ -82,7 +84,7 @@ const browseBorrowRequests = async (req, res) => {
   @routes PUT /api/borrow/acceptBorrowRequest/:id
   @access private
 */
-const approveBorrowRequest = asyncHandler(async (req, res) => {
+const approveBorrowRequest = async (req, res) => {
   try {
     // finding the borrow request by id
     const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
@@ -110,14 +112,14 @@ const approveBorrowRequest = asyncHandler(async (req, res) => {
       message: error.message,
     });
   }
-});
+};
 
 /*
   @desc Reject borrow request
   @routes PUT /api/borrow/rejectBorrowRequest/:id
   @access private
 */
-const rejectBorrowRequest = asyncHandler(async (req, res) => {
+const rejectBorrowRequest = async (req, res) => {
   // doing same as approveBorrowRequest the difference is only in status
   try {
     const borrowRequest = await BorrowRequest.findById(req.params.id);
@@ -142,14 +144,14 @@ const rejectBorrowRequest = asyncHandler(async (req, res) => {
       message: error.message,
     });
   }
-});
+};
 
 /*
   @desc Borrow Request History
   @routes GET /api/borrow/borrowRequestHistory
   @access private
 */
-const borrowRequestHistory = asyncHandler(async (req, res) => {
+const borrowRequestHistory = async (req, res) => {
   try {
     // Get the user ID from the request user
     const userId = req.user._id;
@@ -174,7 +176,7 @@ const borrowRequestHistory = asyncHandler(async (req, res) => {
       message: error.message,
     });
   }
-});
+};
 
 module.exports = {
   createBorrowRequest,
