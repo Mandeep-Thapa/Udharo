@@ -10,6 +10,7 @@ const {
   getKycDetailsFromUser,
   getAllUsers,
   verifyKYC,
+  verifyPan,
 } = require("../controllers/adminController");
 const authenticate = require("../middleware/adminVerification");
 
@@ -26,5 +27,7 @@ router.get("/userdetails/:id", authenticate, getUserById);
 router.get("/kycDetails/:id", authenticate, getKycDetailsFromUser);
 
 router.put("/verifyKYC/:userId", authenticate, verifyKYC);
+
+router.put("/verifyPan/:userId", authenticate, verifyPan);
 
 module.exports = router;

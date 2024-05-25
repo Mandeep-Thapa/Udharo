@@ -245,6 +245,47 @@ const verifyKYC = async (req, res) => {
   }
 };
 
+/*
+  desc Verify Pan number
+  @route POST /api/admin/verifypan/:userId
+  @access Private
+*/
+
+const verifyPan = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
+
+    if (user.is_verifiedDetails.is_panVerified) {
+      return res.status(400).json({
+        status: "Success",
+        message: "PAN already verified",
+      });
+    }
+
+    user.is_verifiedDetails.is_panVerified = true;
+    await user.save();
+
+    res.status(200).json({
+      status: "Success",
+      message: "PAN verified successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -253,4 +294,5 @@ module.exports = {
   getKycDetailsFromUser,
   getAllUsers,
   verifyKYC,
+  verifyPan,
 };
