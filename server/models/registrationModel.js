@@ -24,6 +24,15 @@ const userSchema = new Schema(
       minlength: [8, "Password must be atleast 8 characters long"],
       select: false,
     },
+    occupation: {
+      type: String,
+      require: [true, "Please specify your occupation"],
+      trim: true,
+    },
+    hasActiveTransaction: {
+      type: Boolean,
+      default: false,
+    },
     riskFactorDetails: {
       verificationStatus: {
         type: Number,
@@ -81,6 +90,7 @@ const userSchema = new Schema(
       default: 0,
     },
   },
+
   { timestamps: true }
 );
 
