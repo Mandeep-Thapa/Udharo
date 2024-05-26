@@ -221,7 +221,10 @@ const getTransactionDetails = async (req, res) => {
         userId: user._id,
         fullName: user.fullName,
         email: user.email,
-        transactions: user.transactions,
+        hasActiveTransaction: user.hasActiveTransaction,
+        moneyInvested: user.moneyInvestedDetails,
+        timelyRepayment: user.timelyRepaymentDetails,
+        lateRepayment: user.lateRepaymentDetails,
       },
     });
   } catch (error) {
@@ -363,4 +366,5 @@ module.exports = {
   verifyKYC,
   verifyPan,
   getUnverifiedUsers,
+  getTransactionDetails,
 };
