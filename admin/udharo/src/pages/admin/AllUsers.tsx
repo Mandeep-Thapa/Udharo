@@ -8,6 +8,7 @@ interface User{
   fullName: string;
   email: string;
   riskFactor: number;
+  hasKycDetails?: boolean;
 }
 const AllUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -29,12 +30,31 @@ useEffect(() => {
           Authorization: `Bearer ${token}`,
         },
     });
-      console.log("Response received:", response);
 
-      if (isMounted) {
-        setUsers(response.data.message);
-        setLoading(false);
-      }
+
+       const users = response.data.message;
+
+        if (isMounted) {
+          // Fetch KYC details status for each user
+          const usersWithKycStatus = await Promise.all(users.map(async (user: User) => {
+            try {
+              const kycResponse = await axios.get(`http://localhost:3004/api/admin/kycDetails/${user._id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              return { ...user, hasKycDetails: true };
+            } catch (error) {
+              if (axios.isAxiosError(error) && error.response && error.response.data.message === "KYC not found") {
+                return { ...user, hasKycDetails: false };
+              }
+              return { ...user, hasKycDetails: false };
+            }
+          }));
+
+          setUsers(usersWithKycStatus);
+          setLoading(false);
+        }
     }catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Axios error occurred:", error);
@@ -97,7 +117,10 @@ const handleKycDetailsClick = (_id: number) => {
           </div>
           <div className="flex flex-col">
           <div className=""><button className='border border-orange-300 rounded-md p-2 m-2 hover:bg-orange-300 transition duration-500 '  onClick={() => handleUserDetailsClick(user._id)}>User Details</button></div>
+
+          {user.hasKycDetails && (
           <div className=""><button className='border border-orange-300 rounded-md p-2 m-2 hover:bg-orange-300 transition duration-500'  onClick={() => handleKycDetailsClick(user._id)}>KYC Details</button></div>
+          )}
           <div className="flex justify-center">
             <button className='bg-red-400 rounded-full hover:transition duration-700 text-2xl hover:bg-red-600 m-1 p-2 text-white font-bold'><MdDelete /></button>
           </div>

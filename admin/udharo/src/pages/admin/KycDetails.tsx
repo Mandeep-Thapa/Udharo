@@ -3,6 +3,12 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import Navigationwrap from '../../components/Navigationwrap';
+import { FaUser } from "react-icons/fa";
+import { PiGenderNeuterBold } from "react-icons/pi";
+import { FaUserTie } from "react-icons/fa6";
+import { MdOutlineVerified } from "react-icons/md";
+import { FaArrowRight } from "react-icons/fa6";
+import { IoIosCloseCircle } from "react-icons/io";
 
 interface KycDetailsProps {
    _id: string;
@@ -23,6 +29,8 @@ const KycDetails: React.FC = () => {
    const [kycdetails, setKycDetails] = useState<KycDetailsProps | null>(null);
    const [error, setError] = useState<string>('');
    const [loading, setLoading] = useState<boolean>(true);
+   const [showModal, setShowModal] = useState<boolean>(false);
+   const [modalImage, setModalImage] = useState<string>('');
    
 useEffect(() => {
    const fetchKycDetails = async () => {
@@ -57,6 +65,14 @@ useEffect(() => {
       };
       fetchKycDetails();
    }, [_id]);
+   const handelphoto = (photo: string) => {
+      setModalImage(photo);
+      setShowModal(true);
+   }
+   const closeModal = () =>{
+      setShowModal(false);
+      setModalImage('');
+   }
 
    if(error){
       return <p className='error'>{error}</p>
@@ -79,44 +95,66 @@ useEffect(() => {
           <p className='error'>{error}</p>
         ) : (
    kycdetails && (
-      <div className="mt-3 m-2 p-2 rounded-md flex justify-center items-start flex-col border border-orange-300" key={_id}>
-        <div className="m-4 p-1">
-                <img src={kycdetails.photo} alt="User Photo" className="w-32 h-32 object-cover rounded-full mx-auto" />
-                <p className='text-center'>{kycdetails.firstName.charAt(0).toUpperCase() + kycdetails.firstName.slice(1)} {kycdetails.lastName}</p>
+      <div className="mt-3 m-2 p-2 rounded-md flex flex-col border border-orange-300" key={_id}>
+         <div className="grid grid-cols-2">
+        <div className="m-3 p-1">
+                <img src={kycdetails.photo} alt="User Photo" className="w-[300px] h-[300px] object-cover rounded-full mx-auto m-2" />
+                <p className='text-center text-2xl font-bold'>{kycdetails.firstName.charAt(0).toUpperCase() + kycdetails.firstName.slice(1)} {kycdetails.lastName}</p>
 
               </div>
               <div className="flex flex-col items-start p-3 m-3 w-full">
-              <div className="mb-2 p-1">
-                <p className="font-bold p-2">Full Name:</p>
-                <p className='p-2'>{kycdetails.firstName.charAt(0).toUpperCase() + kycdetails.firstName.slice(1)} {kycdetails.lastName}</p>
+              <div className="mb-2 p-1 w-full border border-orange-300 bg-orange-300 rounded-md">
+                <p className="font-bold p-2 flex gap-2 items-center"><FaUser /> Full Name</p>
+                <p className='p-2 flex gap-3 items-center'><FaArrowRight />{kycdetails.firstName.charAt(0).toUpperCase() + kycdetails.firstName.slice(1)} {kycdetails.lastName}</p>
               </div>
-              <div className="mb-2 p-1">
-                <p className="font-bold p-2">Gender:</p>
-                <p className='p-2'>{kycdetails.gender}</p>
+              <div className="mb-2 p-1 w-full border border-orange-300 bg-orange-300 rounded-md">
+                <p className="font-bold p-2 flex gap-3 items-center"><PiGenderNeuterBold />Gender:</p>
+                <p className='p-2 flex gap-3 items-center'><FaArrowRight />{kycdetails.gender.charAt(0).toUpperCase() + kycdetails.gender.slice(1)}</p>
               </div>
-              <div className="mb-2 p-1">
-                <p className="font-bold p-2">Citizenship Number:</p>
-                <p className='p-2'>{kycdetails.citizenshipNumber}</p>
+              <div className="mb-2 p-1 w-full border border-orange-300 bg-orange-300 rounded-md">
+                <p className="font-bold p-2 flex gap-3"><FaUserTie />Citizenship Number:</p>
+                <p className='p-2 flex gap-3 items-center'><FaArrowRight />{kycdetails.citizenshipNumber}</p>
+              </div>
+              
+              <div className="mb-2 p-1 w-full border border-orange-300 bg-orange-300 rounded-md">
+                <p className="font-bold p-2 flex gap-3 items-center"><MdOutlineVerified />KYC Verified:</p>
+                <p className='p-2 flex gap-3 items-center'><FaArrowRight />{kycdetails.isKYCVerified ? 'Yes' : 'No'}</p>
+              </div>
+              </div>
+              </div>
+      <div className="grid grid-cols-2 gap-1">
+         <div className="mb-4 p-1">
+                <p className="font-bold p-2">Citizenship Front Photo</p>
+                <img src={kycdetails.citizenshipFrontPhoto} alt="Citizenship Front Photo" className="w-full h-[300px] object-cover mx-auto rounded-md" onClick={() =>handelphoto(kycdetails.citizenshipFrontPhoto)} />
               </div>
               <div className="mb-4 p-1">
-                <p className="font-bold p-2">Citizenship Front Photo:</p>
-                <img src={kycdetails.citizenshipFrontPhoto} alt="Citizenship Front Photo" className="w-32 h-32 object-cover mx-auto" />
-              </div>
-              <div className="mb-4 p-1">
-                <p className="font-bold p-2">Citizenship Back Photo:</p>
-                <img src={kycdetails.citizenshipBackPhoto} alt="Citizenship Back Photo" className="w-32 h-32 object-cover mx-auto" />
-              </div>
-              <div className="mb-2 p-1">
-                <p className="font-bold p-2">KYC Verified:</p>
-                <p className='p-2'>{kycdetails.isKYCVerified ? 'Yes' : 'No'}</p>
-              </div>
+                <p className="font-bold p-2">Citizenship Back Photo</p>
+                <img src={kycdetails.citizenshipBackPhoto} alt="Citizenship Back Photo" className="hover:cursor-pointer w-full h-[300px] object-cover mx-auto rounded-md" onClick={() => handelphoto(kycdetails.citizenshipBackPhoto) }/>
               </div>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50">
+          <div className="absolute inset-0 bg-gray-800 bg-opacity-30 backdrop-blur-sm"></div> {/* Blurred Background */}
+          <div className="relative bg-white rounded-lg shadow-lg w-[90%] max-w-[900px] max-h-[80%] overflow-hidden">
+            <div className="flex justify-end p-2">
+              <button onClick={closeModal}>
+                <IoIosCloseCircle className="text-gray-600 text-4xl hover:text-gray-800 transition duration-700 hover:rotate-90" />
+              </button>
+            </div>
+            <div className="p-2 flex justify-center items-center">
+              <img src={modalImage} alt="Citizenship Photo" className="max-w-full max-h-full object-contain rounded-md" />
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+      
    )
-   )
+)
 }
-         </div>
-      </Navigationwrap>
+
+</div>
+</Navigationwrap>
       </>
    );
 }
