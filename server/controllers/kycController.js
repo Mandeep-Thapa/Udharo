@@ -17,6 +17,20 @@ const uploadKyc = async (req, res) => {
       return res.status(400).json({ message: "All files are required" });
     }
 
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "gender",
+      "citizenshipNumber",
+      "panNumber",
+    ];
+
+    for (let field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ message: `${field} is required` });
+      }
+    }
+
     const photoResponse = await uploadOnCloudinary(req.files.photo[0].path);
     const citizenshipFrontPhotoResponse = await uploadOnCloudinary(
       req.files.citizenshipFrontPhoto[0].path
@@ -51,6 +65,7 @@ const uploadKyc = async (req, res) => {
       data: kyc,
     });
   } catch (error) {
+    console.error("Error uploading KYC:", error.message);
     res.status(500).json({
       message: "Failed to upload KYC",
       error: error.message,

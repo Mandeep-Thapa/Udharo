@@ -201,6 +201,35 @@ const getUnverifiedUsers = async (req, res) => {
 };
 
 /*
+  @desc Get transaction details
+  @route GET /api/admin/transactionDetails/:id
+  @access Private
+*/
+
+const getTransactionDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.json({
+      status: "Success",
+      data: {
+        userId: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        transactions: user.transactions,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/*
   @desc Get KYC details from user
   @route GET /api/admin/kycdetails/:id
   @access Private
