@@ -85,46 +85,46 @@ const UserDetails: React.FC = () => {
           </div>
         ) : (
       userDetails && (
-      <div className="mt-3 m-2 p-2 rounded-md flex justify-center items-start flex-col w-[700px] border border-orange-300" key={_id}>
+      <div className="mt-3 m-2 p-2 rounded-md flex justify-center items-start flex-col w-[700px] border border-custom-sudesh_yellow" key={_id}>
       <table className="w-full border-collapse">
         <tbody>
-          <tr className="bg-orange-200">
+          <tr className="bg-custom-sudesh_grey hover:bg-custom-sudesh_grey">
             <td className="p-2 border font-bold">Full Name:</td>
             <td className="p-2 border text-center">{userDetails.userName.charAt(0).toUpperCase() + userDetails.userName.slice(1)}</td>
           </tr>
-          <tr>
+          <tr className='hover:bg-custom-sudesh_grey'>
             <td className="p-2 border font-bold">Email:</td>
             <td className="p-2 border text-center">{userDetails.email}</td>
           </tr>
-          <tr className="bg-orange-200">
+          <tr className="bg-custom-sudesh_grey hover:bg-custom-sudesh_grey">
             <td className="p-2 border font-bold">Risk Factor:</td>
             <td className="p-2 border text-center">{userDetails.riskFactor}</td>
           </tr>
-          <tr>
+          <tr className='hover:bg-custom-sudesh_grey'>
             <td className="p-2 border font-bold">Verification Status:</td>
             <td className="p-2 border text-center">{userDetails.riskFactorDetails.verificationStatus}</td>
           </tr>
-          <tr className="bg-orange-200">
+          <tr className="bg-custom-sudesh_grey hover:bg-custom-sudesh_grey">
             <td className="p-2 border font-bold">Money Invested:</td>
             <td className="p-2 border text-center">{userDetails.riskFactorDetails.moneyInvested}</td>
           </tr>
-          <tr>
+          <tr className='hover:bg-custom-sudesh_grey'>
             <td className="p-2 border font-bold">Timely Repayment:</td>
             <td className="p-2 border text-center">{userDetails.riskFactorDetails.timelyRepayment}</td>
           </tr>
-          <tr className="bg-orange-200">
+          <tr className="bg-custom-sudesh_grey hover:bg-custom-sudesh_grey">
             <td className="p-2 border font-bold">Late Repayment:</td>
             <td className="p-2 border text-center">{userDetails.riskFactorDetails.lateRepayment}</td>
           </tr>
-          <tr>
+          <tr className='hover:bg-custom-sudesh_grey'>
             <td className="p-2 border font-bold">Money Invested Details:</td>
             <td className="p-2 border text-center">{userDetails.moneyInvestedDetails}</td>
           </tr>
-          <tr className="bg-orange-200">
+          <tr className="bg-custom-sudesh_grey hover:bg-custom-sudesh_grey">
             <td className="p-2 border font-bold">Timely Repayment Details:</td>
             <td className="p-2 border text-center">{userDetails.timelyRepaymentDetails}</td>
           </tr>
-          <tr>
+          <tr className='hover:bg-custom-sudesh_grey'>
             <td className="p-2 border font-bold">Late Repayment Details:</td>
             <td className="p-2 border text-center">{userDetails.lateRepaymentDetails}</td>
           </tr>

@@ -88,26 +88,26 @@ const Dashboard: React.FC = () => {
          }
 <div className="rounded-lg grid xs:grid-cols-1 md:grid-cols-3 m-4">
    <a href="/users">
-<div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
+<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>All Users</h1>
 <span className=' text-4xl'><FaUser /></span>
 </div>
 </a>
 
 
-<div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
+<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Lenders</h1>
 <span className=' text-4xl'><FaRegMoneyBillAlt /></span>
 </div>
-<div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
+<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Borrowers</h1>
 <span className=' text-4xl'><LiaBlenderSolid /></span>
 </div>
-<div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
+<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Account Management</h1>
 <span className=' text-4xl'><FaUser /></span>
 </div>
-<div className="border-2 border-yellow-400 rounded-md hover:cursor-pointer hover:bg-yellow-100 hover:transition  duration-500 flex items-center flex-col m-3 p-3 h-36">
+<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Our Team</h1>
 <span className=' text-4xl'><HiUserGroup /></span>
 </div>
