@@ -315,8 +315,21 @@ const savePayment = async (req, res) => {
   try {
     const { pidx, total_amount, status, transaction_id, fee, refunded } =
       req.body;
-    // const paidById=req.user._id,
+    const paidById = req.user._id;
     // const paidToId=...,
+
+    // check if a payment with the same pidx already exists
+    const existingPayment = await Payment.findOne({ pidx });
+    if (existingPayment) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Payment with the same pidx already exists",
+      });
+    }
+
+    // Get the user's name
+    const user = await User.findById(paidById);
+    const paidByName = user.fullName;
 
     const payment = new Payment({
       pidx,
@@ -325,9 +338,18 @@ const savePayment = async (req, res) => {
       transaction_id,
       fee,
       refunded,
+      paidByName,
     });
+    console.log(payment);
 
     await payment.save();
+
+    // update user's moneyInvestedDetails
+    await User.findOneAndUpdate(
+      { _id: paidById },
+      { $inc: { moneyInvestedDetails: total_amount } },
+      { new: true, userFindAndModify: false }
+    );
 
     res.status(200).json({
       status: "Success",
