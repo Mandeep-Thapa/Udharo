@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
 const axios = require("axios");
+const Payment = require("../models/khaltiPaymentModel");
 require("dotenv").config();
 
 /*
@@ -12,16 +13,16 @@ require("dotenv").config();
   @access public
 */
 const registerUser = asyncHandler(async (req, res) => {
-  let { fullName, email, password } = req.body;
+  let { fullName, email, password, occupation } = req.body;
 
   if (!fullName) {
     res.status(400).json({ message: "Full name is required" });
   }
 
-  if (email == "" || password == "" || fullName == "") {
-    res
-      .status(400)
-      .json({ message: "Email, password and full name  are required" });
+  if (email == "" || password == "" || fullName == "" || occupation == "") {
+    res.status(400).json({
+      message: "Email, password, full name and occupations  are required",
+    });
   } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
     res.status(400).json({ message: "Invalid email address" });
   }
@@ -39,6 +40,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password: hashedPassword,
     fullName,
+    occupation,
   });
 
   console.log(`User created ${user}`);
@@ -62,7 +64,7 @@ const registerUser = asyncHandler(async (req, res) => {
   @route POST /api/user/login
   @access public
 */
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   // Aba email bata user nikalne
@@ -97,7 +99,7 @@ const loginUser = asyncHandler(async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
-});
+};
 
 /*  
   @desc Send verification email
@@ -105,7 +107,7 @@ const loginUser = asyncHandler(async (req, res) => {
   @access Public
 */
 
-const sendVerificationEmail = asyncHandler(async (req, res) => {
+const sendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -142,9 +144,9 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
     console.error("Error sending verification email:", error);
     res.status(500).json({ message: "Internal server error" });
   }
-});
+};
 
-const verifyEmail = asyncHandler(async (req, res) => {
+const verifyEmail = async (req, res) => {
   try {
     console.log("Request params:", req.params);
 
@@ -182,7 +184,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
     console.error("Error verifying email:", error);
     res.status(500).json({ message: "Internal server error" });
   }
-});
+};
 
 /*
   @desc Get all unverified users user
@@ -266,6 +268,81 @@ const khaltiPaymentDetails = async (req, res) => {
   }
 };
 
+/*
+  @desc Khalti payment verification
+  @route POST /api/user/khaltiPaymentVerification
+  @access private
+*/
+const paymentVerification = async (req, res) => {
+  try {
+    const pidx = req.body;
+
+    const khaltiResponse = await axios.post(
+      "https://a.khalti.com/api/v2/epayment/lookup/",
+      pidx,
+      {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+        },
+      }
+    );
+
+    console.log(khaltiResponse.data);
+
+    res.status(200).json({
+      status: "Success",
+      message: "Khalti payment verification successful",
+      data: khaltiResponse.data,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Error in khalti payment verification",
+      error: error.message,
+    });
+    console.log(error);
+  }
+};
+
+/*
+  @desc Save Khalti payment after verification
+  @route POST /api/user/saveKhaltiPayment
+  @access Private
+*/
+const savePayment = async (req, res) => {
+  try {
+    const { pidx, total_amount, status, transaction_id, fee, refunded } =
+      req.body;
+    // const paidById=req.user._id,
+    // const paidToId=...,
+
+    const payment = new Payment({
+      pidx,
+      total_amount,
+      status,
+      transaction_id,
+      fee,
+      refunded,
+    });
+
+    await payment.save();
+
+    res.status(200).json({
+      status: "Success",
+      message: "Khalti payment details saved successfully",
+      data: { payment },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Error in saving khalti payment details",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -274,4 +351,6 @@ module.exports = {
   khaltiPaymentDetails,
   sendVerificationEmail,
   verifyEmail,
+  paymentVerification,
+  savePayment,
 };

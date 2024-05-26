@@ -5,6 +5,7 @@ const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
 const Kyc = require("../models/kycModel");
 const { updateMoneyInvested } = require("../utils/userMethods");
+const mongoose = require("mongoose");
 
 /*
   @desc Register an admin
@@ -137,7 +138,7 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-console.log(user);
+    console.log(user);
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -148,7 +149,13 @@ console.log(user);
       data: {
         userName: user.fullName,
         email: user.email,
-        isVerified: user.is_verified,
+        occupation: user.occupation,
+        hasActiveTransaction: user.hasActiveTransaction,
+        isVerified: {
+          email: user.is_verifiedDetails.is_emailVerified,
+          kyc: user.is_verifiedDetails.is_kycVerified,
+          pan: user.is_verifiedDetails.is_panVerified,
+        },
         riskFactor: user.riskFactor,
         riskFactorDetails: user.riskFactorDetails,
         moneyInvestedDetails: user.moneyInvestedDetails,
@@ -158,6 +165,38 @@ console.log(user);
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/*
+  @desc Get unverified user details
+  @route GET /api/admin/unverifiedUsers
+  @access Private
+*/
+
+const getUnverifiedUsers = async (req, res) => {
+  try {
+    const users = await User.find(
+      {
+        $or: [
+          { "is_verifiedDetails.is_emailVerified": false },
+          { "is_verifiedDetails.is_kycVerified": false },
+          { "is_verifiedDetails.is_panVerified": false },
+        ],
+      },
+      "fullName email riskFactor"
+    );
+
+    res.status(200).json({
+      status: "Success",
+      message: users,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failure",
+      message: "Failed to fetch users",
+      error,
+    });
   }
 };
 
@@ -190,6 +229,101 @@ const getKycDetailsFromUser = async (req, res) => {
   }
 };
 
+/*
+  @desc Verify KYC details
+  @route POST /api/admin/verifykyc/:userId
+  @access Private
+*/
+
+const verifyKYC = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
+
+    if (user.is_verifiedDetails.is_kycVerified) {
+      return res.status(400).json({
+        status: "Success",
+        message: "KYC already verified",
+      });
+    }
+
+    const kyc = await Kyc.findOne({ userId: userId });
+
+    if (!kyc) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "KYC details not found",
+      });
+    }
+
+    user.is_verifiedDetails.is_kycVerified = true;
+    await user.save();
+
+    kyc.isKYCVerified = true;
+    await kyc.save();
+
+    res.json({
+      status: "Success",
+      message: "KYC verified successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: "Failed to verify KYC",
+      error: error.message,
+    });
+  }
+};
+
+/*
+  desc Verify Pan number
+  @route POST /api/admin/verifyPan/:userId
+  @access Private
+*/
+
+const verifyPan = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
+
+    if (user.is_verifiedDetails.is_panVerified) {
+      return res.status(400).json({
+        status: "Success",
+        message: "PAN already verified",
+      });
+    }
+
+    user.is_verifiedDetails.is_panVerified = true;
+    await user.save();
+
+    res.status(200).json({
+      status: "Success",
+      message: "PAN verified successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -197,4 +331,7 @@ module.exports = {
   getUserById,
   getKycDetailsFromUser,
   getAllUsers,
+  verifyKYC,
+  verifyPan,
+  getUnverifiedUsers,
 };

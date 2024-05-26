@@ -9,6 +9,9 @@ const {
   getUserById,
   getKycDetailsFromUser,
   getAllUsers,
+  verifyKYC,
+  verifyPan,
+  getUnverifiedUsers,
 } = require("../controllers/adminController");
 const authenticate = require("../middleware/adminVerification");
 
@@ -23,5 +26,11 @@ router.get("/allUsers", authenticate, getAllUsers);
 router.get("/userdetails/:id", authenticate, getUserById);
 
 router.get("/kycDetails/:id", authenticate, getKycDetailsFromUser);
+
+router.put("/verifyKYC/:userId", authenticate, verifyKYC);
+
+router.put("/verifyPan/:userId", authenticate, verifyPan);
+
+router.get("/unverifiedUsers", authenticate, getUnverifiedUsers);
 
 module.exports = router;
