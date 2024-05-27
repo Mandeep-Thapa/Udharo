@@ -11,6 +11,8 @@ final class PaymentStateKhaltiPaymentSuccess extends PaymentState {
   PaymentStateKhaltiPaymentSuccess({required this.success});
 }
 
+final class PaymentStateKhaltiPaymentVerificationSuccess extends PaymentState {}
+
 final class PaymentStateAcceptSuccess extends PaymentState {}
 
 final class PaymentStateError extends PaymentState {

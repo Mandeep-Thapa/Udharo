@@ -46,16 +46,30 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                     // payment bloc
                     return BlocConsumer<PaymentBloc, PaymentState>(
                       listener: (context, state) {
-                        if (state is PaymentStateKhaltiPaymentSuccess) {
-                          // khalti payment success, accept borrow request
+                        if (state is PaymentStateAcceptSuccess) {
+                          // borrow request accepted, make khalti payment
                           context.read<PaymentBloc>().add(
-                                PaymentEventAcceptBorrowRequest(
+                                PaymentEventMakeKhaltiPayment(
+                                  context: context,
+                                  amount: borrowRequest.amount!,
                                   productIdentity: borrowRequest.id!,
+                                  productName: 'Loan for: ${borrowRequest.id!}',
                                 ),
                               );
                         }
-                        if (state is PaymentStateAcceptSuccess) {
-                          // accept borrow request success
+                        else if (state is PaymentStateKhaltiPaymentSuccess) {
+                          // verify khalti transaction
+
+                          context.read<PaymentBloc>().add(
+                                PaymentEventVerifyKhaltiTransaction(
+                                  pidx: state.success.token,
+                                ),
+                              );
+                          
+                        }
+                        else if(state is PaymentStateKhaltiPaymentVerificationSuccess) {
+
+                          // show success message
                           CustomToast().showToast(
                             context: context,
                             message: 'Borrow request accepted successfully.',
@@ -65,6 +79,12 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                           context.read<PaymentBloc>().add(
                                 PaymentEventResetPayment(),
                               );
+                        }
+                        else if(state is PaymentStateError) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: state.message,
+                          );
                         }
                       },
                       builder: (context, state) {
@@ -88,13 +108,10 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                               'Invest in Borrow Request',
                               'Investing is a high-risk activity and may result in loss of funds. Are you sure you want to proceed?',
                               () {
+                                // accept borrow request
                                 context.read<PaymentBloc>().add(
-                                      PaymentEventMakeKhaltiPayment(
-                                        context: context,
-                                        amount: borrowRequest.amount!,
+                                      PaymentEventAcceptBorrowRequest(
                                         productIdentity: borrowRequest.id!,
-                                        productName:
-                                            'Loan for: ${borrowRequest.id!}',
                                       ),
                                     );
                                 Navigator.of(context).pop();

@@ -245,4 +245,69 @@ class BorrowRepository {
       throw Exception('Error accepting borrow request');
     }
   }
+
+
+  // create borrow request
+  Future<void> verifyKhaltiTransaction({
+    required String pidx,
+  }) async {
+    String url = '${Config.baseUrl}/user/khaltiPaymentVerification';
+
+    Dio dio = Dio();
+
+    // get token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    // request body
+    final data = {
+      "pidx": pidx,
+    };
+
+    // api call
+    print('sending request to $url with body: $data');
+    try {
+      Response response = await dio.post(
+        url,
+        data: data,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // success response
+        print('response: ${response.data}');
+
+        return;
+      } else {
+        // handle error response
+        if (response.data['error'] != null) {
+          print('error message: ${response.data['error']}');
+          throw Exception(response.data['error']);
+        } else {
+          // generic error message
+          // print('error innit');
+          throw Exception('Error verifying khalti transaction');
+        }
+      }
+    } on DioException catch (e) {
+      // handle DioException
+      if (e.response != null && e.response!.data != null) {
+        // handle specific error message from the server
+        if (e.response!.data['error'] != null) {
+          print('dio error message: ${e.response!.data['error']}');
+          throw Exception(e.response!.data['error']);
+        }
+      }
+      // generic error message
+    } catch (e) {
+      // handle other exceptions
+      print('dio error: $e');
+      throw Exception('Error verifying khalti transaction: $e');
+    }
+  }
 }
