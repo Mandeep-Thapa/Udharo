@@ -87,7 +87,7 @@ class BorrowRepository {
     final token = prefs.getString('token');
 
     // api call
-    // print('sending request to $url with body: $data');
+    // print('sending request to $url');
     try {
       Response response = await dio.get(
         url,
@@ -98,9 +98,11 @@ class BorrowRepository {
         ),
       );
 
+      // print('response: ${response.data}');
+
       if (response.statusCode == 200) {
         // success response
-        // print('response: ${response.data}');
+        // print('success response: ${response.data}');
 
         return BrowseBorrowRequestModel.fromJson(response.data);
       } else {
