@@ -85,7 +85,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       BlocConsumer<RegisterBloc, RegisterState>(
                         listener: (context, state) {
-                          if (state is RegisterStateSuccess) {
+                          if (state is RegisterStateSuccessSigningUp) {
+                            context.read<RegisterBloc>().add(
+                                  RegisterEventSendEmailVerification(
+                                    email: state.email,
+                                  ),
+                                );
+                          } else if (state
+                              is RegisterStateSuccessSendingVerificationEmail) {
                             CustomToast().showToast(
                               context: context,
                               message: 'Registration successful',
@@ -102,7 +109,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               context: context,
                               message: 'Registration failed: ${state.message}',
                             );
+                          }else if(state is RegisterStateLoading){
+                            CustomToast().showToast(
+                              context: context,
+                              message: 'Loading...',
+                            );
                           }
+
                         },
                         builder: (context, state) {
                           return TextButton(
@@ -204,7 +217,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  TextFormField occupationFormField(){
+  TextFormField occupationFormField() {
     return TextFormField(
       controller: _occupationController,
       enableSuggestions: false,

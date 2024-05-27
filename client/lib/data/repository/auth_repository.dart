@@ -136,4 +136,52 @@ class AuthRepository {
       return 'SignUp Unsuccessful';
     }
   }
+
+
+  // sign in
+  Future<String> sendEmailVerification(String email,) async {
+    String url = '${Config.baseUrl}/user/send-verification-email';
+
+    Dio dio = Dio();
+    final data = {
+      "email": email,
+    };
+
+    try {
+      Response response = await dio.post(
+        url,
+        data: data,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return 'Verification Sent Successfully';
+      } else {
+        // handle error response
+        if (response.data['error'] != null) {
+          return response.data['error'];
+        } else {
+          // generic error message
+          return 'Could not send verification';
+        }
+      }
+    } on DioException catch (e) {
+      // handle DioException
+      if (e.response != null && e.response!.data != null) {
+        // handle specific error message from the server
+        if (e.response!.data['error'] != null) {
+          return e.response!.data['error'];
+        }
+      }
+      // generic error message
+      return 'Could not send verification';
+    } catch (e) {
+      // handle other exceptions
+      return 'Could not send verification';
+    }
+  }
 }

@@ -21,3 +21,9 @@ class RegiserEventMakeRegistration extends RegisterEvent {
     required this.occupation,
   });
 }
+
+class RegisterEventSendEmailVerification extends RegisterEvent {
+  final String email;
+
+  const RegisterEventSendEmailVerification({required this.email});
+}
