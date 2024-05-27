@@ -4,7 +4,7 @@ const {
   loginUser,
   getUnverifiedUsers,
   getUserProfile,
-  khaltiPaymentDetails,
+  khaltiPaymentInitialization,
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,
@@ -27,7 +27,11 @@ router.post("/send-verification-email", sendVerificationEmail);
 
 router.get("/verify-email/:token", verifyEmail);
 
-router.post("/khaltiDetails", authenticate, khaltiPaymentDetails);
+router.post(
+  "/khaltiPaymentInitialization",
+  authenticate,
+  khaltiPaymentInitialization
+);
 
 router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
 

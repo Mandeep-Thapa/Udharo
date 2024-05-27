@@ -238,10 +238,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 /*
   @desc Post Khalti payment details
-  @route POST /api/user/khaltiDetails
+  @route POST /api/user/khaltiPaymentInitialization
   @access private
 */
-const khaltiPaymentDetails = async (req, res) => {
+const khaltiPaymentInitialization = async (req, res) => {
   try {
     const payload = req.body;
 
@@ -379,7 +379,7 @@ module.exports = {
   loginUser,
   getUnverifiedUsers,
   getUserProfile,
-  khaltiPaymentDetails,
+  khaltiPaymentInitialization,
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,
