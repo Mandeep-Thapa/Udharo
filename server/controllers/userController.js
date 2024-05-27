@@ -347,7 +347,7 @@ const savePayment = async (req, res) => {
       transaction_id,
       fee,
       refunded,
-      paidByName,
+      paidByName: req.user._id,
     });
     console.log(payment);
 

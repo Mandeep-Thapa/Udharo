@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
 const Kyc = require("../models/kycModel");
-const { updateMoneyInvested } = require("../utils/userMethods");
+const Payment = require("../models/khaltiPaymentModel");
 const mongoose = require("mongoose");
 
 /*
@@ -201,34 +201,38 @@ const getUnverifiedUsers = async (req, res) => {
 };
 
 /*
-  @desc Get transaction details
+  @desc Get Khalti transaction details
   @route GET /api/admin/transactionDetails/:id
   @access Private
 */
 
 const getTransactionDetails = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const userId = req.params.id;
+    console.log("Fetching transactions for user ID:", userId);
 
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+    const transactions = await Payment.find({ paidByName: userId }).select(
+      "total_amount status transaction_id fee refunded paid_at paidByName"
+    );
+
+    if (transactions.length === 0) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Transaction details not found",
+      });
     }
 
-    res.json({
+    res.status(200).json({
       status: "Success",
-      data: {
-        userId: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        hasActiveTransaction: user.hasActiveTransaction,
-        moneyInvested: user.moneyInvestedDetails,
-        timelyRepayment: user.timelyRepaymentDetails,
-        lateRepayment: user.lateRepaymentDetails,
-      },
+      message: transactions,
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error fetching transaction details:", error);
+    res.status(500).json({
+      status: "Failed",
+      message: "Failed to get transaction details",
+      error: error.message,
+    });
   }
 };
 
