@@ -13,9 +13,10 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     on<RegiserEventMakeRegistration>((event, emit) async {
       try {
         final message = await _authRepository.signUp(
-          event.name,
-          event.email,
-          event.password,
+          fullName: event.name,
+          email:  event.email,
+          occupation:  event.occupation,
+          password:  event.password,
         );
         if (message == 'SignUp Success') {
           emit(RegisterStateSuccess());

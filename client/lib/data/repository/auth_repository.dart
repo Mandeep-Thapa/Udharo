@@ -75,9 +75,12 @@ class AuthRepository {
 
   // sign up
   Future<String> signUp(
-    String fullName,
-    String email,
-    String password,
+    { 
+    required String fullName,
+    required String email,
+    required String occupation,
+    required String password,
+    }
   ) async {
     String url = '${Config.baseUrl}/user/register';
 
@@ -86,7 +89,10 @@ class AuthRepository {
       "fullName": fullName,
       "email": email,
       "password": password,
+      "occupation": occupation,
     };
+
+    // print('sending data: $data');
 
     try {
       Response response = await dio.post(
@@ -98,6 +104,8 @@ class AuthRepository {
           },
         ),
       );
+
+      // print('response: ${response.data}');
 
       if (response.statusCode == 201) {
         return 'SignUp Success';
@@ -115,13 +123,16 @@ class AuthRepository {
       if (e.response != null && e.response!.data != null) {
         // handle specific error message from the server
         if (e.response!.data['message'] != null) {
+          // print('error message: ${e.response!.data['message']}');
           return e.response!.data['message'];
         }
       }
       // generic error message
+      // print('dio error: $e');
       return 'SignUp Unsuccessful';
     } catch (e) {
       // handle other exceptions
+      // print('error: $e');
       return 'SignUp Unsuccessful';
     }
   }
