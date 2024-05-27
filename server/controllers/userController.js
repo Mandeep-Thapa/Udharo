@@ -325,6 +325,7 @@ const savePayment = async (req, res) => {
       transaction_id,
       fee,
       refunded,
+      paidByName: req.user._id,
     });
 
     await payment.save();

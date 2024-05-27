@@ -8,7 +8,7 @@ const khaltiPaymentSchema = new mongoose.Schema({
   fee: Number,
   refunded: Boolean,
   paid_at: { type: Date, default: Date.now() },
-  //   paidBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  paidByName: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   //   paidTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
