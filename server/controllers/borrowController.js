@@ -22,7 +22,10 @@ const createBorrowRequest = async (req, res) => {
 
     await borrowRequest.save();
 
-    await User.findByIdAndUpdate(req.user._id, { hasActiveTransaction: true });
+    await User.findByIdAndUpdate(req.user._id, {
+      hasActiveTransaction: true,
+      userRole: "Borrower",
+    });
 
     res.status(200).json({
       status: "Success",
@@ -99,6 +102,12 @@ const approveBorrowRequest = async (req, res) => {
 
     borrowRequest.status = "approved";
     await borrowRequest.save();
+
+    // updating the user role to lender
+    await User.findByIdAndUpdate(req.user._id, {
+      hasActiveTransaction: true,
+      userRole: "Lender",
+    });
 
     res.status(200).json({
       status: "success",
@@ -178,10 +187,23 @@ const borrowRequestHistory = async (req, res) => {
   }
 };
 
+/*
+  @desc Return money
+  @routes PUT /api/borrow/returnMoney/:id
+  @access private
+*/
+const returnMoney = async (req, res) => {
+  res.status(200).json({
+    status: "Success",
+    message: "Money returned successfully",
+  });
+};
+
 module.exports = {
   createBorrowRequest,
   browseBorrowRequests,
   approveBorrowRequest,
   rejectBorrowRequest,
   borrowRequestHistory,
+  returnMoney,
 };

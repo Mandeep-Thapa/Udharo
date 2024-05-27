@@ -30,7 +30,6 @@ const borowRequestSchema = new mongoose.Schema({
   interestRate: {
     type: Number,
     required: [true, "Please specify the interest rate"],
-    default: 10,
   },
   paybackPeriod: {
     type: Number,

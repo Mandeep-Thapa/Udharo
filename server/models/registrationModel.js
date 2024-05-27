@@ -33,6 +33,11 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    userRole: {
+      type: String,
+      default: "User",
+      enum: ["User", "Borrower", "Lender"],
+    },
     riskFactorDetails: {
       verificationStatus: {
         type: Number,

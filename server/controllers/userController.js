@@ -19,6 +19,13 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400).json({ message: "Full name is required" });
   }
 
+  if (!occupation) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Occupation is required",
+    });
+  }
+
   if (email == "" || password == "" || fullName == "" || occupation == "") {
     res.status(400).json({
       message: "Email, password, full name and occupations  are required",
@@ -216,10 +223,12 @@ const getUserProfile = asyncHandler(async (req, res) => {
         userId: user._id,
         email: user.email,
         isVerified: user.is_verifiedDetails,
+        hasActiveTransaction: user.hasActiveTransaction,
         riskFactor: user.riskFactor,
         totalMoneyInvested: user.totalMoneyInvested,
         successfulRepayment: user.successfulRepayment,
         lateRepayment: user.lateRepayment,
+        moneyInvestedDetails: user.moneyInvestedDetails,
       },
     });
   } else {
