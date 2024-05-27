@@ -10,6 +10,7 @@ part 'payment_state.dart';
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final BorrowRepository _borrowRepository;
   PaymentBloc(this._borrowRepository) : super(PaymentStateInitial()) {
+    // make khalti payment
     on<PaymentEventMakeKhaltiPayment>(
       (event, emit) async {
         try {
@@ -40,11 +41,23 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         }
       },
     );
+    // accept borrow request
     on<PaymentEventAcceptBorrowRequest>(
       (event, emit) async {
         try {
           await _borrowRepository.acceptBorrowRequest(event.productIdentity);
           emit(PaymentStateAcceptSuccess());
+        } on Exception catch (e) {
+          emit(PaymentStateError(e.toString()));
+        }
+      },
+    );
+    // verify khalti transaction
+    on<PaymentEventVerifyKhaltiTransaction>(
+      (event, emit) async {
+        try {
+          await _borrowRepository.verifyKhaltiTransaction(pidx: event.pidx);
+          emit(PaymentStateKhaltiPaymentVerificationSuccess());
         } on Exception catch (e) {
           emit(PaymentStateError(e.toString()));
         }

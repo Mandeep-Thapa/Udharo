@@ -18,6 +18,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // text editing controllers
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
+  late final TextEditingController _occupationController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
 
@@ -26,6 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     // initialize text editing controllers
     _nameController = TextEditingController();
     _emailController = TextEditingController();
+    _occupationController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
 
@@ -36,6 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _occupationController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -65,6 +68,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // email field
                 emailFormField(),
 
+                // occupation field
+                occupationFormField(),
+
                 // password field
                 passwordFormField(),
 
@@ -79,7 +85,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                       BlocConsumer<RegisterBloc, RegisterState>(
                         listener: (context, state) {
-                          if (state is RegisterStateSuccess) {
+                          if (state is RegisterStateSuccessSigningUp) {
+                            context.read<RegisterBloc>().add(
+                                  RegisterEventSendEmailVerification(
+                                    email: state.email,
+                                  ),
+                                );
+                          } else if (state
+                              is RegisterStateSuccessSendingVerificationEmail) {
                             CustomToast().showToast(
                               context: context,
                               message: 'Registration successful',
@@ -96,7 +109,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               context: context,
                               message: 'Registration failed: ${state.message}',
                             );
+                          }else if(state is RegisterStateLoading){
+                            CustomToast().showToast(
+                              context: context,
+                              message: 'Loading...',
+                            );
                           }
+
                         },
                         builder: (context, state) {
                           return TextButton(
@@ -107,6 +126,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       RegiserEventMakeRegistration(
                                         name: _nameController.text,
                                         email: _emailController.text,
+                                        occupation: _occupationController.text,
                                         password: _passwordController.text,
                                       ),
                                     );
@@ -191,6 +211,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ).hasMatch(value);
         if (!emailValid) {
           return "Enter valid Email";
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField occupationFormField() {
+    return TextFormField(
+      controller: _occupationController,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofocus: true,
+      keyboardType: TextInputType.emailAddress,
+      decoration: const InputDecoration(
+        hintText: 'Occupation',
+      ),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'Occupation cannot be empty';
+        }
+        if (value.startsWith(RegExp(r'[0-9]'))) {
+          return 'Occupation name cannot start with a number';
+        }
+        bool occupationValid = RegExp(
+          r"^[a-zA-Z\-'. ]+$",
+        ).hasMatch(value);
+        if (!occupationValid) {
+          return "Enter valid Occupation";
         }
         return null;
       },

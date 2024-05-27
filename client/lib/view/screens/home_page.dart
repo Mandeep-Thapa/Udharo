@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
             );
           } else if (state is ProfileStateLoaded) {
             final user = state.user.data;
+            final hasActiveTransaction = user?.hasActiveTransaction ?? false;
             final isKycVerified = user?.isVerified?.isKycVerified ?? false;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,6 +64,9 @@ class _HomePageState extends State<HomePage> {
                 // display user name
                 Text(
                   'Hello ${user?.userName ?? 'User'}',
+                ),
+                Text(
+                  'You have ${hasActiveTransaction ? 1 : 0} active transactions.',
                 ),
 
                 // this button is for testing purpose

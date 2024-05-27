@@ -56,7 +56,7 @@ class BorrowRequest {
   String? risk;
   int? amount;
   String? purpose;
-  int? interestRate;
+  num? interestRate;
   int? paybackPeriod;
   String? status;
 
