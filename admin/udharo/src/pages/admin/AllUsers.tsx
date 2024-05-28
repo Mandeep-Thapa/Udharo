@@ -9,6 +9,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from "sonner";
 
 interface User {
   _id: number;
@@ -16,6 +17,7 @@ interface User {
   email: string;
   riskFactor: number;
   hasKycDetails?: boolean;
+  hasTransactionDetails?: boolean;
 }
 const AllUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -59,26 +61,31 @@ const AllUsers: React.FC = () => {
           const usersWithKycStatus = await Promise.all(
             users.map(async (user: User) => {
               try {
-                const kycResponse = await axios.get(
-                  `http://localhost:3004/api/admin/kycDetails/${user._id}`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
-                console.log(kycResponse);
-                return { ...user, hasKycDetails: true };
+                const [kycResponse, transactionResponse] = await Promise.all([
+                  axios.get(
+                    `http://localhost:3004/api/admin/kycDetails/${user._id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  ),
+                  axios.get(
+                    `http://localhost:3004/api/admin/transactionDetails/${user._id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  ),
+                ]);
+                const hasKycDetails = kycResponse.status === 200;
+                const hasTransactionDetails = transactionResponse.status === 200 && transactionResponse.data.message.length > 0;
+                return { ...user, hasKycDetails, hasTransactionDetails };
               } catch (error) {
-                if (
-                  axios.isAxiosError(error) &&
-                  error.response &&
-                  error.response.data.message === "KYC not found"
-                ) {
-                  return { ...user, hasKycDetails: false };
+                toast.error("Error fetching details for user.");
+                  return { ...user, hasKycDetails: false, hasTransactionDetails: false };
                 }
-                return { ...user, hasKycDetails: false };
-              }
             })
           );
 
@@ -119,6 +126,10 @@ const AllUsers: React.FC = () => {
     console.log("Navigating to Kyc details with id:", _id);
     navigate(`/kycdetails/${_id}`);
   };
+  const handleTrabsactionDetails = (_id: number) => {
+    console.log("Navigating to Transaction details with id:", _id);
+    navigate(`/transactiondetails/${_id}`);
+  }
 
   return (
     <>
@@ -127,13 +138,8 @@ const AllUsers: React.FC = () => {
           <h1 className="font-bold text-3xl mx-3">All Users</h1>
           {error && <p className="error">{error}</p>}
           {loading ? (
-            <div className="flex justify-center mt-20 h-screen">
-              <div className="newtons-cradle">
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-              </div>
+            <div className="flex justify-center mt-10 h-screen">
+              <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
             </div>
           ) : (
             <>
@@ -184,11 +190,13 @@ const AllUsers: React.FC = () => {
                             </button>
                           </div>
                         )}
+                         {user.hasTransactionDetails && (
                         <div className="flex justify-center">
-                          <button className="bg-custom-sudesh_black rounded-full hover:transition duration-700 text-2xl m-1 p-2 text-white font-bold">
-                            <MdDelete />
+                          <button className="bg-custom-sudesh_black rounded-md hover:transition duration-700  m-1 p-2 text-white font-bold"  onClick={() => handleTrabsactionDetails(user._id)}>
+                            Transactions
                           </button>
                         </div>
+                         )}
                       </div>
                     </div>
                   ))}

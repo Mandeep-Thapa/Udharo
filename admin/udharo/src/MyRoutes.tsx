@@ -7,6 +7,7 @@ import Protected from "./components/Protected";
 import AllUsers from "./pages/admin/AllUsers";
 import UserDetails from "./pages/admin/UserDetails";
 import KycDetails from "./pages/admin/KycDetails";
+import TransactionDetails from "./pages/admin/TransactionDetails";
 
 const MyRoutes = () => {
   
@@ -20,6 +21,7 @@ const MyRoutes = () => {
           <Route path="/users" element={<AllUsers />} />
           <Route path="/userdetails/:_id" element={<UserDetails />} />
           <Route path="/kycdetails/:_id" element={<KycDetails />} />
+          <Route path="/transactiondetails/:_id" element={<TransactionDetails />} />
         </Route>
         
        

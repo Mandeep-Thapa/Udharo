@@ -91,13 +91,15 @@ const KycDetails: React.FC = () => {
       const updatedStatus = !kycdetails.isKYCVerified;
       const response = await axios.put(
         `http://localhost:3004/api/admin/verifyKYC/${kycdetails?.userId}`,
-        {},
         {
           isKYCVerified: updatedStatus,
+        },
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
+        
       );
       setKycDetails((prevState) => {
         if (prevState) {
@@ -133,13 +135,8 @@ const KycDetails: React.FC = () => {
         <div className="mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
           <h1 className="font-bold text-3xl mx-3">KYC Details</h1>
           {loading ? (
-            <div className="flex justify-center mt-20 h-screen">
-              <div className="newtons-cradle">
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-              </div>
+            <div className="flex justify-center mt-10 h-screen">
+              <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
             </div>
           ) : (
             kycdetails && (

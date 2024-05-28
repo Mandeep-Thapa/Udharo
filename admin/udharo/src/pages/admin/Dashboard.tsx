@@ -68,17 +68,11 @@ const Dashboard: React.FC = () => {
     <Navigationwrap>
       <div className=" mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
          <h1 className='text-3xl font-bold'></h1>
-         {
-            loading ? (
+              {loading ? (
                <div className="flex justify-center mt-10 h-screen">
-                  <div className="newtons-cradle">
-                     <div className="newtons-cradle__dot"></div>
-                     <div className="newtons-cradle__dot"></div>
-                     <div className="newtons-cradle__dot"></div>
-                     <div className="newtons-cradle__dot"></div>
-                  </div>
+                 <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
                </div>
-            ) : (
+             ) : (
             adminDetails && (
                <div className="text-xl font-bold flex flex-wrap">
                   <div className='border rounded-md flex p-3 justify-start items-center mt-2'><span className='mx-3'>Admin:</span> {adminDetails.email}</div>

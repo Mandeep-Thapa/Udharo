@@ -75,15 +75,10 @@ const UserDetails: React.FC = () => {
       <h1 className='font-bold text-3xl mx-3'>User Details</h1>
 
       {loading ? (
-          <div className="flex justify-center mt-20 h-screen">
-            <div className="newtons-cradle">
-              <div className="newtons-cradle__dot"></div>
-              <div className="newtons-cradle__dot"></div>
-              <div className="newtons-cradle__dot"></div>
-              <div className="newtons-cradle__dot"></div>
+            <div className="flex justify-center mt-10 h-screen">
+              <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
             </div>
-          </div>
-        ) : (
+          ) : (
       userDetails && (
       <div className="mt-3 m-2 p-2 rounded-md flex justify-center items-start flex-col w-[700px] border border-custom-sudesh_yellow" key={_id}>
       <table className="w-full border-collapse">
