@@ -284,6 +284,8 @@ const khaltiPaymentInitialization = async (req, res) => {
 */
 const paymentVerification = async (req, res) => {
   try {
+    const { idx, amound } = req.body;
+
     const payload = {
       idx,
       amound,
