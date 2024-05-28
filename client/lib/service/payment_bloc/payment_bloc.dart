@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentEventVerifyKhaltiTransaction>(
       (event, emit) async {
         try {
-          await _borrowRepository.verifyKhaltiTransaction(pidx: event.pidx);
+          await _borrowRepository.verifyKhaltiTransaction(idx: event.idx,amount: event.amount,);
           emit(PaymentStateKhaltiPaymentVerificationSuccess());
         } on Exception catch (e) {
           emit(PaymentStateError(e.toString()));

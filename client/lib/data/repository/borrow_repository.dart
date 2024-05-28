@@ -249,7 +249,8 @@ class BorrowRepository {
 
   // create borrow request
   Future<void> verifyKhaltiTransaction({
-    required String pidx,
+    required String idx,
+    required int amount,
   }) async {
     String url = '${Config.baseUrl}/user/khaltiPaymentVerification';
 
@@ -261,7 +262,8 @@ class BorrowRepository {
 
     // request body
     final data = {
-      "pidx": pidx,
+      "idx": idx,
+      "amount": amount,
     };
 
     // api call

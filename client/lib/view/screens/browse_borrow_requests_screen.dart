@@ -59,10 +59,11 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                         }
                         else if (state is PaymentStateKhaltiPaymentSuccess) {
                           // verify khalti transaction
-
+                          
                           context.read<PaymentBloc>().add(
                                 PaymentEventVerifyKhaltiTransaction(
-                                  pidx: state.success.token,
+                                  idx: state.success.idx,
+                                  amount: state.success.amount,
                                 ),
                               );
                           

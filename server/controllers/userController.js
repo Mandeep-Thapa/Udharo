@@ -284,11 +284,11 @@ const khaltiPaymentInitialization = async (req, res) => {
 */
 const paymentVerification = async (req, res) => {
   try {
-    const { idx, amound } = req.body;
+    const { idx, amount } = req.body;
 
     const payload = {
       idx,
-      amound,
+      amount,
     };
 
     const config = {
