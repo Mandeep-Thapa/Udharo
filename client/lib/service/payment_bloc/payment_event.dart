@@ -41,12 +41,13 @@ class PaymentEventAcceptBorrowRequest extends PaymentEvent {
 
 
 class PaymentEventVerifyKhaltiTransaction extends PaymentEvent {
-  final String pidx;
+  final String idx;
+  final int amount;
 
-  const PaymentEventVerifyKhaltiTransaction({required this.pidx});
+  const PaymentEventVerifyKhaltiTransaction({required this.idx, required this.amount,});
 
   @override
-  List<Object> get props => [pidx];
+  List<Object> get props => [idx];
 }
 
 class PaymentEventResetPayment extends PaymentEvent {}
