@@ -9,7 +9,7 @@ const khaltiPaymentSchema = new mongoose.Schema({
   refunded: Boolean,
   paid_at: { type: Date, default: Date.now() },
   paidByName: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  //   paidTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  //paidTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
 const Payment = mongoose.model("Payment", khaltiPaymentSchema);

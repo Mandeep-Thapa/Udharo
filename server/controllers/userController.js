@@ -189,6 +189,11 @@ const verifyEmail = async (req, res) => {
     res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     console.error("Error verifying email:", error);
+
+    if (error.response && error.response.includes("5.1.1")) {
+      return res.status(400).json({ message: "Email address does not exist" });
+    }
+
     res.status(500).json({ message: "Internal server error" });
   }
 };
