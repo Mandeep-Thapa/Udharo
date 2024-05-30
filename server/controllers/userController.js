@@ -291,20 +291,20 @@ const paymentVerification = async (req, res) => {
   try {
     const { token, amount } = req.body;
 
-    const payload = {
+    const data = {
       token,
       amount,
     };
 
     const config = {
       headers: {
-        Authorization: "Key test_secret_key_69c8b4423e8649afb524264679821678",
+        Authorization: `Key ${process.env.KHALTI_TEST_SECRET_KEY}`,
       },
     };
 
     const khaltiResponse = await axios.post(
       "https://khalti.com/api/v2/payment/verify/",
-      payload,
+      data,
       config
     );
 
@@ -316,6 +316,7 @@ const paymentVerification = async (req, res) => {
       data: khaltiResponse.data,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       status: "Failed",
       message: "Error in verifying khalti payment details",
