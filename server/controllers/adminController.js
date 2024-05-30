@@ -207,6 +207,7 @@ const getUnverifiedUsers = async (req, res) => {
 */
 
 const getTransactionDetails = async (req, res) => {
+  
   try {
     const userId = req.params.id;
     console.log("Fetching transactions for user ID:", userId);

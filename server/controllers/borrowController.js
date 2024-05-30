@@ -193,10 +193,40 @@ const borrowRequestHistory = async (req, res) => {
   @access private
 */
 const returnMoney = async (req, res) => {
-  res.status(200).json({
-    status: "Success",
-    message: "Money returned successfully",
-  });
+  try {
+    // finding the borrow request by id
+    const borrowRequest = await BorrowRequest.findById(req.params.id);
+
+    // if id not found
+    if (!borrowRequest) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Borrow request not found",
+      });
+    }
+
+    // if borrow request is not approved
+    if (borrowRequest.stauts !== approved) {
+      return res.status(400).json({
+        stauts: "Failed",
+        message: "Borrow request is not approved yet",
+      });
+    }
+
+    borrowRequest.status = "returned";
+    await borrowRequest.save();
+
+    res.stautus(200).json({
+      status: "Success",
+      message: "Money returned successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: "Failed to return money",
+      error: error.message,
+    });
+  }
 };
 
 module.exports = {
