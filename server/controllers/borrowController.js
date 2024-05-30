@@ -88,6 +88,9 @@ const browseBorrowRequests = async (req, res) => {
   @access private
 */
 const approveBorrowRequest = async (req, res) => {
+  // getting amount from req.body
+  const { amount } = req.body;
+
   try {
     // finding the borrow request by id
     const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
@@ -100,7 +103,41 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    borrowRequest.status = "approved";
+    // check if the borrow request already has 4 lenders
+    if (borrowRequest.lender.length >= 4) {
+      return res.status(400).json({
+        stauts: "Failed",
+        message: "Borrow request already has 4 lenders",
+      });
+    }
+
+    // Check if the amount the lender wants to contribute plus the total amount already contributed by other lenders exceeds the total amount in the borrow request
+    const totalContributed = borrowRequest.lender.reduce(
+      (total, lender) => total + lender.amount,
+      0
+    );
+    if (req.body.amount + totalContributed > borrowRequest.amount) {
+      return res.status(400).json({
+        status: "Failed",
+        message:
+          "The amount you want to contribute exceeds the total amount in the borrow request",
+      });
+    }
+
+    // Check if the amount the lender wants to contribute is more than 40% of the total amount in the borrow request
+    if (req.body.amount > borrowRequest.amount * 0.4) {
+      return res.status(400).json({
+        status: "Failed",
+        message:
+          "You cannot contribute more than 40% of the total amount in the borrow request",
+      });
+    }
+
+    // Add the lender to the borrow request and update the total amount contributed
+    borrowRequest.lender.push({
+      lender: req.user._id,
+      amount: req.body.amount,
+    });
     await borrowRequest.save();
 
     // updating the user role to lender
