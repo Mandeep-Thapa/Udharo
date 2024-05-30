@@ -6,10 +6,18 @@ const borowRequestSchema = new mongoose.Schema({
     ref: "User",
     required: [true, "User ID is required"],
   },
-  lender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  lender: [
+    {
+      lender: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      amount: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   fullName: {
     type: String,
     required: true,
@@ -37,7 +45,7 @@ const borowRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "approved", "returned"],
+    enum: ["pending", "approved", "returned", "fully funded"],
     default: "pending",
   },
   createdAt: {
