@@ -37,7 +37,7 @@ const borowRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "approved"],
+    enum: ["pending", "approved", "returned"],
     default: "pending",
   },
   createdAt: {

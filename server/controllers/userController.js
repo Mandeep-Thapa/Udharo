@@ -289,16 +289,16 @@ const khaltiPaymentInitialization = async (req, res) => {
 */
 const paymentVerification = async (req, res) => {
   try {
-    const { idx, amount } = req.body;
+    const { token, amount } = req.body;
 
     const payload = {
-      idx,
+      token,
       amount,
     };
 
     const config = {
-      header: {
-        Authorization: `Key test_secret_key_69c8b4423e8649afb524264679821678`,
+      headers: {
+        Authorization: "Key test_secret_key_69c8b4423e8649afb524264679821678",
       },
     };
 
@@ -308,20 +308,19 @@ const paymentVerification = async (req, res) => {
       config
     );
 
-    console.log(khaltiResponse);
+    console.log(khaltiResponse.data);
 
     res.status(200).json({
       status: "Success",
-      message: "Khalti payment verified successfully",
+      message: "Khalti payment details verified successfully",
       data: khaltiResponse.data,
     });
   } catch (error) {
     res.status(400).json({
       status: "Failed",
-      message: "Error in khalti payment verification",
+      message: "Error in verifying khalti payment details",
       error: error.message,
     });
-    console.log(error);
   }
 };
 
