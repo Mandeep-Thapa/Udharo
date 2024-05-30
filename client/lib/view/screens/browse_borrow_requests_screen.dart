@@ -46,7 +46,15 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                     // payment bloc
                     return BlocConsumer<PaymentBloc, PaymentState>(
                       listener: (context, state) {
-                        if (state is PaymentStateAcceptSuccess) {
+                        print('current state: $state');
+                        // if(state is PaymentStateLoading){
+                        //   // show loading dialog
+                        //   CustomToast().showToast(
+                        //     context: context,
+                        //     message: 'Loading...',
+                        //   );
+                        // }
+                         if (state is PaymentStateAcceptSuccess) {
                           // borrow request accepted, make khalti payment
                           context.read<PaymentBloc>().add(
                                 PaymentEventMakeKhaltiPayment(
@@ -56,20 +64,19 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                   productName: 'Loan for: ${borrowRequest.id!}',
                                 ),
                               );
-                        }
-                        else if (state is PaymentStateKhaltiPaymentSuccess) {
+                        } else if (state is PaymentStateKhaltiPaymentSuccess) {
                           // verify khalti transaction
-                          
+
+                          // print('verifying khalti transaction');
+
                           context.read<PaymentBloc>().add(
                                 PaymentEventVerifyKhaltiTransaction(
-                                  idx: state.success.idx,
+                                  token: state.success.token,
                                   amount: state.success.amount,
                                 ),
                               );
-                          
-                        }
-                        else if(state is PaymentStateKhaltiPaymentVerificationSuccess) {
-
+                        } else if (state
+                            is PaymentStateKhaltiPaymentVerificationSuccess) {
                           // show success message
                           CustomToast().showToast(
                             context: context,
@@ -77,11 +84,14 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                           );
 
                           // reset payment bloc
-                          context.read<PaymentBloc>().add(
-                                PaymentEventResetPayment(),
-                              );
+                          // context.read<PaymentBloc>().add(
+                          //       PaymentEventResetPayment(),
+                          //     );
                         }
-                        else if(state is PaymentStateError) {
+                        // else if(state is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess){
+
+                        // } 
+                        else if (state is PaymentStateError) {
                           CustomToast().showToast(
                             context: context,
                             message: state.message,
@@ -110,6 +120,8 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                               'Investing is a high-risk activity and may result in loss of funds. Are you sure you want to proceed?',
                               () {
                                 // accept borrow request
+
+                                // print('accepting borrow request');
                                 context.read<PaymentBloc>().add(
                                       PaymentEventAcceptBorrowRequest(
                                         productIdentity: borrowRequest.id!,

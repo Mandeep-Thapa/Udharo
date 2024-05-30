@@ -5,13 +5,25 @@ sealed class PaymentState {}
 
 final class PaymentStateInitial extends PaymentState {}
 
+
+// final class PaymentStateLoading extends PaymentState {}
+
+
 final class PaymentStateKhaltiPaymentSuccess extends PaymentState {
   final PaymentSuccessModel success;
 
   PaymentStateKhaltiPaymentSuccess({required this.success});
 }
 
-final class PaymentStateKhaltiPaymentVerificationSuccess extends PaymentState {}
+final class PaymentStateKhaltiPaymentVerificationSuccess extends PaymentState {
+  final KhaltiVerificationSuccessModel success;
+
+  PaymentStateKhaltiPaymentVerificationSuccess({required this.success});
+}
+
+
+final class PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess extends PaymentState {}
+
 
 final class PaymentStateAcceptSuccess extends PaymentState {}
 

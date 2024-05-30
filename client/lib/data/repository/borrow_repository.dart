@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udharo/config.dart';
 import 'package:udharo/data/model/borrow_history_model.dart';
 import 'package:udharo/data/model/browse_borrow_model.dart';
+import 'package:udharo/data/model/khalti_verification_success_model.dart';
 
 class BorrowRepository {
   // create borrow request
@@ -202,7 +203,7 @@ class BorrowRepository {
     final token = prefs.getString('token');
 
     // api call
-    // print('sending request to $url with body: $data');
+    // print('sending request to $url');
     try {
       Response response = await dio.put(
         url,
@@ -213,9 +214,11 @@ class BorrowRepository {
         ),
       );
 
+      // print('response: ${response.data}');
+
       if (response.statusCode == 200) {
         // success response
-        // print('response: ${response.data}');
+        // print('success response: ${response.data}');
         return;
       } else {
         // handle error response
@@ -246,13 +249,84 @@ class BorrowRepository {
     }
   }
 
-
-  // create borrow request
-  Future<void> verifyKhaltiTransaction({
-    required String idx,
+  // verify khalti transaction
+  Future<KhaltiVerificationSuccessModel> verifyKhaltiTransaction({
+    required String token,
     required int amount,
   }) async {
     String url = '${Config.baseUrl}/user/khaltiPaymentVerification';
+
+    Dio dio = Dio();
+
+    // get token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bearerToken = prefs.getString('token');
+
+    // request body
+    final data = {
+      "token": token,
+      "amount": amount,
+    };
+    
+
+    // api call
+    print('sending request to $url with body: $data');
+    try {
+      Response response = await dio.post(
+        url,
+        data: data,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $bearerToken',
+          },
+        ),
+      );
+
+      print('response: ${response.data}');
+
+      if (response.statusCode == 200) {
+        // success response
+        print('success response: ${response.data}');
+        return khaltiVerificationSuccessModelFromJson(response.toString());
+      } else {
+        // handle error response
+        if (response.data['error'] != null) {
+          print('error message: ${response.data['error']}');
+          throw Exception(response.data['error']);
+        } else {
+          // generic error message
+          throw Exception('Error verifying khalti transaction');
+        }
+      }
+    } on DioException catch (e) {
+      print('dio error: $e');
+      // handle DioException
+      if (e.response != null && e.response!.data != null) {
+        // handle specific error message from the server
+        if (e.response!.data['error'] != null) {
+          print('dio error message: ${e.response!.data['error']}');
+          throw Exception(e.response!.data['error']);
+        }
+      }
+      // generic error message
+      throw Exception('Error verifying khalti transaction');
+    } catch (e) {
+      // handle other exceptions
+      print('dio error: $e');
+      throw Exception('Error verifying khalti transaction: $e');
+    }
+  }
+
+  // save khalti transaction
+  Future<void> saveKhaltiTransaction({
+    required String idx,
+    required int amount,
+    required String status,
+    required String transactionId,
+    required bool isRefunded,
+  }) async {
+    String url = '${Config.baseUrl}/user/saveKhaltiPaymentDetails';
 
     Dio dio = Dio();
 
@@ -262,8 +336,12 @@ class BorrowRepository {
 
     // request body
     final data = {
-      "idx": idx,
-      "amount": amount,
+      "pidx": idx,
+      "total_amount": amount,
+      "status": status,
+      "transaction_id": transactionId,
+      "fee": "0",
+      "refunded": isRefunded,
     };
 
     // api call
@@ -293,7 +371,7 @@ class BorrowRepository {
         } else {
           // generic error message
           // print('error innit');
-          throw Exception('Error verifying khalti transaction');
+          throw Exception('Error saving khalti transaction');
         }
       }
     } on DioException catch (e) {
@@ -309,7 +387,7 @@ class BorrowRepository {
     } catch (e) {
       // handle other exceptions
       print('dio error: $e');
-      throw Exception('Error verifying khalti transaction: $e');
+      throw Exception('Error saving khalti transaction: $e');
     }
   }
 }

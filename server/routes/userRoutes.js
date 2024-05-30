@@ -33,7 +33,7 @@ router.post(
   khaltiPaymentInitialization
 );
 
-router.post("/khaltiPaymentVerification", paymentVerification);
+router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
 
 router.post("/saveKhaltiPaymentDetails", authenticate, savePayment);
 
