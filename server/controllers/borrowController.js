@@ -88,6 +88,42 @@ const browseBorrowRequests = async (req, res) => {
   @access private
 */
 const approveBorrowRequest = async (req, res) => {
+  try {
+    // finding the borrow request by id
+    const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
+
+    // if id not found
+    if (!borrowRequest) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Borrow request not found",
+      });
+    }
+
+    borrowRequest.status = "approved";
+    await borrowRequest.save();
+
+    // updating the user role to lender
+    await User.findByIdAndUpdate(req.user._id, {
+      hasActiveTransaction: true,
+      userRole: "Lender",
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        borrowRequest,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+
+/*const approveBorrowRequest = async (req, res) => {
   // getting amount from req.body
   const { amount } = req.body;
 
@@ -159,6 +195,7 @@ const approveBorrowRequest = async (req, res) => {
     });
   }
 };
+*/
 
 /*
   @desc Reject borrow request
