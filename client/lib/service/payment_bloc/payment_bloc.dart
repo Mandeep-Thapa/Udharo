@@ -1,8 +1,8 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
+import 'package:udharo/data/model/khalti_verification_success_model.dart';
 import 'package:udharo/data/repository/borrow_repository.dart';
 
 part 'payment_event.dart';
@@ -57,17 +57,41 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentEventVerifyKhaltiTransaction>(
       (event, emit) async {
         try {
-          await _borrowRepository.verifyKhaltiTransaction(idx: event.idx,amount: event.amount,);
-          emit(PaymentStateKhaltiPaymentVerificationSuccess());
+          
+          final verificationMessage= await _borrowRepository.verifyKhaltiTransaction(
+            token: event.token,
+            amount: event.amount,
+          );
+
+          print('Verification message: ${verificationMessage.data?.amount}' );
+          emit(PaymentStateKhaltiPaymentVerificationSuccess(success: verificationMessage));
         } on Exception catch (e) {
           emit(PaymentStateError(e.toString()));
         }
       },
     );
-    on<PaymentEventResetPayment>(
-      (event, emit) {
-        emit(PaymentStateInitial());
+    // save khalti transaction
+    on<PaymentEventSaveKhaltiTransaction>(
+      (event, emit) async {
+        try {
+          await _borrowRepository.saveKhaltiTransaction(
+            idx: event.idx,
+            amount: event.amount,
+            status: event.status,
+            transactionId: event.transactionId, 
+            isRefunded: event.isRefunded,
+          );
+          emit(PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess());
+        } on Exception catch (e) {
+          emit(PaymentStateError(e.toString()));
+        }
       },
     );
+    // reset payment bloc
+    // on<PaymentEventResetPayment>(
+    //   (event, emit) {
+    //     emit(PaymentStateInitial());
+    //   },
+    // );
   }
 }

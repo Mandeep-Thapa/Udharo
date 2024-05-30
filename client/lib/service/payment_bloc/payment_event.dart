@@ -39,15 +39,36 @@ class PaymentEventAcceptBorrowRequest extends PaymentEvent {
   List<Object> get props => [productIdentity];
 }
 
-
 class PaymentEventVerifyKhaltiTransaction extends PaymentEvent {
-  final String idx;
+  final String token;
   final int amount;
 
-  const PaymentEventVerifyKhaltiTransaction({required this.idx, required this.amount,});
+  const PaymentEventVerifyKhaltiTransaction({
+    required this.token,
+    required this.amount,
+  });
+
+  @override
+  List<Object> get props => [token];
+}
+
+class PaymentEventSaveKhaltiTransaction extends PaymentEvent {
+  final String idx;
+  final int amount;
+  final String status;
+  final String transactionId;
+  final bool isRefunded;
+
+  const PaymentEventSaveKhaltiTransaction({
+    required this.idx,
+    required this.amount,
+    required this.status,
+    required this.transactionId,
+    required this.isRefunded,
+  });
 
   @override
   List<Object> get props => [idx];
 }
 
-class PaymentEventResetPayment extends PaymentEvent {}
+// class PaymentEventResetPayment extends PaymentEvent {}
