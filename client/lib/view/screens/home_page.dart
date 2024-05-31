@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:khalti_flutter/khalti_flutter.dart';
-import 'package:udharo/data/repository/borrow_repository.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/view/screens/kyc_form_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
@@ -73,32 +71,7 @@ class _HomePageState extends State<HomePage> {
 
                 // this button is for testing purpose
                 TextButton(
-                  onPressed: () async {
-                    await KhaltiScope.of(context).pay(
-                      config: PaymentConfig(
-                        // amount: event.amount * 100,
-
-                        // for testing
-                        amount: 20 * 100,
-
-                        productIdentity: 'event.productIdentity',
-                        productName: 'event.productName',
-                      ),
-                      preferences: [
-                        PaymentPreference.khalti,
-                      ],
-                      onSuccess: (success) async {
-                        await BorrowRepository().verifyKhaltiTransaction(
-                          token: success.token,
-                          amount: success.amount,
-                        );
-                        print('token: ${success.token}, idx: ${success.idx}, amount: ${success.amount}');
-                      },
-                      onFailure: (failure) {
-                        print(failure.message);
-                      },
-                    );
-                  },
+                  onPressed: () async {},
                   child: const Text('Test'),
                 ),
               ],

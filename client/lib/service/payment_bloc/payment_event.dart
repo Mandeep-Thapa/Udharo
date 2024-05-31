@@ -31,9 +31,13 @@ class PaymentEventMakeKhaltiPayment extends PaymentEvent {
 }
 
 class PaymentEventAcceptBorrowRequest extends PaymentEvent {
+  final int amount;
   final String productIdentity;
 
-  const PaymentEventAcceptBorrowRequest({required this.productIdentity});
+  const PaymentEventAcceptBorrowRequest({
+    required this.amount,
+    required this.productIdentity,
+  });
 
   @override
   List<Object> get props => [productIdentity];

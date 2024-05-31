@@ -25,7 +25,12 @@ final class PaymentStateKhaltiPaymentVerificationSuccess extends PaymentState {
 final class PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess extends PaymentState {}
 
 
-final class PaymentStateAcceptSuccess extends PaymentState {}
+final class PaymentStateAcceptSuccess extends PaymentState {
+  final int amount;
+  final String borrowId;
+
+  PaymentStateAcceptSuccess({required this.amount, required this.borrowId,});
+}
 
 final class PaymentStateError extends PaymentState {
   final String message;
