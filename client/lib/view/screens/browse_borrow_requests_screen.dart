@@ -54,7 +54,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                         //     message: 'Loading...',
                         //   );
                         // }
-                         if (state is PaymentStateAcceptSuccess) {
+                        if (state is PaymentStateAcceptSuccess) {
                           // borrow request accepted, make khalti payment
                           context.read<PaymentBloc>().add(
                                 PaymentEventMakeKhaltiPayment(
@@ -77,6 +77,22 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                               );
                         } else if (state
                             is PaymentStateKhaltiPaymentVerificationSuccess) {
+                          final verificationData = state.success.data;
+
+                          if(verificationData!=null){
+                            context.read<PaymentBloc>().add(
+                            PaymentEventSaveKhaltiTransaction(
+                              idx: verificationData.idx!,
+                              amount: verificationData.amount!,
+                              senderName: verificationData.merchant!.name!,
+                              createdOn: verificationData.createdOn!.toString(),
+                              receiverName: verificationData.user!.name!,
+                              feeAmount: verificationData.feeAmount!,
+                            ),
+                          );
+                          }
+
+                          
                           // show success message
                           CustomToast().showToast(
                             context: context,
@@ -90,7 +106,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                         }
                         // else if(state is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess){
 
-                        // } 
+                        // }
                         else if (state is PaymentStateError) {
                           CustomToast().showToast(
                             context: context,
