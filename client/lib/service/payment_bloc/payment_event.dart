@@ -55,16 +55,18 @@ class PaymentEventVerifyKhaltiTransaction extends PaymentEvent {
 class PaymentEventSaveKhaltiTransaction extends PaymentEvent {
   final String idx;
   final int amount;
-  final String status;
-  final String transactionId;
-  final bool isRefunded;
+  final String createdOn;
+  final String senderName;
+  final String receiverName;
+  final int feeAmount;
 
   const PaymentEventSaveKhaltiTransaction({
     required this.idx,
     required this.amount,
-    required this.status,
-    required this.transactionId,
-    required this.isRefunded,
+    required this.senderName,
+    required this.createdOn,
+    required this.receiverName,
+    required this.feeAmount,
   });
 
   @override

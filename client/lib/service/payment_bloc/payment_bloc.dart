@@ -57,14 +57,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentEventVerifyKhaltiTransaction>(
       (event, emit) async {
         try {
-          
-          final verificationMessage= await _borrowRepository.verifyKhaltiTransaction(
+          final verificationMessage =
+              await _borrowRepository.verifyKhaltiTransaction(
             token: event.token,
             amount: event.amount,
           );
 
-          print('Verification message: ${verificationMessage.data?.amount}' );
-          emit(PaymentStateKhaltiPaymentVerificationSuccess(success: verificationMessage));
+          print('Verification message: ${verificationMessage.data?.amount}');
+          emit(PaymentStateKhaltiPaymentVerificationSuccess(
+              success: verificationMessage));
         } on Exception catch (e) {
           emit(PaymentStateError(e.toString()));
         }
@@ -77,9 +78,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           await _borrowRepository.saveKhaltiTransaction(
             idx: event.idx,
             amount: event.amount,
-            status: event.status,
-            transactionId: event.transactionId, 
-            isRefunded: event.isRefunded,
+            sendername: event.senderName,
+            receiverName: event.receiverName,
+            createdOn: event.createdOn,
+            feeAmount: event.feeAmount,
           );
           emit(PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess());
         } on Exception catch (e) {
