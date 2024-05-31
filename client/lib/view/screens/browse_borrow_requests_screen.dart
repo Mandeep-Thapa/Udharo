@@ -37,31 +37,19 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                 child: Text('No borrow requests found.'),
               );
             } else {
-              return SizedBox(
-                child: ListView.builder(
-                  itemCount: borrowRequests.length,
-                  itemBuilder: (context, index) {
-                    final borrowRequest = borrowRequests[index];
-
-                    // payment bloc
-                    return BlocConsumer<PaymentBloc, PaymentState>(
-                      listener: (context, state) {
-                        print('current state: $state');
-                        // if(state is PaymentStateLoading){
-                        //   // show loading dialog
-                        //   CustomToast().showToast(
-                        //     context: context,
-                        //     message: 'Loading...',
-                        //   );
-                        // }
-                        if (state is PaymentStateAcceptSuccess) {
+              return BlocConsumer<PaymentBloc, PaymentState>(
+                listener: (context, state) {
+                  // Listener logic here
+                  if (state is PaymentStateAcceptSuccess) {
                           // borrow request accepted, make khalti payment
+
+                          print('khalti payment state called');
                           context.read<PaymentBloc>().add(
                                 PaymentEventMakeKhaltiPayment(
                                   context: context,
-                                  amount: borrowRequest.amount!,
-                                  productIdentity: borrowRequest.id!,
-                                  productName: 'Loan for: ${borrowRequest.id!}',
+                                  amount: state.amount,
+                                  productIdentity: state.borrowId,
+                                  productName: 'Loan for: ${state.borrowId}',
                                 ),
                               );
                         } else if (state is PaymentStateKhaltiPaymentSuccess) {
@@ -69,12 +57,20 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
 
                           // print('verifying khalti transaction');
 
+                          print('verification state called');
+
+
                           context.read<PaymentBloc>().add(
                                 PaymentEventVerifyKhaltiTransaction(
                                   token: state.success.token,
                                   amount: state.success.amount,
                                 ),
                               );
+
+                          // CustomToast().showToast(
+                          //   context: context,
+                          //   message: 'Borrow request accepted successfully.',
+                          // );
                         } else if (state
                             is PaymentStateKhaltiPaymentVerificationSuccess) {
                           final verificationData = state.success.data;
@@ -94,27 +90,35 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
 
                           
                           // show success message
-                          CustomToast().showToast(
-                            context: context,
-                            message: 'Borrow request accepted successfully.',
-                          );
+                          // CustomToast().showToast(
+                          //   context: context,
+                          //   message: 'Borrow request accepted successfully.',
+                          // );
 
                           // reset payment bloc
                           // context.read<PaymentBloc>().add(
                           //       PaymentEventResetPayment(),
                           //     );
                         }
-                        // else if(state is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess){
-
-                        // }
+                        else if(state is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess){
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'Borrow request accepted successfully.',
+                          );
+                        }
                         else if (state is PaymentStateError) {
                           CustomToast().showToast(
                             context: context,
                             message: state.message,
                           );
                         }
-                      },
-                      builder: (context, state) {
+                },
+                builder: (context, paymentState) {
+                  return SizedBox(
+                    child: ListView.builder(
+                      itemCount: borrowRequests.length,
+                      itemBuilder: (context, index) {
+                        final borrowRequest = borrowRequests[index];
                         return CustomDetailsContainer(
                           fields: [
                             Text('Borrower : ${borrowRequest.fullName}'),
@@ -135,11 +139,9 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                               'Invest in Borrow Request',
                               'Investing is a high-risk activity and may result in loss of funds. Are you sure you want to proceed?',
                               () {
-                                // accept borrow request
-
-                                // print('accepting borrow request');
                                 context.read<PaymentBloc>().add(
                                       PaymentEventAcceptBorrowRequest(
+                                        amount: borrowRequest.amount!,
                                         productIdentity: borrowRequest.id!,
                                       ),
                                     );
@@ -150,9 +152,9 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                           },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               );
             }
           } else if (state is BrowseBorrowRequestStateError) {

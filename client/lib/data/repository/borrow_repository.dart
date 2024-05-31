@@ -270,11 +270,11 @@ class BorrowRepository {
     
 
     // api call
-    print('sending request to $url with body: $data');
+    // print('sending request to $url with body: $data');
     try {
       Response response = await dio.post(
         url,
-        data: data,
+        data:jsonEncode(data),
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -283,16 +283,16 @@ class BorrowRepository {
         ),
       );
 
-      print('response: ${response.data}');
+      // print('response: ${response.data}');
 
       if (response.statusCode == 200) {
         // success response
-        print('success response: ${response.data}');
+        // print('success response: ${response.data}');
         return khaltiVerificationSuccessModelFromJson(response.toString());
       } else {
         // handle error response
         if (response.data['error'] != null) {
-          print('error message: ${response.data['error']}');
+          // print('error message: ${response.data['error']}');
           throw Exception(response.data['error']);
         } else {
           // generic error message
@@ -301,12 +301,12 @@ class BorrowRepository {
       }
     } 
     on DioException catch (e) {
-      print('dio error: $e');
+      // print('dio error: $e');
       // handle DioException
       if (e.response != null && e.response!.data != null) {
         // handle specific error message from the server
         if (e.response!.data['error'] != null) {
-          print('dio error message: ${e.response!.data['error']}');
+          // print('dio error message: ${e.response!.data['error']}');
           throw Exception(e.response!.data['error']);
         }
       }
@@ -315,7 +315,7 @@ class BorrowRepository {
     } 
     catch (e) {
       // handle other exceptions
-      print('dio error: $e');
+      // print('dio error: $e');
       throw Exception('Error verifying khalti transaction: $e');
     }
   }
@@ -361,9 +361,12 @@ class BorrowRepository {
         ),
       );
 
+        print(' response: ${response.data}');
+
+
       if (response.statusCode == 200) {
         // success response
-        print('response: ${response.data}');
+        print('success response: ${response.data}');
 
         return;
       } else {
@@ -373,7 +376,7 @@ class BorrowRepository {
           throw Exception(response.data['error']);
         } else {
           // generic error message
-          // print('error innit');
+          print('error innit');
           throw Exception('Error saving khalti transaction');
         }
       }

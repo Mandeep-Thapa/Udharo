@@ -29,7 +29,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             preferences: [
               PaymentPreference.khalti,
             ],
-            onSuccess: (success) async {
+            onSuccess: (success) {
               emit(PaymentStateKhaltiPaymentSuccess(success: success));
               // print('Success: ${success.token}');
             },
@@ -47,7 +47,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       (event, emit) async {
         try {
           await _borrowRepository.acceptBorrowRequest(event.productIdentity);
-          emit(PaymentStateAcceptSuccess());
+          emit(PaymentStateAcceptSuccess(
+            amount: 0,
+            borrowId: event.productIdentity,
+          ));
         } on Exception catch (e) {
           emit(PaymentStateError(e.toString()));
         }
@@ -63,7 +66,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             amount: event.amount,
           );
 
-          print('Verification message: ${verificationMessage.data?.amount}');
+          // print('Verification message: ${verificationMessage.data?.amount}');
           emit(PaymentStateKhaltiPaymentVerificationSuccess(
               success: verificationMessage));
         } on Exception catch (e) {
