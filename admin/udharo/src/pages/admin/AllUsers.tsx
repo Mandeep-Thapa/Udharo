@@ -16,6 +16,7 @@ interface User {
   email: string;
   riskFactor: number;
   hasKycDetails?: boolean;
+  hasTransactionDetails?: boolean;
 }
 const AllUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -56,6 +57,24 @@ const AllUsers: React.FC = () => {
 
         if (isMounted) {
           // Fetch KYC details status for each user
+          const usersWithTransactionDetails = await Promise.all(
+            users.map(async (user: User) => {
+              try {
+                const transactionResponse = await axios.get(
+                  `http://localhost:3004/api/admin/transactionDetails/${user._id}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                console.log('Transaction:',transactionResponse.data.message)
+                return { ...user, hasTransactionDetails: true };
+              } catch (error) {
+                return { ...user, hasTransactionDetails: false };
+              }
+            })
+          );
           const usersWithKycStatus = await Promise.all(
             users.map(async (user: User) => {
               try {
@@ -81,11 +100,16 @@ const AllUsers: React.FC = () => {
               }
             })
           );
-
-          setUsers(usersWithKycStatus);
+          const mergedUsers = usersWithTransactionDetails.map((user, index) => ({
+            ...user,
+            hasKycDetails: usersWithKycStatus[index].hasKycDetails,
+          }));
+          console.log('User with transaction:',usersWithTransactionDetails)
+        setUsers(mergedUsers);
           setUnverifiedUsers(unverifiedUsers);
           setLoading(false);
         }
+        
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Axios error occurred:", error);
@@ -118,6 +142,11 @@ const AllUsers: React.FC = () => {
   const handleKycDetailsClick = (_id: number) => {
     console.log("Navigating to Kyc details with id:", _id);
     navigate(`/kycdetails/${_id}`);
+  };
+
+
+  const handleTransactionsClick = (_id: number) => {
+    navigate(`/transactions/${_id}`);
   };
 
   return (
@@ -184,6 +213,17 @@ const AllUsers: React.FC = () => {
                             </button>
                           </div>
                         )}
+                        {user.hasTransactionDetails && ( 
+                          <div className="">
+                            <button
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-blue-300 transition duration-500"
+                              onClick={() => handleTransactionsClick(user._id)}
+                            >
+                              Transactions
+                            </button>
+                          </div>
+                        )}
+                        
                         <div className="flex justify-center">
                           <button className="bg-custom-sudesh_black rounded-full hover:transition duration-700 text-2xl m-1 p-2 text-white font-bold">
                             <MdDelete />

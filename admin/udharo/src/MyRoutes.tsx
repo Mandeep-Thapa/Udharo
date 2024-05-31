@@ -20,10 +20,7 @@ const MyRoutes = () => {
           <Route path="/users" element={<AllUsers />} />
           <Route path="/userdetails/:_id" element={<UserDetails />} />
           <Route path="/kycdetails/:_id" element={<KycDetails />} />
-          <Route
-            path="/transactiondetails/:_id"
-            element={<TransactionDetails />}
-          />
+          <Route path="/transactions/:_id" element={<TransactionDetails />} />
         </Route>
       </Routes>
     </Router>
