@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
 const axios = require("axios");
 const Payment = require("../models/khaltiPaymentModel");
+const KhaltiPayment = require("../models/khaltiPaymentModel");
 require("dotenv").config();
 
 /*
@@ -332,53 +333,51 @@ const paymentVerification = async (req, res) => {
 */
 const savePayment = async (req, res) => {
   try {
-    const { pidx, total_amount, status, transaction_id, fee, refunded } =
+    const { idx, amount, fee_amount, created_on, senderName, receiverName } =
       req.body;
     const paidById = req.user._id;
-    // const paidToId=...,
 
-    // check if a payment with the same pidx already exists
-    const existingPayment = await Payment.findOne({ pidx });
+    // check if a payment with the same idx already exists
+    const existingPayment = await KhaltiPayment.findOne({ idx: idx });
     if (existingPayment) {
       return res.status(400).json({
         status: "Failed",
-        message: "Payment with the same pidx already exists",
+        message: "Payment with the same idx already exists",
       });
     }
 
-    // Get the user's name
-    const user = await User.findById(paidById);
-    const paidByName = user.fullName;
-
-    const payment = new Payment({
-      pidx,
-      total_amount,
-      status,
-      transaction_id,
-      fee,
-      refunded,
-      paidByName: req.user._id,
+    // Saving the payment details
+    const payment = new KhaltiPayment({
+      idx,
+      amount,
+      fee_amount,
+      created_on,
+      senderName,
+      receiverName,
     });
-    console.log(payment);
+
+    console.log("Payment: ", payment);
 
     await payment.save();
 
-    // update user's moneyInvestedDetails
+    // update user's moneyInvestedDetail
     await User.findOneAndUpdate(
-      { _id: paidById },
-      { $inc: { moneyInvestedDetails: total_amount } },
+      {
+        _id: paidById,
+      },
+      { $inc: { moneyInvestedDetails: amount } },
       { new: true, userFindAndModify: false }
     );
 
     res.status(200).json({
       status: "Success",
-      message: "Khalti payment details saved successfully",
+      message: "Khalti Payment Saved Successfully",
       data: { payment },
     });
   } catch (error) {
     res.status(400).json({
       status: "Failed",
-      message: "Error in saving khalti payment details",
+      message: "Error in saving the transaction details",
       error: error.message,
     });
   }

@@ -1,17 +1,14 @@
 const mongoose = require("mongoose");
 
-const khaltiPaymentSchema = new mongoose.Schema({
-  pidx: String,
-  total_amount: Number,
-  status: String,
-  transaction_id: String,
-  fee: Number,
-  refunded: Boolean,
-  paid_at: { type: Date, default: Date.now() },
-  paidByName: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  //paidTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+const paymentDetailsSchema = new mongoose.Schema({
+  idx: String,
+  amount: Number,
+  fee_amount: Number,
+  created_on: String,
+  senderName: String,
+  receiverName: String,
 });
 
-const Payment = mongoose.model("Payment", khaltiPaymentSchema);
+const KhaltiPayment = mongoose.model("KhaltiPayment", paymentDetailsSchema);
 
-module.exports = Payment;
+module.exports = KhaltiPayment;
