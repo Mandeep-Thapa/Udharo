@@ -299,7 +299,8 @@ class BorrowRepository {
           throw Exception('Error verifying khalti transaction');
         }
       }
-    } on DioException catch (e) {
+    } 
+    on DioException catch (e) {
       print('dio error: $e');
       // handle DioException
       if (e.response != null && e.response!.data != null) {
@@ -311,7 +312,8 @@ class BorrowRepository {
       }
       // generic error message
       throw Exception('Error verifying khalti transaction');
-    } catch (e) {
+    } 
+    catch (e) {
       // handle other exceptions
       print('dio error: $e');
       throw Exception('Error verifying khalti transaction: $e');

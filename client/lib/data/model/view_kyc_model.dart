@@ -33,7 +33,7 @@ class Data {
   String? gender;
   String? photo;
   int? citizenshipNumber;
-  int? panNumber;
+  String? panNumber;
   String? citizenshipFrontPhoto;
   String? citizenshipBackPhoto;
   bool? isKycVerified;

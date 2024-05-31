@@ -21,17 +21,7 @@ class KYCRepository {
 
     Dio dio = Dio();
 
-    // print(
-    //   'received data: $firstName, $lastName, $citizenshipNumber, $panNumber, $citizenshipFrontPhoto, $citizenshipBackPhoto, $passportSizePhoto',
-    // );
-
-    // print('type of: ${passportSizePhoto.runtimeType}');
-
-    // final imageFile = await MultipartFile.fromFile(
-    //   passportSizePhoto.path,
-    //   filename: 'passportSizePhoto.jpg',
-    //   contentType: MediaType('image', 'jpeg'),
-    // );
+   
 
     // get token from shared preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -134,9 +124,12 @@ class KYCRepository {
         ),
       );
 
+        // print('response: ${response.data}');
+
+
       if (response.statusCode == 200) {
         // success response
-        // print('response: ${response.data}');
+        // print('success response: ${response.data}');
         return ViewKycModel.fromJson(response.data);
       } else {
         // handle error response
