@@ -42,27 +42,7 @@ const Dashboard: React.FC = () => {
       };
       fetchAdminDetails();
    }, []);
-   // useEffect(() =>{
-   //    const fetchUserDetails = async () => {
-     
-   //       try{
-   //          const authTokenUser = Cookies.get('authToken');
-   //          const responseUser = await axios.get(`http://localhost:3004/api/admin/userdetails/${id}`, {
-   //          headers: {
-   //             Authorization: `Bearer ${authTokenUser}`
-   //          }
-   //          });
-   //          setUserDetails(responseUser.data);
 
-   //          if(!responseUser.data){
-   //             navigate('/')
-   //          }
-   //       }catch(error: any){
-   //          console.log("Error fetching user details:", error.message);
-   //       }
-   // };
-   // fetchUserDetails();
-   // }, [id]);
   return (
     <>
     <Navigationwrap>
@@ -82,26 +62,26 @@ const Dashboard: React.FC = () => {
          }
 <div className="rounded-lg grid xs:grid-cols-1 md:grid-cols-3 m-4">
    <a href="/users">
-<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
+<div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>All Users</h1>
 <span className=' text-4xl'><FaUser /></span>
 </div>
 </a>
 
 
-<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
+<div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_blue hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Lenders</h1>
 <span className=' text-4xl'><FaRegMoneyBillAlt /></span>
 </div>
-<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
+<div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_dark_gray hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Borrowers</h1>
 <span className=' text-4xl'><LiaBlenderSolid /></span>
 </div>
-<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
+<div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_blue hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Account Management</h1>
 <span className=' text-4xl'><FaUser /></span>
 </div>
-<div className="border-2 border-custom-sudesh_black rounded-md hover:cursor-pointer hover:bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
+<div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Our Team</h1>
 <span className=' text-4xl'><HiUserGroup /></span>
 </div>

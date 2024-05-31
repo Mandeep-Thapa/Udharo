@@ -83,7 +83,7 @@ const AllUsers: React.FC = () => {
                 const hasTransactionDetails = transactionResponse.status === 200 && transactionResponse.data.message.length > 0;
                 return { ...user, hasKycDetails, hasTransactionDetails };
               } catch (error) {
-                toast.error("Error fetching details for user.");
+                console.log("Error fetching details for user.");
                   return { ...user, hasKycDetails: false, hasTransactionDetails: false };
                 }
             })
@@ -173,7 +173,7 @@ const AllUsers: React.FC = () => {
                       <div className="flex flex-col">
                         <div className="">
                           <button
-                            className="border border-custom-sudesh_black font-medium bg-custom-sudesh_yellow rounded-md p-2 m-2 transition duration-500 "
+                            className="  bg-custom-sudesh_yellow rounded-md p-2 m-2 transition duration-500 "
                             onClick={() => handleUserDetailsClick(user._id)}
                           >
                             User Details
@@ -183,7 +183,7 @@ const AllUsers: React.FC = () => {
                         {user.hasKycDetails && (
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-orange-300 transition duration-500"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-custom-sudesh_yellow transition duration-500"
                               onClick={() => handleKycDetailsClick(user._id)}
                             >
                               KYC Details
@@ -192,7 +192,7 @@ const AllUsers: React.FC = () => {
                         )}
                          {user.hasTransactionDetails && (
                         <div className="flex justify-center">
-                          <button className="bg-custom-sudesh_black rounded-md hover:transition duration-700  m-1 p-2 text-white font-bold"  onClick={() => handleTrabsactionDetails(user._id)}>
+                          <button className="bg-custom-sudesh_yellow rounded-md hover:transition duration-700  m-1 p-2 "  onClick={() => handleTrabsactionDetails(user._id)}>
                             Transactions
                           </button>
                         </div>

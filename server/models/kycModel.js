@@ -37,10 +37,6 @@ const kycSchema = new mongoose.Schema({
   panNumber: {
     type: String,
   },
-  isKYCVerified: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 module.exports = mongoose.model("Kyc", kycSchema);

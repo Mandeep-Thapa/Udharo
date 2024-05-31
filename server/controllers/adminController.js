@@ -283,34 +283,22 @@ const verifyKYC = async (req, res) => {
         status: "Failed",
         message: "User not found",
       });
-    }
-
-    if (user.is_verifiedDetails.is_kycVerified) {
-      return res.status(400).json({
-        status: "Success",
-        message: "KYC already verified",
-      });
-    }
-
+ }
     const kyc = await Kyc.findOne({ userId: userId });
-
     if (!kyc) {
       return res.status(404).json({
         status: "Failed",
         message: "KYC details not found",
       });
     }
+user.is_verifiedDetails.is_kycVerified = !user.is_verifiedDetails.is_kycVerified;
+await user.save();
+return res.status(200).json({
+  status: "Success",
+  message: user.is_verifiedDetails.is_kycVerified ? "KYC verified successfully" : "KYC unverified!",
+  is_kycVerified: user.is_verifiedDetails.is_kycVerified,
+});
 
-    user.is_verifiedDetails.is_kycVerified = true;
-    await user.save();
-
-    kyc.isKYCVerified = true;
-    await kyc.save();
-
-    res.json({
-      status: "Success",
-      message: "KYC verified successfully",
-    });
   } catch (error) {
     res.status(500).json({
       status: "Failed",
@@ -338,21 +326,18 @@ const verifyPan = async (req, res) => {
         message: "User not found",
       });
     }
-
-    if (user.is_verifiedDetails.is_panVerified) {
-      return res.status(400).json({
-        status: "Success",
-        message: "PAN already verified",
-      });
-    }
-
-    user.is_verifiedDetails.is_panVerified = true;
+    // user.is_verifiedDetails.is_panVerified = true;
+    user.is_verifiedDetails.is_panVerified = !user.is_verifiedDetails.is_panVerified;
     await user.save();
-
-    res.status(200).json({
+    return res.status(200).json({
       status: "Success",
-      message: "PAN verified successfully",
+      message: user.is_verifiedDetails.is_panVerified ? "PAN verified successfully" : "PAN unverified successfully",
+      is_panVerified: user.is_verifiedDetails.is_panVerified,
     });
+    // res.status(200).json({
+    //   status: "Success",
+    //   message: "PAN verified successfully",
+    // });
   } catch (error) {
     res.status(500).json({
       status: "Failed",
