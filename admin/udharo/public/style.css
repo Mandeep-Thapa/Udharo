@@ -1,0 +1,29 @@
+.switch-root {
+   width: 42px;
+   height: 25px;
+   background-color: #e0e0e0;
+   border-radius: 12.5px;
+   position: relative;
+   transition: background-color 0.2s;
+ }
+ 
+ .switch-root[data-state="checked"] {
+   background-color: #4caf50;
+ }
+ 
+ .switch-thumb {
+   width: 21px;
+   height: 21px;
+   background-color: #fff;
+   border-radius: 50%;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+   position: absolute;
+   top: 2px;
+   left: 2px;
+   transition: transform 0.2s;
+ }
+ 
+ .switch-root[data-state="checked"] .switch-thumb {
+   transform: translateX(17px);
+ }
+ 

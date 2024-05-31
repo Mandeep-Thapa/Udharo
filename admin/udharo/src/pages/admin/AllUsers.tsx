@@ -9,7 +9,6 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
 
 interface User {
   _id: number;
@@ -58,41 +57,59 @@ const AllUsers: React.FC = () => {
 
         if (isMounted) {
           // Fetch KYC details status for each user
+          const usersWithTransactionDetails = await Promise.all(
+            users.map(async (user: User) => {
+              try {
+                const transactionResponse = await axios.get(
+                  `http://localhost:3004/api/admin/transactionDetails/${user._id}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                console.log('Transaction:',transactionResponse.data.message)
+                return { ...user, hasTransactionDetails: true };
+              } catch (error) {
+                return { ...user, hasTransactionDetails: false };
+              }
+            })
+          );
           const usersWithKycStatus = await Promise.all(
             users.map(async (user: User) => {
               try {
-                const [kycResponse, transactionResponse] = await Promise.all([
-                  axios.get(
-                    `http://localhost:3004/api/admin/kycDetails/${user._id}`,
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    }
-                  ),
-                  axios.get(
-                    `http://localhost:3004/api/admin/transactionDetails/${user._id}`,
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    }
-                  ),
-                ]);
-                const hasKycDetails = kycResponse.status === 200;
-                const hasTransactionDetails = transactionResponse.status === 200 && transactionResponse.data.message.length > 0;
-                return { ...user, hasKycDetails, hasTransactionDetails };
+                const kycResponse = await axios.get(
+                  `http://localhost:3004/api/admin/kycDetails/${user._id}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                console.log(kycResponse);
+                return { ...user, hasKycDetails: true };
               } catch (error) {
-                toast.error("Error fetching details for user.");
-                  return { ...user, hasKycDetails: false, hasTransactionDetails: false };
+                if (
+                  axios.isAxiosError(error) &&
+                  error.response &&
+                  error.response.data.message === "KYC not found"
+                ) {
+                  return { ...user, hasKycDetails: false };
                 }
+                return { ...user, hasKycDetails: false };
+              }
             })
           );
-
-          setUsers(usersWithKycStatus);
+          const mergedUsers = usersWithTransactionDetails.map((user, index) => ({
+            ...user,
+            hasKycDetails: usersWithKycStatus[index].hasKycDetails,
+          }));
+          console.log('User with transaction:',usersWithTransactionDetails)
+        setUsers(mergedUsers);
           setUnverifiedUsers(unverifiedUsers);
           setLoading(false);
         }
+        
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Axios error occurred:", error);
@@ -126,10 +143,11 @@ const AllUsers: React.FC = () => {
     console.log("Navigating to Kyc details with id:", _id);
     navigate(`/kycdetails/${_id}`);
   };
-  const handleTrabsactionDetails = (_id: number) => {
-    console.log("Navigating to Transaction details with id:", _id);
-    navigate(`/transactiondetails/${_id}`);
-  }
+
+
+  const handleTransactionsClick = (_id: number) => {
+    navigate(`/transactions/${_id}`);
+  };
 
   return (
     <>
@@ -138,8 +156,13 @@ const AllUsers: React.FC = () => {
           <h1 className="font-bold text-3xl mx-3">All Users</h1>
           {error && <p className="error">{error}</p>}
           {loading ? (
-            <div className="flex justify-center mt-10 h-screen">
-              <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
+            <div className="flex justify-center mt-20 h-screen">
+              <div className="newtons-cradle">
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+                <div className="newtons-cradle__dot"></div>
+              </div>
             </div>
           ) : (
             <>
@@ -190,13 +213,22 @@ const AllUsers: React.FC = () => {
                             </button>
                           </div>
                         )}
-                         {user.hasTransactionDetails && (
+                        {user.hasTransactionDetails && ( 
+                          <div className="">
+                            <button
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-blue-300 transition duration-500"
+                              onClick={() => handleTransactionsClick(user._id)}
+                            >
+                              Transactions
+                            </button>
+                          </div>
+                        )}
+                        
                         <div className="flex justify-center">
-                          <button className="bg-custom-sudesh_black rounded-md hover:transition duration-700  m-1 p-2 text-white font-bold"  onClick={() => handleTrabsactionDetails(user._id)}>
-                            Transactions
+                          <button className="bg-custom-sudesh_black rounded-full hover:transition duration-700 text-2xl m-1 p-2 text-white font-bold">
+                            <MdDelete />
                           </button>
                         </div>
-                         )}
                       </div>
                     </div>
                   ))}

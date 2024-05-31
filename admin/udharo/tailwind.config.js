@@ -55,6 +55,8 @@ module.exports = {
           sudesh_grey: "#eff1f3",
           sudesh_yellow: "#fed766",
           sudesh_black: "#272727",
+          sudesh_blue: "#019DB6",
+          sudesh_dark_gray: "#696772",
         },
       },
       borderRadius: {

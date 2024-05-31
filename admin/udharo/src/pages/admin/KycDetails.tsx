@@ -89,6 +89,7 @@ const KycDetails: React.FC = () => {
         throw new Error("Authentication token not found");
       }
       const updatedStatus = !kycdetails.isKYCVerified;
+      console.log('Status:',updatedStatus);
       const response = await axios.put(
         `http://localhost:3004/api/admin/verifyKYC/${kycdetails?.userId}`,
         {
@@ -110,6 +111,7 @@ const KycDetails: React.FC = () => {
         }
         return prevState;
       });
+      // toast.success(response.data.message);
       console.log(response);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -132,6 +134,7 @@ const KycDetails: React.FC = () => {
   return (
     <>
       <Navigationwrap>
+        <Toaster/>
         <div className="mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
           <h1 className="font-bold text-3xl mx-3">KYC Details</h1>
           {loading ? (

@@ -5,6 +5,7 @@ import { TbLogout } from "react-icons/tb";
 import Cookie from 'js-cookie';
 import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { IoMdSad } from "react-icons/io";
+import { Toaster, toast } from 'sonner';
 
 const Navigation = () => {
    const [isHovered, setIsHovered] = useState(false);
@@ -19,6 +20,7 @@ const Navigation = () => {
    const handleLogout = () => {
       const confirmed = window.confirm("Are you sure you want to logout?");
       if(confirmed){
+         toast.success('Logged out!')
          //remove token local storage bata
          localStorage.removeItem('token');
          //Remove token from cookie
@@ -26,7 +28,9 @@ const Navigation = () => {
          console.log(Cookie.get('authToken'))
          //Navigate to login page
          if (logout===undefined) {
+    setTimeout(() => {
             navigate('/');
+    }, 1000);
          }
          
       }
@@ -40,6 +44,7 @@ const Navigation = () => {
   return (
     <>
 <nav className="fixed top-0 z-50 w-full bg-custom-sudesh_yellow border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+   <Toaster/>
   <div className="px-3 py-3 lg:px-5 lg:pl-3">
     <div className="flex items-center justify-between">
       <div className="flex items-center justify-start rtl:justify-end">
