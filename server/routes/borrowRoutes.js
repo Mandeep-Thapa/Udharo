@@ -21,6 +21,6 @@ router.put("/rejectBorrowRequest/", authenticate, rejectBorrowRequest);
 
 router.get("/borrowRequestHistory", authenticate, borrowRequestHistory);
 
-router.put("/returnMoney", returnMoney);
+router.put("/returnMoney/:id", authenticate, returnMoney);
 
 module.exports = router;
