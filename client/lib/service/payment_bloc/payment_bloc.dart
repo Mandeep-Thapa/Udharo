@@ -18,10 +18,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           // make payment
           await KhaltiScope.of(event.context).pay(
             config: PaymentConfig(
-              // amount: event.amount * 100,
+              amount: event.amount * 100,
 
-              // for testing
-              amount: 20 * 100,
+              // // for testing
+              // amount: 20 * 100,
 
               productIdentity: event.productIdentity,
               productName: event.productName,
@@ -46,9 +46,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentEventAcceptBorrowRequest>(
       (event, emit) async {
         try {
+          // print('Accepting borrow request: ${event.amount}');
           await _borrowRepository.acceptBorrowRequest(event.productIdentity);
           emit(PaymentStateAcceptSuccess(
-            amount: 0,
+            amount: event.amount,
             borrowId: event.productIdentity,
           ));
         } on Exception catch (e) {
