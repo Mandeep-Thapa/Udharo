@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
+import 'package:udharo/view/screens/view_kyc_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_image_selector_button.dart';
 import 'package:udharo/view/widget/custom_toast.dart';
@@ -136,6 +137,13 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
                         context: context,
                         message: 'KYC submitted successfully',
                       );
+
+                      Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ViewKYCScreen(),
+                              ),
+                            );
                     } else if (state is UploadKycStateError) {
                       CustomToast().showToast(
                         context: context,
