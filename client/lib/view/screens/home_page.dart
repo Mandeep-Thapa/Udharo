@@ -70,10 +70,10 @@ class _HomePageState extends State<HomePage> {
                 ),
 
                 // this button is for testing purpose
-                TextButton(
-                  onPressed: () async {},
-                  child: const Text('Test'),
-                ),
+                // TextButton(
+                //   onPressed: () async {},
+                //   child: const Text('Test'),
+                // ),
               ],
             );
           } else if (state is ProfileStateError) {
