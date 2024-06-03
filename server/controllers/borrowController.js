@@ -290,6 +290,15 @@ const returnMoney = async (req, res) => {
     borrowRequest.status = "returned";
     await borrowRequest.save();
 
+    // retrive the user
+    const user = await User.findById(req.user._id);
+
+    // Update the user's timelyRepaymentDetails by 1
+    user.timelyRepaymentDetails += 1;
+
+    await user.save();
+    console.log(user.timelyRepaymentDetails);
+
     res.stautus(200).json({
       status: "Success",
       message: "Money returned successfully",
