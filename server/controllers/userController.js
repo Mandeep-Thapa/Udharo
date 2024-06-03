@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
 const axios = require("axios");
-const Payment = require("../models/khaltiPaymentModel");
+const userMethods = require("../utils/userMethods");
+
 const KhaltiPayment = require("../models/khaltiPaymentModel");
 require("dotenv").config();
 
@@ -184,6 +185,15 @@ const verifyEmail = async (req, res) => {
     }
 
     user.is_verifiedDetails.is_emailVerified = true;
+    // update the verification status to 2
+    user.riskFactorDetails.verificationStatus = 2;
+
+    // using the userMethods to update the risk factor
+    userMethods.updateVerificationStatus.call(user, user.is_verifiedDetails);
+    userMethods.calculateRiskFactor.call(user);
+
+    console.log("User updated to verified:", user);
+
     await user.save();
     console.log("User updated to verified:", user);
 
@@ -198,15 +208,6 @@ const verifyEmail = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-/*
-  @desc Get all unverified users user
-  @route GET /api/user/unverified
-  @access Public
-*/
-const getUnverifiedUsers = asyncHandler(async (req, res) => {
-  res.json("This is the get unverified user controller");
-});
 
 /*
   @desc Get current users
@@ -247,41 +248,41 @@ const getUserProfile = asyncHandler(async (req, res) => {
   @route POST /api/user/khaltiPaymentInitialization
   @access private
 */
-const khaltiPaymentInitialization = async (req, res) => {
-  try {
-    const payload = req.body;
+// const khaltiPaymentInitialization = async (req, res) => {
+//   try {
+//     const payload = req.body;
 
-    const khaltiResponse = await axios.post(
-      "https://a.khalti.com/api/v2/epayment/initiate/",
-      payload,
-      {
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
-          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
-          "User-Agemt": "axios/1.6.8",
-          "Content-Length": "519",
-          "Accept-Encoding": "gzip,compress, deflate, br ",
-        },
-      }
-    );
+//     const khaltiResponse = await axios.post(
+//       "https://a.khalti.com/api/v2/epayment/initiate/",
+//       payload,
+//       {
+//         headers: {
+//           Accept: "application/json, text/plain, */*",
+//           "Content-Type": "application/json",
+//           Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+//           "User-Agemt": "axios/1.6.8",
+//           "Content-Length": "519",
+//           "Accept-Encoding": "gzip,compress, deflate, br ",
+//         },
+//       }
+//     );
 
-    console.log(khaltiResponse.data);
+//     console.log(khaltiResponse.data);
 
-    res.status(200).json({
-      status: "Success",
-      message: "Khalti payment details retrived successfully",
-      data: khaltiResponse.data,
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "Failed",
-      message: "Error in khalti payment details",
-      error: error.message,
-    });
-    console.log(error);
-  }
-};
+//     res.status(200).json({
+//       status: "Success",
+//       message: "Khalti payment details retrived successfully",
+//       data: khaltiResponse.data,
+//     });
+//   } catch (error) {
+//     res.status(400).json({
+//       status: "Failed",
+//       message: "Error in khalti payment details",
+//       error: error.message,
+//     });
+//     console.log(error);
+//   }
+// };
 
 /*
   @desc Khalti payment verification
@@ -386,9 +387,7 @@ const savePayment = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
-  getUnverifiedUsers,
   getUserProfile,
-  khaltiPaymentInitialization,
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,

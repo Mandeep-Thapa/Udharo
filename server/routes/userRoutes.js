@@ -2,9 +2,7 @@ const express = require("express");
 const {
   registerUser,
   loginUser,
-  getUnverifiedUsers,
   getUserProfile,
-  khaltiPaymentInitialization,
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,
@@ -19,19 +17,11 @@ router.post("/register", registerUser);
 
 router.post("/login", loginUser);
 
-router.get("/getUnverifiedUsers", getUnverifiedUsers);
-
 router.get("/profile", authenticate, getUserProfile);
 
 router.post("/send-verification-email", sendVerificationEmail);
 
 router.get("/verify-email/:token", verifyEmail);
-
-router.post(
-  "/khaltiPaymentInitialization",
-  authenticate,
-  khaltiPaymentInitialization
-);
 
 router.post("/khaltiPaymentVerification", authenticate, paymentVerification);
 
