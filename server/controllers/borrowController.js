@@ -50,7 +50,7 @@ const createBorrowRequest = async (req, res) => {
       console.log("Three minutes are over");
     };
 
-    cron.schedule("*/3 * * * *", job(), {
+    const scheduledJob = cron.schedule("*/3 * * * *", job(), {
       scheduled: true,
       timezone: "Asia/Kathmandu",
     });
