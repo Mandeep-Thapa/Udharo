@@ -14,59 +14,83 @@ require("dotenv").config();
   @routes POST /api/user/register
   @access public
 */
-const registerUser = asyncHandler(async (req, res) => {
-  let { fullName, email, password, occupation } = req.body;
+const registerUser = async (req, res) => {
+  const { fullName, email, password, occupation } = req.body;
 
-  if (!fullName) {
-    res.status(400).json({ message: "Full name is required" });
-  }
+  try {
+    // checking if full name is empty
+    if (!fullName) {
+      return res.stauts(400).json({
+        status: "Failed",
+        message: "Full name is required",
+      });
+    }
 
-  if (!occupation) {
-    res.status(400).json({
+    // checking if occupation is empty
+    if (!occupation) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Occupation is required",
+      });
+    }
+
+    if (email == "" || password == "" || fullName == "" || occupation == "") {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Eamil, password, full name and occupation are required",
+      });
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Invalid email address",
+      });
+    }
+
+    // checking if user already exists
+    const userAvailable = await User.findOne({ email });
+    if (userAvailable) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "User with the same email address already exists",
+      });
+    }
+
+    // Hashing password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("Hashed password:", hashedPassword);
+
+    // creating new user
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      fullName,
+      occupation,
+    });
+
+    console.log(`User created: ${user}`);
+
+    if (user) {
+      res.status(200).json({
+        stauts: "Success",
+        data: {
+          _id: user.id,
+        },
+      });
+    } else {
+      res.stauts(400).json({
+        status: "Failed",
+        message: "User data is not valid",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.stauts(500).json({
       status: "Failed",
-      message: "Occupation is required",
+      message: "Error in registering user",
+      error: error.message,
     });
   }
-
-  if (email == "" || password == "" || fullName == "" || occupation == "") {
-    res.status(400).json({
-      message: "Email, password, full name and occupations  are required",
-    });
-  } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-    res.status(400).json({ message: "Invalid email address" });
-  }
-
-  //Checking if user already exists
-  const userAvailable = await User.findOne({ email });
-  if (userAvailable) {
-    res.status(400).json({ message: "User already exists" });
-  }
-
-  //Hash Password
-  const hashedPassword = await bcrypt.hash(password, 10);
-  console.log("Hashed Password: ", hashedPassword);
-  const user = await User.create({
-    email,
-    password: hashedPassword,
-    fullName,
-    occupation,
-  });
-
-  console.log(`User created ${user}`);
-  if (user) {
-    res.status(201).json({
-      status: "Success",
-      data: {
-        _id: user.id,
-      },
-    });
-  } else {
-    res.status(400).json({
-      status: "Failed",
-      message: "User data is not valid",
-    });
-  }
-});
+};
 
 /* 
   @desc Login in the registered user

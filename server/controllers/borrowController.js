@@ -1,3 +1,4 @@
+const cron = require("node-cron");
 const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
 
@@ -25,6 +26,28 @@ const createBorrowRequest = async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, {
       hasActiveTransaction: true,
       userRole: "Borrower",
+    });
+
+    const userId = req.user._id;
+    const borrowRequestId = borrowRequest._id;
+
+    const job = () => async () => {
+      const updateBorrowRequest = await BorrowRequest.findById(borrowRequestId);
+      if (!updateBorrowRequest.isAccepted) {
+        updateBorrowRequest.isLocked = true;
+        await updateBorrowRequest.save();
+
+        await User.findByIdAndUpdate(userId, {
+          hasActiveTransaction: false,
+          userRole: "User",
+        });
+      }
+      console.log("Three minutes are over");
+    };
+
+    cron.schedule("*/3 * * * *", job(), {
+      scheduled: true,
+      timezone: "Asia/Kathmandu",
     });
 
     res.status(200).json({
