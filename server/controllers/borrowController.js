@@ -1,6 +1,7 @@
 const cron = require("node-cron");
 const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
+const userMethods = require("../utils/userMethods");
 
 // create a map to store the cron jobs
 const borrowRequestJobs = new Map();
@@ -47,10 +48,10 @@ const createBorrowRequest = async (req, res) => {
           userRole: "User",
         });
       }
-      console.log("Three minutes are over");
+      console.log("Ten minutes are over");
     };
 
-    const scheduledJob = cron.schedule("*/3 * * * *", job(), {
+    const scheduledJob = cron.schedule("*/10 * * * *", job(), {
       scheduled: true,
       timezone: "Asia/Kathmandu",
     });
@@ -325,34 +326,55 @@ const returnMoney = async (req, res) => {
     }
 
     // if borrow request is not approved
-    if (borrowRequest.stauts !== approved) {
+    if (borrowRequest.status !== "approved") {
       return res.status(400).json({
-        stauts: "Failed",
-        message: "Borrow request is not approved yet",
+        status: "Failed",
+        message: "Borrow request is not approved",
       });
     }
-
-    borrowRequest.status = "returned";
-    await borrowRequest.save();
 
     // retrive the user
     const user = await User.findById(req.user._id);
 
-    // Update the user's timelyRepaymentDetails by 1
-    user.timelyRepaymentDetails += 1;
+    // checking if the payback period has expired
+    const paybackDedline = new Date(borrowRequest.createdAt);
+    paybackDedline.setDate(
+      paybackDedline.getDate() + borrowRequest.paybackPeriod
+    );
+
+    if (new Date() > paybackDedline) {
+      // if the payback period has expired, update the lateRepaymentDetail field
+      user.lateRepaymentDetails += 1;
+      userMethods.updateLateRepayment.call(user, user.lateRepaymentDetails);
+    } else {
+      // if the payback period has not expired, update the timelyRepaymentDetail field
+      user.timelyRepaymentDetails += 1;
+      userMethods.updateTimelyRepayment.call(user, user.timelyRepaymentDetails);
+    }
+
+    // Update the user's risk factor
+    userMethods.calculateRiskFactor.call(user);
 
     await user.save();
-    console.log(user.timelyRepaymentDetails);
 
-    res.stautus(200).json({
+    borrowRequest.status = "returned";
+    await borrowRequest.save();
+
+    // calculate the amount to be returned with interest
+    const amountToBeReturned =
+      borrowRequest.amount +
+      (borrowRequest.amount * borrowRequest.interestRate) / 100;
+
+    res.status(200).json({
       status: "Success",
       message: "Money returned successfully",
+      amountToBeReturned: amountToBeReturned,
     });
   } catch (error) {
-    res.status(400).json({
+    console.log(error);
+    res.status(500).json({
       status: "Failed",
-      message: "Failed to return money",
-      error: error.message,
+      message: error.message,
     });
   }
 };
