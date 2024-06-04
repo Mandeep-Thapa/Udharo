@@ -45,11 +45,11 @@ const userMethods = {
   updateTimelyRepayment: function (timelyRepaymentDetails) {
     if (timelyRepaymentDetails > 20) {
       this.riskFactorDetails.timelyRepayment = 5;
-    } else if (timelyRepayment > 15) {
+    } else if (timelyRepaymentDetails > 15) {
       this.riskFactorDetails.timelyRepayment = 4;
-    } else if (timelyRepayment > 10) {
+    } else if (timelyRepaymentDetails > 10) {
       this.riskFactorDetails.timelyRepayment = 3;
-    } else if (timelyRepayment > 5) {
+    } else if (timelyRepaymentDetails > 5) {
       this.riskFactorDetails.timelyRepayment = 2;
     } else {
       this.riskFactorDetails.timelyRepayment = 1;
