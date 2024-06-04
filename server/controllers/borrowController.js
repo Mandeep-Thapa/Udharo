@@ -2,6 +2,9 @@ const cron = require("node-cron");
 const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
 
+// create a map to store the cron jobs
+const borrowRequestJobs = new Map();
+
 /*
   @desc Create a borrow request
   @routes POST /api/borrow/createBorrowRequest
@@ -35,6 +38,8 @@ const createBorrowRequest = async (req, res) => {
       const updateBorrowRequest = await BorrowRequest.findById(borrowRequestId);
       if (!updateBorrowRequest.isAccepted) {
         updateBorrowRequest.isLocked = true;
+        // change the status to expired
+        updateBorrowRequest.status = "expired";
         await updateBorrowRequest.save();
 
         await User.findByIdAndUpdate(userId, {
@@ -49,6 +54,8 @@ const createBorrowRequest = async (req, res) => {
       scheduled: true,
       timezone: "Asia/Kathmandu",
     });
+
+    borrowRequestJobs.set(borrowRequest._id.toString(), scheduledJob);
 
     res.status(200).json({
       status: "Success",
@@ -123,6 +130,14 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
+    // if borrow request status is expired
+    if (borrowRequest.status === "expired") {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Borrow request has expired and cannot be accepted",
+      });
+    }
+
     borrowRequest.status = "approved";
     await borrowRequest.save();
 
@@ -131,6 +146,13 @@ const approveBorrowRequest = async (req, res) => {
       hasActiveTransaction: true,
       userRole: "Lender",
     });
+
+    // Stop the cron job for the borrow request that has been approved
+    const job = borrowRequestJobs.get(req.params.id);
+    if (job) {
+      job.stop();
+      borrowRequestJobs.delete(req.params.id);
+    }
 
     res.status(200).json({
       status: "success",
