@@ -5,7 +5,7 @@ const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
 const Kyc = require("../models/kycModel");
 const Payment = require("../models/khaltiPaymentModel");
-const mongoose = require("mongoose");
+const userMethods = require("../utils/userMethods");
 
 /*
   @desc Register an admin
@@ -292,6 +292,12 @@ const verifyKYC = async (req, res) => {
     }
     user.is_verifiedDetails.is_kycVerified =
       !user.is_verifiedDetails.is_kycVerified;
+
+    // calling the updateVerificationStatus method
+    userMethods.updateVerificationStatus.call(user, user.is_verifiedDetails);
+
+    // call the calculateRiskFactor
+    userMethods.calculateRiskFactor.call(user);
     await user.save();
     return res.status(200).json({
       status: "Success",
@@ -331,6 +337,12 @@ const verifyPan = async (req, res) => {
 
     user.is_verifiedDetails.is_panVerified =
       !user.is_verifiedDetails.is_panVerified;
+
+    // calling the updateVerificationStatus method
+    userMethods.updateVerificationStatus.call(user, user.is_verifiedDetails);
+
+    // call the calculateRiskFactor
+    userMethods.calculateRiskFactor.call(user);
     await user.save();
     return res.status(200).json({
       status: "Success",
