@@ -14,6 +14,19 @@ const borrowRequestJobs = new Map();
 const createBorrowRequest = async (req, res) => {
   const { amount, purpose, interestRate, paybackPeriod } = req.body;
 
+  // check if user is verified or not
+  if (
+    !req.user.is_verifiedDetails.is_emailVerified ||
+    !req.user.is_verifiedDetails.is_kycVerified ||
+    !req.user.is_verifiedDetails.is_panVerified
+  ) {
+    return res.status(400).json({
+      status: "Failed",
+      message:
+        "Your email, PAN, and KYC is not verified. Please verify before creating a borrow request.",
+    });
+  }
+
   try {
     const borrowRequest = new BorrowRequest({
       borrower: req.user._id,
