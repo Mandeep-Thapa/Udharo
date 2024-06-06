@@ -25,8 +25,12 @@ const userSchema = new Schema(
     },
     occupation: {
       type: String,
-      require: [true, "Please specify your occupation"],
+      required: [true, "Please specify your occupation"],
       trim: true,
+    },
+    rewardPoints: {
+      type: Number,
+      default: 0,
     },
     hasActiveTransaction: {
       type: Boolean,

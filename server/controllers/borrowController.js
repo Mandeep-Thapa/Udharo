@@ -2,6 +2,7 @@ const cron = require("node-cron");
 const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
 const userMethods = require("../utils/userMethods");
+const acceptBorrowRequest = require("../models/acceptedBorrowRequestModel");
 
 // create a map to store the cron jobs
 const borrowRequestJobs = new Map();
@@ -15,17 +16,16 @@ const createBorrowRequest = async (req, res) => {
   const { amount, purpose, interestRate, paybackPeriod } = req.body;
 
   // check if user is verified or not
-  if (
-    !req.user.is_verifiedDetails.is_emailVerified ||
-    !req.user.is_verifiedDetails.is_kycVerified ||
-    !req.user.is_verifiedDetails.is_panVerified
-  ) {
-    return res.status(400).json({
-      status: "Failed",
-      message:
-        "Your email, PAN, and KYC is not verified. Please verify before creating a borrow request.",
-    });
-  }
+  // if (
+  //   !req.user.is_verifiedDetails.is_emailVerified ||
+  //   !req.user.is_verifiedDetails.is_kycVerified
+  // ) {
+  //   return res.status(400).json({
+  //     status: "Failed",
+  //     message:
+  //       "Your email and KYC is not verified. Please verify before creating a borrow request.",
+  //   });
+  // }
 
   try {
     const borrowRequest = new BorrowRequest({
@@ -135,6 +135,7 @@ const approveBorrowRequest = async (req, res) => {
   try {
     // finding the borrow request by id
     const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
+    const borrower = await User.findById(borrowRequest.borrower);
 
     // if id not found
     if (!borrowRequest) {
@@ -150,6 +151,35 @@ const approveBorrowRequest = async (req, res) => {
         status: "Failed",
         message: "Borrow request has expired and cannot be accepted",
       });
+    }
+
+    // check if the fulfillments are valid
+    const totalFulfilledAmount = req.body.amount; // take the amount from req.body
+    console.log(`Number of lenders: ${req.body.fulfillments.length}`); // log the number of lenders
+
+    if (
+      totalFulfilledAmount < borrowRequest.amount * 0.25 ||
+      totalFulfilledAmount > borrowRequest.amount * 0.4
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "The total fulfilled amount must be between 25% and 40% of the borrow request amount",
+      });
+    }
+
+    for (const fulfillment of req.body.fulfillments) {
+      const lender = await User.findById(fulfillment.userId);
+
+      // Create a new BorrowFulfillment
+      const newFulfillment = new BorrowFulfillment({
+        borrower: borrower.name,
+        lender: lender.name,
+        fulfilledAmount: fulfillment.fulfilledAmount,
+        returnAmount:
+          fulfillment.fulfilledAmount * (borrowRequest.interestRate / 100 + 1), // Calculating return amount based on interest rate
+      });
+      await newFulfillment.save();
     }
 
     borrowRequest.status = "approved";
