@@ -359,6 +359,29 @@ const verifyPan = async (req, res) => {
   }
 };
 
+/*
+@desc Get user role by ID
+  @route GET /api/user/role/:id
+  @access Public
+*/
+
+const getUserRoleById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      status: "Success",
+      userRole: user.userRole,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -370,4 +393,5 @@ module.exports = {
   verifyPan,
   getUnverifiedUsers,
   getTransactionDetails,
+  getUserRoleById,
 };

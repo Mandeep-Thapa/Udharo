@@ -13,6 +13,7 @@ const {
   verifyPan,
   getUnverifiedUsers,
   getTransactionDetails,
+  getUserRoleById,
 } = require("../controllers/adminController");
 const authenticate = require("../middleware/adminVerification");
 
@@ -35,5 +36,7 @@ router.put("/verifyPan/:userId", authenticate, verifyPan);
 router.get("/unverifiedUsers", authenticate, getUnverifiedUsers);
 
 router.get("/transactionDetails/:id", authenticate, getTransactionDetails);
+
+router.get("/role/:id", authenticate, getUserRoleById);
 
 module.exports = router;
