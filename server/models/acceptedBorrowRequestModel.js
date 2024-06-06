@@ -3,11 +3,9 @@ const mongoose = require("mongoose");
 const BorrowFulfillmentSchema = new mongoose.Schema({
   borrowerName: {
     type: String,
-    required: true,
   },
   lenderName: {
     type: String,
-    required: true,
   },
   fulfilledAmount: {
     type: Number,
@@ -19,3 +17,5 @@ const BorrowFulfillmentSchema = new mongoose.Schema({
     min: 0,
   },
 });
+
+module.exports = mongoose.model("BorrowFulfillment", BorrowFulfillmentSchema);
