@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
 const userMethods = require("../utils/userMethods");
-const acceptBorrowRequest = require("../models/acceptedBorrowRequestModel");
+const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
 
 // create a map to store the cron jobs
 const borrowRequestJobs = new Map();
@@ -133,9 +133,11 @@ const browseBorrowRequests = async (req, res) => {
 */
 const approveBorrowRequest = async (req, res) => {
   try {
+    // sending amount to be fulfilled by a user
+    const { amountToBeFulfilled } = req.body;
+
     // finding the borrow request by id
     const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
-    const borrower = await User.findById(borrowRequest.borrower);
 
     // if id not found
     if (!borrowRequest) {
@@ -153,34 +155,31 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    // check if the fulfillments are valid
-    const totalFulfilledAmount = req.body.amount; // take the amount from req.body
-    console.log(`Number of lenders: ${req.body.fulfillments.length}`); // log the number of lenders
+    const minAmount = borrowRequest.amount * 0.25;
+    const maxAmount = borrowRequest.amount * 0.4;
 
-    if (
-      totalFulfilledAmount < borrowRequest.amount * 0.25 ||
-      totalFulfilledAmount > borrowRequest.amount * 0.4
-    ) {
+    console.log(minAmount, maxAmount, amountToBeFulfilled);
+
+    // check if the amount to be fulfilled is between 25% and 40% of the amount in the borrow request
+    if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
-        status: "fail",
+        status: "Failed",
         message:
-          "The total fulfilled amount must be between 25% and 40% of the borrow request amount",
+          "Amount to be fulfilled must be between 25% and 40% of the requested amount",
       });
     }
 
-    for (const fulfillment of req.body.fulfillments) {
-      const lender = await User.findById(fulfillment.userId);
+    //Create a new BorrowFulfillment document
+    const borrowFulfillment = new BorrowFulfillment({
+      borrowerName: borrowRequest.borrowerName,
+      lenderName: req.user.name,
+      fulfilledAmount: amountToBeFulfilled,
+      returnAmount:
+        amountToBeFulfilled +
+        (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
+    });
 
-      // Create a new BorrowFulfillment
-      const newFulfillment = new BorrowFulfillment({
-        borrower: borrower.name,
-        lender: lender.name,
-        fulfilledAmount: fulfillment.fulfilledAmount,
-        returnAmount:
-          fulfillment.fulfilledAmount * (borrowRequest.interestRate / 100 + 1), // Calculating return amount based on interest rate
-      });
-      await newFulfillment.save();
-    }
+    await borrowFulfillment.save();
 
     borrowRequest.status = "approved";
     await borrowRequest.save();
