@@ -52,6 +52,11 @@ const borowRequestSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  numberOfLenders: {
+    type: Number,
+    max: 4,
+    default: 0,
+  },
 });
 
 const BorrowRequest = mongoose.model("BorrowRequest", borowRequestSchema);

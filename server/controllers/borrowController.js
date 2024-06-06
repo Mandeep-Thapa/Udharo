@@ -137,15 +137,18 @@ const approveBorrowRequest = async (req, res) => {
     const { amountToBeFulfilled } = req.body;
 
     // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
+    const borrowRequest = await BorrowRequest.findOne({
+      _id: req.params.id,
+    });
 
-    // if id not found
     if (!borrowRequest) {
       return res.status(404).json({
         status: "fail",
         message: "Borrow request not found",
       });
     }
+
+    console.log(borrowRequest);
 
     // if borrow request status is expired
     if (borrowRequest.status === "expired") {
@@ -169,19 +172,29 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    //Create a new BorrowFulfillment document
-    const borrowFulfillment = new BorrowFulfillment({
-      borrowerName: borrowRequest.borrowerName,
-      lenderName: req.user.name,
-      fulfilledAmount: amountToBeFulfilled,
+    //prepare lenders data
+    let lenders = borrowRequest.lender.map((lend) => ({
+      lenderName: req.user.fullName, // get lender's name from req.user
+      fulfilledAmount: lend.amount,
       returnAmount:
-        amountToBeFulfilled +
-        (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
+        lend.amount + (lend.amount * (borrowRequest.interestRate + 1)) / 100,
+    }));
+    // create a new BorrowFulfillment document
+    const borrowFulfillment = new BorrowFulfillment({
+      borrowerName: borrowRequest.borrower.fullName,
+      lenders: lenders,
     });
 
     await borrowFulfillment.save();
 
-    borrowRequest.status = "approved";
+    borrowRequest.numberOfLenders += 1;
+
+    // check if the maximum number of lenders is reached
+    if (borrowRequest.numberOfLenders >= 4) {
+      borrowRequest.status = "fully funded";
+    } else {
+      borrowRequest.status = "approved";
+    }
     await borrowRequest.save();
 
     // updating the user role to lender
@@ -210,80 +223,6 @@ const approveBorrowRequest = async (req, res) => {
     });
   }
 };
-
-/*const approveBorrowRequest = async (req, res) => {
-  // getting amount from req.body
-  const { amount } = req.body;
-
-  try {
-    // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
-
-    // if id not found
-    if (!borrowRequest) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Borrow request not found",
-      });
-    }
-
-    // check if the borrow request already has 4 lenders
-    if (borrowRequest.lender.length >= 4) {
-      return res.status(400).json({
-        stauts: "Failed",
-        message: "Borrow request already has 4 lenders",
-      });
-    }
-
-    // Check if the amount the lender wants to contribute plus the total amount already contributed by other lenders exceeds the total amount in the borrow request
-    const totalContributed = borrowRequest.lender.reduce(
-      (total, lender) => total + lender.amount,
-      0
-    );
-    if (req.body.amount + totalContributed > borrowRequest.amount) {
-      return res.status(400).json({
-        status: "Failed",
-        message:
-          "The amount you want to contribute exceeds the total amount in the borrow request",
-      });
-    }
-
-    // Check if the amount the lender wants to contribute is more than 40% of the total amount in the borrow request
-    if (req.body.amount > borrowRequest.amount * 0.4) {
-      return res.status(400).json({
-        status: "Failed",
-        message:
-          "You cannot contribute more than 40% of the total amount in the borrow request",
-      });
-    }
-
-    // Add the lender to the borrow request and update the total amount contributed
-    borrowRequest.lender.push({
-      lender: req.user._id,
-      amount: req.body.amount,
-    });
-    await borrowRequest.save();
-
-    // updating the user role to lender
-    await User.findByIdAndUpdate(req.user._id, {
-      hasActiveTransaction: true,
-      userRole: "Lender",
-    });
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        borrowRequest,
-      },
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-};
-*/
 
 /*
   @desc Reject borrow request
@@ -405,7 +344,7 @@ const returnMoney = async (req, res) => {
     // calculate the amount to be returned with interest
     const amountToBeReturned =
       borrowRequest.amount +
-      (borrowRequest.amount * borrowRequest.interestRate) / 100;
+      (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
 
     res.status(200).json({
       status: "Success",
