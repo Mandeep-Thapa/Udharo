@@ -212,7 +212,7 @@ const getTransactionDetails = async (req, res) => {
     console.log("Fetching transactions for user ID:", userId);
 
     const transactions = await Payment.find({ paidByName: userId }).select(
-      "total_amount status transaction_id fee refunded paid_at paidByName"
+      "idx amount fee_amount created_on senderName"
     );
 
     if (transactions.length === 0) {
