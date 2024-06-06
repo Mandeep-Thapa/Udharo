@@ -267,14 +267,12 @@ class BorrowRepository {
       "token": token,
       "amount": amount,
     };
-    
-
-    // api call
+// api call
     // print('sending request to $url with body: $data');
     try {
       Response response = await dio.post(
         url,
-        data:jsonEncode(data),
+        data: jsonEncode(data),
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -299,8 +297,7 @@ class BorrowRepository {
           throw Exception('Error verifying khalti transaction');
         }
       }
-    } 
-    on DioException catch (e) {
+    } on DioException catch (e) {
       // print('dio error: $e');
       // handle DioException
       if (e.response != null && e.response!.data != null) {
@@ -312,8 +309,7 @@ class BorrowRepository {
       }
       // generic error message
       throw Exception('Error verifying khalti transaction');
-    } 
-    catch (e) {
+    } catch (e) {
       // handle other exceptions
       // print('dio error: $e');
       throw Exception('Error verifying khalti transaction: $e');
@@ -341,7 +337,7 @@ class BorrowRepository {
     final data = {
       "idx": idx,
       "amount": amount,
-      "created_on": createdOn, 
+      "created_on": createdOn,
       "senderName": sendername,
       "receiverName ": receiverName,
       "fee_amount": feeAmount,
@@ -361,8 +357,7 @@ class BorrowRepository {
         ),
       );
 
-        print(' response: ${response.data}');
-
+      print(' response: ${response.data}');
 
       if (response.statusCode == 200) {
         // success response
