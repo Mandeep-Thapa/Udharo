@@ -94,12 +94,14 @@ const browseBorrowRequests = async (req, res) => {
   try {
     const userBorrowRequest = await BorrowRequest.findOne({
       borrower: { $ne: req.user._id },
+      // Excluding expired borrow requests
       status: { $ne: "approved" },
     });
 
     if (userBorrowRequest) {
       const borrowRequests = await BorrowRequest.find({
         borrower: { $ne: req.user._id },
+        status: { $ne: "expired" },
       });
 
       return res.status(200).json({
@@ -172,23 +174,6 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    //prepare lenders data
-    let lenders = borrowRequest.lender ? [...borrowRequest.lender] : [];
-    lenders.push({
-      lenderName: req.user._id,
-      fulfilledAmount: amountToBeFulfilled,
-      returnAmount:
-        amountToBeFulfilled +
-        (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
-    });
-    // create a new BorrowFulfillment document
-    const borrowFulfillment = new BorrowFulfillment({
-      borrowerName: borrowRequest.borrower.fullName,
-      lenders: lenders,
-    });
-
-    await borrowFulfillment.save();
-
     borrowRequest.numberOfLenders += 1;
 
     // check if the maximum number of lenders is reached
@@ -211,6 +196,35 @@ const approveBorrowRequest = async (req, res) => {
       job.stop();
       borrowRequestJobs.delete(req.params.id);
     }
+
+    // save lender's details in borrowfulfillment model
+    const lenderName = req.user.fullName;
+    const returnAmount =
+      borrowRequest.amount +
+      (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+    let borrowFulfillment = await BorrowFulfillment.findOne({
+      borrowerName: borrowRequest.fullName,
+    });
+
+    if (!borrowFulfillment) {
+      borrowFulfillment = new BorrowFulfillment({
+        borrowerName: borrowRequest.fullName,
+        lenders: [],
+      });
+    }
+
+    if (borrowFulfillment.lenders.length < 4) {
+      borrowFulfillment.lenders.push({
+        lenderName,
+        fulfilledAmount: amountToBeFulfilled,
+        returnAmount,
+      });
+    } else {
+      console.log("Maximum number of lenders reached");
+    }
+
+    await borrowFulfillment.save();
 
     res.status(200).json({
       status: "success",
