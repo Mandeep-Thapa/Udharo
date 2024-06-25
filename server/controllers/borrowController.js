@@ -92,36 +92,22 @@ const createBorrowRequest = async (req, res) => {
 */
 const browseBorrowRequests = async (req, res) => {
   try {
-    const userBorrowRequest = await BorrowRequest.findOne({
+    // Simplified query to exclude borrow request with status expried or fully funded
+    const query = {
       borrower: { $ne: req.user._id },
-      // Excluding expired borrow requests
-      status: { $ne: "approved" },
-    });
+      status: { $nin: ["expired", "fully funded"] },
+    };
 
-    if (userBorrowRequest) {
-      const borrowRequests = await BorrowRequest.find({
-        borrower: { $ne: req.user._id },
-        status: { $ne: "expired" },
-      });
-
-      return res.status(200).json({
-        status: "Success",
-        data: {
-          borrowRequests,
-        },
-      });
-    }
-
-    const borrowRequests = await BorrowRequest.find({ stauts: "pending" });
+    const borrowRequests = await BorrowRequest.find(query);
 
     res.status(200).json({
-      stuatus: "Success",
+      status: "Success",
       data: {
         borrowRequests,
       },
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: "Failed",
       message: error.message,
     });
@@ -312,8 +298,7 @@ const borrowRequestHistory = async (req, res) => {
 const getTransactionHistory = async (req, res) => {
   try {
     const userId = req.user._id;
-
-    console.log(userId);
+    const userName = req.user.fullName;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -331,25 +316,25 @@ const getTransactionHistory = async (req, res) => {
       });
     }
 
-    // Query the BorrowFulfillment model for transaction where this user is a lender
+    // Find transactions where the current user is the lender
     const transactions = await BorrowFulfillment.find({
-      lender: user.fullName,
+      "lender.lendername": userName,
     });
 
-    // Extract relevant inforamtion for the lender
-    const lenderInfo = transactions.map((transactions) => {
+    const formattedTransactions = transactions.map((transaction) => {
+      // Corrected the property name to match the database
+      const lender = transaction.lenders.find((l) => l.lenderName === userName);
       return {
-        borrowerName: transactions.borrowerName,
-        transactions: transactions.lender
-          .filter((lender) => lender.lenderName === user.fullName)
-          .map((lender) => ({
-            fulfilledAmount: lender.fulfilledAmount,
-            returnAmount: lender.returnAmount,
-          })),
+        borrowerName: transaction.borrowerName,
+        fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+        returnAmount: lender ? lender.returnAmount : undefined,
       };
     });
 
-    return lenderInfo;
+    res.json({
+      status: "Success",
+      data: formattedTransactions,
+    });
   } catch (error) {
     res.status(500).json({
       status: "Failed",

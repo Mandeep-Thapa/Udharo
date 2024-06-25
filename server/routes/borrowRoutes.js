@@ -24,6 +24,6 @@ router.get("/borrowRequestHistory", authenticate, borrowRequestHistory);
 
 router.put("/returnMoney/:id", authenticate, returnMoney);
 
-router.get("/getTransactionHistory/:id", authenticate, getTransactionHistory);
+router.get("/getTransactionHistory", authenticate, getTransactionHistory);
 
 module.exports = router;
