@@ -5,6 +5,7 @@ const {
   approveBorrowRequest,
   rejectBorrowRequest,
   borrowRequestHistory,
+  getTransactionHistory,
   returnMoney,
 } = require("../controllers/borrowController");
 const authenticate = require("../middleware/verification");
@@ -22,5 +23,7 @@ router.put("/rejectBorrowRequest/", authenticate, rejectBorrowRequest);
 router.get("/borrowRequestHistory", authenticate, borrowRequestHistory);
 
 router.put("/returnMoney/:id", authenticate, returnMoney);
+
+router.get("/getTransactionHistory/:id", authenticate, getTransactionHistory);
 
 module.exports = router;
