@@ -173,12 +173,14 @@ const approveBorrowRequest = async (req, res) => {
     }
 
     //prepare lenders data
-    let lenders = borrowRequest.lender.map((lend) => ({
-      lenderName: req.user.fullName, // get lender's name from req.user
-      fulfilledAmount: lend.amount,
+    let lenders = borrowRequest.lender ? [...borrowRequest.lender] : [];
+    lenders.push({
+      lenderName: req.user._id,
+      fulfilledAmount: amountToBeFulfilled,
       returnAmount:
-        lend.amount + (lend.amount * (borrowRequest.interestRate + 1)) / 100,
-    }));
+        amountToBeFulfilled +
+        (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
+    });
     // create a new BorrowFulfillment document
     const borrowFulfillment = new BorrowFulfillment({
       borrowerName: borrowRequest.borrower.fullName,
