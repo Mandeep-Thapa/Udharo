@@ -305,6 +305,60 @@ const borrowRequestHistory = async (req, res) => {
 };
 
 /*
+  @desc Trasnsaction history based on their role
+  @route GET /api/borrow/transactionHistory/:id
+  @access private
+*/
+const getTransactionHistory = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    console.log(userId);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
+
+    // Check if the user's role is Lender
+    if (user.userRole !== "Lender") {
+      return res.status(400).json({
+        status: "Failed",
+        message: "User is not a lender",
+      });
+    }
+
+    // Query the BorrowFulfillment model for transaction where this user is a lender
+    const transactions = await BorrowFulfillment.find({
+      lender: user.fullName,
+    });
+
+    // Extract relevant inforamtion for the lender
+    const lenderInfo = transactions.map((transactions) => {
+      return {
+        borrowerName: transactions.borrowerName,
+        transactions: transactions.lender
+          .filter((lender) => lender.lenderName === user.fullName)
+          .map((lender) => ({
+            fulfilledAmount: lender.fulfilledAmount,
+            returnAmount: lender.returnAmount,
+          })),
+      };
+    });
+
+    return lenderInfo;
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      error: error.message,
+    });
+  }
+};
+
+/*
   @desc Return money
   @routes PUT /api/borrow/returnMoney/:id
   @access private
@@ -383,4 +437,5 @@ module.exports = {
   rejectBorrowRequest,
   borrowRequestHistory,
   returnMoney,
+  getTransactionHistory,
 };
