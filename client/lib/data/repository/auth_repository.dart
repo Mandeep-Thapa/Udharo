@@ -107,7 +107,7 @@ class AuthRepository {
 
       // print('response: ${response.data}');
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         return 'SignUp Success';
       } else {
         // handle error response
