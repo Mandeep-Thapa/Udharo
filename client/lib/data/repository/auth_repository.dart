@@ -28,6 +28,9 @@ class AuthRepository {
       "password": password,
     };
 
+    // print('sending data: $data to $url');
+
+
     try {
       Response response = await dio.post(
         url,
@@ -38,6 +41,9 @@ class AuthRepository {
           },
         ),
       );
+
+      // print('response: ${response.data}');
+
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
@@ -62,13 +68,16 @@ class AuthRepository {
       if (e.response != null && e.response!.data != null) {
         // handle specific error message from the server
         if (e.response!.data['error'] != null) {
+          // print('dio error message: ${e.response!.data['error']}');
           return e.response!.data['error'];
         }
       }
       // generic error message
+      // print('dio error: $e ');
       return 'Login Unsuccessful';
     } catch (e) {
       // handle other exceptions
+      // print('error: $e');
       return 'Login Unsuccessful';
     }
   }
@@ -138,7 +147,7 @@ class AuthRepository {
   }
 
 
-  // sign in
+  // send email verification
   Future<String> sendEmailVerification(String email,) async {
     String url = '${Config.baseUrl}/user/send-verification-email';
 
@@ -146,6 +155,7 @@ class AuthRepository {
     final data = {
       "email": email,
     };
+
 
     try {
       Response response = await dio.post(
@@ -157,6 +167,7 @@ class AuthRepository {
           },
         ),
       );
+
 
       if (response.statusCode == 200) {
         return 'Verification Sent Successfully';

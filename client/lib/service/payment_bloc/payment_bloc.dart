@@ -47,7 +47,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       (event, emit) async {
         try {
           // print('Accepting borrow request: ${event.amount}');
-          await _borrowRepository.acceptBorrowRequest(event.productIdentity);
+          await _borrowRepository.acceptBorrowRequest(
+            event.productIdentity,
+            event.amount,
+          );
           emit(PaymentStateAcceptSuccess(
             amount: event.amount,
             borrowId: event.productIdentity,

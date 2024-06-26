@@ -43,7 +43,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                   if (state is PaymentStateAcceptSuccess) {
                     // borrow request accepted, make khalti payment
 
-                    print('khalti payment state called');
+                    // print('khalti payment state called');
                     context.read<PaymentBloc>().add(
                           PaymentEventMakeKhaltiPayment(
                             context: context,
@@ -57,7 +57,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
 
                     // print('verifying khalti transaction');
 
-                    print('verification state called');
+                    // print('verification state called');
 
                     context.read<PaymentBloc>().add(
                           PaymentEventVerifyKhaltiTransaction(
