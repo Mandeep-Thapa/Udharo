@@ -160,14 +160,15 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    borrowRequest.numberOfLenders += 1;
-
     // check if the maximum number of lenders is reached
     if (borrowRequest.numberOfLenders >= 4) {
       borrowRequest.status = "fully funded";
     } else {
       borrowRequest.status = "approved";
     }
+
+    borrowRequest.numberOfLenders += 1;
+
     await borrowRequest.save();
 
     // updating the user role to lender
