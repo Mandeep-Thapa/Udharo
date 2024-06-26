@@ -190,9 +190,10 @@ class BorrowRepository {
     }
   }
 
-  // accept borrow history
+  // accept borrow request
   Future<void> acceptBorrowRequest(
     String borrowId,
+    int amount,
   ) async {
     String url = '${Config.baseUrl}/borrow/approveBorrowRequest/$borrowId';
 
@@ -202,11 +203,16 @@ class BorrowRepository {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
+    final data = {
+      "amountToBeFulfilled": amount,
+    };
+
     // api call
     // print('sending request to $url');
     try {
       Response response = await dio.put(
         url,
+        data: data,
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
@@ -344,7 +350,7 @@ class BorrowRepository {
     };
 
     // api call
-    print('sending request to $url with body: $data');
+    // print('sending request to $url with body: $data');
     try {
       Response response = await dio.post(
         url,
@@ -357,21 +363,21 @@ class BorrowRepository {
         ),
       );
 
-      print(' response: ${response.data}');
+      // print(' response: ${response.data}');
 
       if (response.statusCode == 200) {
         // success response
-        print('success response: ${response.data}');
+        // print('success response: ${response.data}');
 
         return;
       } else {
         // handle error response
         if (response.data['error'] != null) {
-          print('error message: ${response.data['error']}');
+          // print('error message: ${response.data['error']}');
           throw Exception(response.data['error']);
         } else {
           // generic error message
-          print('error innit');
+          // print('error innit');
           throw Exception('Error saving khalti transaction');
         }
       }
@@ -380,14 +386,14 @@ class BorrowRepository {
       if (e.response != null && e.response!.data != null) {
         // handle specific error message from the server
         if (e.response!.data['error'] != null) {
-          print('dio error message: ${e.response!.data['error']}');
+          // print('dio error message: ${e.response!.data['error']}');
           throw Exception(e.response!.data['error']);
         }
       }
       // generic error message
     } catch (e) {
       // handle other exceptions
-      print('dio error: $e');
+      // print('dio error: $e');
       throw Exception('Error saving khalti transaction: $e');
     }
   }

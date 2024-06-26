@@ -92,34 +92,22 @@ const createBorrowRequest = async (req, res) => {
 */
 const browseBorrowRequests = async (req, res) => {
   try {
-    const userBorrowRequest = await BorrowRequest.findOne({
+    // Simplified query to exclude borrow request with status expried or fully funded
+    const query = {
       borrower: { $ne: req.user._id },
-      status: { $ne: "approved" },
-    });
+      status: { $nin: ["expired", "fully funded"] },
+    };
 
-    if (userBorrowRequest) {
-      const borrowRequests = await BorrowRequest.find({
-        borrower: { $ne: req.user._id },
-      });
-
-      return res.status(200).json({
-        status: "Success",
-        data: {
-          borrowRequests,
-        },
-      });
-    }
-
-    const borrowRequests = await BorrowRequest.find({ stauts: "pending" });
+    const borrowRequests = await BorrowRequest.find(query);
 
     res.status(200).json({
-      stuatus: "Success",
+      status: "Success",
       data: {
         borrowRequests,
       },
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       status: "Failed",
       message: error.message,
     });
@@ -172,29 +160,15 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    //prepare lenders data
-    let lenders = borrowRequest.lender.map((lend) => ({
-      lenderName: req.user.fullName, // get lender's name from req.user
-      fulfilledAmount: lend.amount,
-      returnAmount:
-        lend.amount + (lend.amount * (borrowRequest.interestRate + 1)) / 100,
-    }));
-    // create a new BorrowFulfillment document
-    const borrowFulfillment = new BorrowFulfillment({
-      borrowerName: borrowRequest.borrower.fullName,
-      lenders: lenders,
-    });
-
-    await borrowFulfillment.save();
-
-    borrowRequest.numberOfLenders += 1;
-
     // check if the maximum number of lenders is reached
     if (borrowRequest.numberOfLenders >= 4) {
       borrowRequest.status = "fully funded";
     } else {
       borrowRequest.status = "approved";
     }
+
+    borrowRequest.numberOfLenders += 1;
+
     await borrowRequest.save();
 
     // updating the user role to lender
@@ -209,6 +183,35 @@ const approveBorrowRequest = async (req, res) => {
       job.stop();
       borrowRequestJobs.delete(req.params.id);
     }
+
+    // save lender's details in borrowfulfillment model
+    const lenderName = req.user.fullName;
+    const returnAmount =
+      borrowRequest.amount +
+      (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+    let borrowFulfillment = await BorrowFulfillment.findOne({
+      borrowerName: borrowRequest.fullName,
+    });
+
+    if (!borrowFulfillment) {
+      borrowFulfillment = new BorrowFulfillment({
+        borrowerName: borrowRequest.fullName,
+        lenders: [],
+      });
+    }
+
+    if (borrowFulfillment.lenders.length < 4) {
+      borrowFulfillment.lenders.push({
+        lenderName,
+        fulfilledAmount: amountToBeFulfilled,
+        returnAmount,
+      });
+    } else {
+      console.log("Maximum number of lenders reached");
+    }
+
+    await borrowFulfillment.save();
 
     res.status(200).json({
       status: "success",
@@ -284,6 +287,78 @@ const borrowRequestHistory = async (req, res) => {
     res.status(500).json({
       status: "Failed",
       message: error.message,
+    });
+  }
+};
+
+/*
+  @desc Trasnsaction history based on their role
+  @route GET /api/borrow/transactionHistory/:id
+  @access private
+*/
+const getTransactionHistory = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const userName = req.user.fullName;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
+
+    if (user.userRole === "Lender") {
+      const transactions = await BorrowFulfillment.find({
+        "lender.lendername": userName,
+      });
+
+      const formattedTransactions = transactions.map((transaction) => {
+        const lender = transaction.lenders.find(
+          (l) => l.lenderName === userName
+        );
+        return {
+          borrowerName: transaction.borrowerName,
+          fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+          returnAmount: lender ? lender.returnAmount : undefined,
+        };
+      });
+
+      res.json({
+        status: "Success",
+        data: formattedTransactions,
+      });
+    } else if (user.userRole === "Borrower") {
+      const borrowRequests = await BorrowRequest.find({ borrower: userId });
+
+      const formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+        const amountToBeReturned =
+          borrowRequest.amount +
+          (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+        return {
+          amount: borrowRequest.amount,
+          interestRate: borrowRequest.interestRate,
+          paybackPeriod: borrowRequest.paybackPeriod,
+          returnAmount: amountToBeReturned,
+        };
+      });
+
+      res.json({
+        status: "Success",
+        data: formattedBorrowRequests,
+      });
+    } else {
+      return res.status(400).json({
+        status: "Failed",
+        message: "User role is not supported for this operation",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      error: error.message,
     });
   }
 };
@@ -367,4 +442,5 @@ module.exports = {
   rejectBorrowRequest,
   borrowRequestHistory,
   returnMoney,
+  getTransactionHistory,
 };
