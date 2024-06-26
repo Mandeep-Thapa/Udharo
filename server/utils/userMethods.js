@@ -43,7 +43,7 @@ const userMethods = {
   },
 
   updateTimelyRepayment: function (timelyRepaymentDetails) {
-    if (timelyRepaymentDetails > 20) {
+    if (timelyRepaymentDetails > 20) {   //{(total number of timely repayment)%(total number of transactions)} * 100
       this.riskFactorDetails.timelyRepayment = 5;
     } else if (timelyRepaymentDetails > 15) {
       this.riskFactorDetails.timelyRepayment = 4;
