@@ -308,33 +308,52 @@ const getTransactionHistory = async (req, res) => {
       });
     }
 
-    // Check if the user's role is Lender
-    if (user.userRole !== "Lender") {
+    if (user.userRole === "Lender") {
+      const transactions = await BorrowFulfillment.find({
+        "lender.lendername": userName,
+      });
+
+      const formattedTransactions = transactions.map((transaction) => {
+        const lender = transaction.lenders.find(
+          (l) => l.lenderName === userName
+        );
+        return {
+          borrowerName: transaction.borrowerName,
+          fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+          returnAmount: lender ? lender.returnAmount : undefined,
+        };
+      });
+
+      res.json({
+        status: "Success",
+        data: formattedTransactions,
+      });
+    } else if (user.userRole === "Borrower") {
+      const borrowRequests = await BorrowRequest.find({ borrower: userId });
+
+      const formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+        const amountToBeReturned =
+          borrowRequest.amount +
+          (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+        return {
+          amount: borrowRequest.amount,
+          interestRate: borrowRequest.interestRate,
+          paybackPeriod: borrowRequest.paybackPeriod,
+          returnAmount: amountToBeReturned,
+        };
+      });
+
+      res.json({
+        status: "Success",
+        data: formattedBorrowRequests,
+      });
+    } else {
       return res.status(400).json({
         status: "Failed",
-        message: "User is not a lender",
+        message: "User role is not supported for this operation",
       });
     }
-
-    // Find transactions where the current user is the lender
-    const transactions = await BorrowFulfillment.find({
-      "lender.lendername": userName,
-    });
-
-    const formattedTransactions = transactions.map((transaction) => {
-      // Corrected the property name to match the database
-      const lender = transaction.lenders.find((l) => l.lenderName === userName);
-      return {
-        borrowerName: transaction.borrowerName,
-        fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
-        returnAmount: lender ? lender.returnAmount : undefined,
-      };
-    });
-
-    res.json({
-      status: "Success",
-      data: formattedTransactions,
-    });
   } catch (error) {
     res.status(500).json({
       status: "Failed",
