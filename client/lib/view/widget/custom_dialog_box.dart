@@ -4,7 +4,7 @@ class CustomDialogBox {
   static void showCustomDialogBox(
     BuildContext context,
     String title,
-    String content,
+    Widget content,
     VoidCallback? onpressed, {
     String buttonName = 'Ok',
   }) {
@@ -13,7 +13,7 @@ class CustomDialogBox {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(title),
-          content: Text(content),
+          content: content,
           actions: <Widget>[
             TextButton(
               onPressed: onpressed,

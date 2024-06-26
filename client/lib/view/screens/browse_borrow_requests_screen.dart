@@ -41,42 +41,41 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                 listener: (context, state) {
                   // Listener logic here
                   if (state is PaymentStateAcceptSuccess) {
-                          // borrow request accepted, make khalti payment
+                    // borrow request accepted, make khalti payment
 
-                          print('khalti payment state called');
-                          context.read<PaymentBloc>().add(
-                                PaymentEventMakeKhaltiPayment(
-                                  context: context,
-                                  amount: state.amount,
-                                  productIdentity: state.borrowId,
-                                  productName: 'Loan for: ${state.borrowId}',
-                                ),
-                              );
-                        } else if (state is PaymentStateKhaltiPaymentSuccess) {
-                          // verify khalti transaction
+                    print('khalti payment state called');
+                    context.read<PaymentBloc>().add(
+                          PaymentEventMakeKhaltiPayment(
+                            context: context,
+                            amount: state.amount,
+                            productIdentity: state.borrowId,
+                            productName: 'Loan for: ${state.borrowId}',
+                          ),
+                        );
+                  } else if (state is PaymentStateKhaltiPaymentSuccess) {
+                    // verify khalti transaction
 
-                          // print('verifying khalti transaction');
+                    // print('verifying khalti transaction');
 
-                          print('verification state called');
+                    print('verification state called');
 
+                    context.read<PaymentBloc>().add(
+                          PaymentEventVerifyKhaltiTransaction(
+                            token: state.success.token,
+                            amount: state.success.amount,
+                          ),
+                        );
 
-                          context.read<PaymentBloc>().add(
-                                PaymentEventVerifyKhaltiTransaction(
-                                  token: state.success.token,
-                                  amount: state.success.amount,
-                                ),
-                              );
+                    // CustomToast().showToast(
+                    //   context: context,
+                    //   message: 'Borrow request accepted successfully.',
+                    // );
+                  } else if (state
+                      is PaymentStateKhaltiPaymentVerificationSuccess) {
+                    final verificationData = state.success.data;
 
-                          // CustomToast().showToast(
-                          //   context: context,
-                          //   message: 'Borrow request accepted successfully.',
-                          // );
-                        } else if (state
-                            is PaymentStateKhaltiPaymentVerificationSuccess) {
-                          final verificationData = state.success.data;
-
-                          if(verificationData!=null){
-                            context.read<PaymentBloc>().add(
+                    if (verificationData != null) {
+                      context.read<PaymentBloc>().add(
                             PaymentEventSaveKhaltiTransaction(
                               idx: verificationData.idx!,
                               amount: verificationData.amount!,
@@ -86,32 +85,30 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                               feeAmount: verificationData.feeAmount!,
                             ),
                           );
-                          }
+                    }
 
-                          
-                          // show success message
-                          // CustomToast().showToast(
-                          //   context: context,
-                          //   message: 'Borrow request accepted successfully.',
-                          // );
+                    // show success message
+                    // CustomToast().showToast(
+                    //   context: context,
+                    //   message: 'Borrow request accepted successfully.',
+                    // );
 
-                          // reset payment bloc
-                          // context.read<PaymentBloc>().add(
-                          //       PaymentEventResetPayment(),
-                          //     );
-                        }
-                        else if(state is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess){
-                          CustomToast().showToast(
-                            context: context,
-                            message: 'Borrow request accepted successfully.',
-                          );
-                        }
-                        else if (state is PaymentStateError) {
-                          CustomToast().showToast(
-                            context: context,
-                            message: state.message,
-                          );
-                        }
+                    // reset payment bloc
+                    // context.read<PaymentBloc>().add(
+                    //       PaymentEventResetPayment(),
+                    //     );
+                  } else if (state
+                      is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: 'Borrow request accepted successfully.',
+                    );
+                  } else if (state is PaymentStateError) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: state.message,
+                    );
+                  }
                 },
                 builder: (context, paymentState) {
                   return SizedBox(
@@ -134,20 +131,10 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                           showButton: true,
                           buttonName: 'Invest',
                           onPressed: () {
-                            CustomDialogBox.showCustomDialogBox(
+                            _showInvestDialog(
                               context,
-                              'Invest in Borrow Request',
-                              'Investing is a high-risk activity and may result in loss of funds. Are you sure you want to proceed?',
-                              () {
-                                context.read<PaymentBloc>().add(
-                                      PaymentEventAcceptBorrowRequest(
-                                        amount: borrowRequest.amount!,
-                                        productIdentity: borrowRequest.id!,
-                                      ),
-                                    );
-                                Navigator.of(context).pop();
-                              },
-                              buttonName: 'Invest',
+                              borrowRequest.amount ?? 0,
+                              borrowRequest.id ?? '',
                             );
                           },
                         );
@@ -169,6 +156,80 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
         },
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
+    );
+  }
+
+  void _showInvestDialog(
+    BuildContext context,
+    int amount,
+    String borrowId,
+  ) {
+    // calculate min and max amount to invest
+    double minAmount = amount * 0.25;
+    double maxAmount = amount * 0.40;
+
+    // set initial selected amount to min amount
+    double selectedAmount = minAmount;
+
+    // show warning dialog box
+    CustomDialogBox.showCustomDialogBox(
+      context,
+      'Invest in Borrow Request',
+      StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Select the amount to invest (between ${minAmount.toInt()} and ${maxAmount.toInt()})',
+              ),
+
+              // slider to select amount
+              Slider(
+                min: minAmount,
+                max: maxAmount,
+                divisions: (maxAmount - minAmount).toInt(),
+                value: selectedAmount,
+                label: selectedAmount.toInt().toString(),
+                onChanged: (value) {
+                  setState(
+                    () {
+                      // update selected amount
+                      selectedAmount = value;
+                    },
+                  );
+                },
+              ),
+              Text(
+                'Selected Amount: Rs. ${selectedAmount.toInt()}',
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(
+                'Waring: Investing is a high-risk activity and may result in loss of funds. Please ensure you understand the risks involved before investing.',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      () {
+
+        // accept borrow request bloc event called
+        context.read<PaymentBloc>().add(
+              PaymentEventAcceptBorrowRequest(
+                amount: selectedAmount.toInt(),
+                productIdentity: borrowId,
+              ),
+            );
+
+        // close dialog box
+        Navigator.of(context).pop();
+      },
+      buttonName: 'Invest',
     );
   }
 }
