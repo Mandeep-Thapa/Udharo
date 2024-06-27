@@ -260,6 +260,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
         successfulRepayment: user.successfulRepayment,
         lateRepayment: user.lateRepayment,
         moneyInvestedDetails: user.moneyInvestedDetails,
+        userRole: user.userRole,
       },
     });
   } else {
