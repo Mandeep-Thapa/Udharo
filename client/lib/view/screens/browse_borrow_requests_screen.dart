@@ -32,6 +32,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
             );
           } else if (state is BrowseBorrowRequestStateLoaded) {
             final borrowRequests = state.borrowRequests.data?.borrowRequests;
+            final user = state.user.data;
             if (borrowRequests == null || borrowRequests.isEmpty) {
               return const Center(
                 child: Text('No borrow requests found.'),
@@ -86,19 +87,9 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                             ),
                           );
                     }
-
-                    // show success message
-                    // CustomToast().showToast(
-                    //   context: context,
-                    //   message: 'Borrow request accepted successfully.',
-                    // );
-
-                    // reset payment bloc
-                    // context.read<PaymentBloc>().add(
-                    //       PaymentEventResetPayment(),
-                    //     );
                   } else if (state
                       is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess) {
+                    // show success message
                     CustomToast().showToast(
                       context: context,
                       message: 'Borrow request accepted successfully.',
@@ -129,14 +120,22 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                 'Payback Period: ${borrowRequest.paybackPeriod} days'),
                           ],
                           showButton: true,
-                          buttonName: 'Invest',
-                          onPressed: () {
-                            _showInvestDialog(
-                              context,
-                              borrowRequest.amount ?? 0,
-                              borrowRequest.id ?? '',
-                            );
-                          },
+                          buttonName: (user != null &&
+                                  user.hasActiveTransaction != null &&
+                                  user.hasActiveTransaction!)
+                              ? 'Active Transaction Pending'
+                              : 'Invest',
+                          onPressed: (user != null &&
+                                  user.hasActiveTransaction != null &&
+                                  user.hasActiveTransaction!)
+                              ? null
+                              : () {
+                                  _showInvestDialog(
+                                    context,
+                                    borrowRequest.amount ?? 0,
+                                    borrowRequest.id ?? '',
+                                  );
+                                },
                         );
                       },
                     ),
@@ -160,76 +159,109 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
   }
 
   void _showInvestDialog(
-    BuildContext context,
-    int amount,
-    String borrowId,
-  ) {
-    // calculate min and max amount to invest
-    double minAmount = amount * 0.25;
-    double maxAmount = amount * 0.40;
+  BuildContext context,
+  int amount,
+  String borrowId,
+) {
+  // calculate min and max amount to invest
+  double minAmount = amount * 0.25;
+  double maxAmount = amount * 0.40;
 
-    // set initial selected amount to min amount
-    double selectedAmount = minAmount;
+  // set initial selected amount to min amount
+  double selectedAmount = minAmount;
 
-    // show warning dialog box
-    CustomDialogBox.showCustomDialogBox(
-      context,
-      'Invest in Borrow Request',
-      StatefulBuilder(
-        builder: (context, setState) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select the amount to invest (between ${minAmount.toInt()} and ${maxAmount.toInt()})',
-              ),
+  TextEditingController amountController = TextEditingController(text: selectedAmount.toInt().toString());
+  FocusNode focusNode = FocusNode();
 
-              // slider to select amount
-              Slider(
-                min: minAmount,
-                max: maxAmount,
-                divisions: (maxAmount - minAmount).toInt(),
-                value: selectedAmount,
-                label: selectedAmount.toInt().toString(),
-                onChanged: (value) {
-                  setState(
-                    () {
-                      // update selected amount
-                      selectedAmount = value;
-                    },
-                  );
-                },
-              ),
-              Text(
-                'Selected Amount: Rs. ${selectedAmount.toInt()}',
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                'Waring: Investing is a high-risk activity and may result in loss of funds. Please ensure you understand the risks involved before investing.',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-      () {
+  // show dialog box
+  CustomDialogBox.showCustomDialogBox(
+    context,
+    'Invest in Borrow Request',
+    StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Select the amount to invest (between ${minAmount.toInt()} and ${maxAmount.toInt()})',
+            ),
 
-        // accept borrow request bloc event called
-        context.read<PaymentBloc>().add(
-              PaymentEventAcceptBorrowRequest(
-                amount: selectedAmount.toInt(),
-                productIdentity: borrowId,
-              ),
-            );
+            // slider to select amount
+            Slider(
+              min: minAmount,
+              max: maxAmount,
+              divisions: (maxAmount - minAmount).toInt(),
+              value: selectedAmount,
+              label: selectedAmount.toInt().toString(),
+              onChanged: (value) {
+                setState(() {
+                  // update selected amount
+                  selectedAmount = value;
+                  amountController.text = selectedAmount.toInt().toString();
+                });
+              },
+            ),
+            Text(
+              'Selected Amount: Rs. ${selectedAmount.toInt()}',
+            ),
 
-        // close dialog box
-        Navigator.of(context).pop();
+            // text field for manual input
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Enter Amount',
+              ),
+              focusNode: focusNode,
+              onChanged: (value) {
+              },
+              onEditingComplete: () {
+                // update selected amount only after editing is complete
+                double? inputAmount = double.tryParse(amountController.text);
+                if (inputAmount != null) {
+                  if (inputAmount < minAmount) {
+                    inputAmount = minAmount;
+                  } else if (inputAmount > maxAmount) {
+                    inputAmount = maxAmount;
+                  }
+                  setState(() {
+                    selectedAmount = inputAmount!;
+                    amountController.text = selectedAmount.toInt().toString();
+                  });
+                }
+                // hide keyboard
+                focusNode.unfocus();
+              },
+            ),
+
+            const SizedBox(
+              height: 10,
+            ),
+            // warning message
+            const Text(
+              'Warning: Investing is a high-risk activity and may result in loss of funds. Please ensure you understand the risks involved before investing.',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        );
       },
-      buttonName: 'Invest',
-    );
-  }
+    ),
+    () {
+      // accept borrow request bloc event called
+      context.read<PaymentBloc>().add(
+        PaymentEventAcceptBorrowRequest(
+          amount: selectedAmount.toInt(),
+          productIdentity: borrowId,
+        ),
+      );
+
+      // close dialog box
+      Navigator.of(context).pop();
+    },
+    buttonName: 'I understand the risks and want to invest',
+  );
+}
+
 }

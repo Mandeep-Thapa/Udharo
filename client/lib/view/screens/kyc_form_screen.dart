@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
+import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/view/screens/view_kyc_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_image_selector_button.dart';
@@ -54,147 +55,181 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
       appBar: AppBar(
         title: const Text('KYC Verification'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formField,
-            child: Column(
-              children: [
-                // name fields
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          if(state is ProfileStateInitial){
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }else if (state is ProfileStateError) {
+            return Center(
+              child: Text('Error: ${state.message}'),
+            );
+          }else if(state is ProfileStateLoaded){
+            final user = state.user.data;
+
+            // split the name into first name and last name
+             final nameParts = user!.userName!.split(' ');
+            final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+            final lastName = nameParts.length > 1
+                ? nameParts.sublist(1).join(' ')
+                : '';
+
+            _firstNameController.text = firstName;
+            _lastNameController.text = lastName;
+
+            // actual form fields
+            return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formField,
+                child: Column(
                   children: [
-                    // first name field
-                    Expanded(
-                      child: firstNameFormField(),
+                    // name fields
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // first name field
+                        Expanded(
+                          child: firstNameFormField(),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        // last name field
+                        Expanded(
+                          child: lastNameFormField(),
+                        ),
+                      ],
                     ),
 
-                    const SizedBox(width: 10),
+                    // gender form field
+                    genderFormField(),
 
-                    // last name field
-                    Expanded(
-                      child: lastNameFormField(),
+                    // citizenship number field
+                    citizenshipNumberFormField(),
+
+                    // pan number field
+                    panNumberFormField(),
+
+                    const SizedBox(height: 20),
+
+                    // citizenship photo fields
+                    Row(
+                      children: [
+                        // citizenship front photo field
+                        Expanded(
+                          child: imageFormField(
+                            _citizenshipFrontPhoto,
+                            'Citizenship Front',
+                          ),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        // citizenship back photo field
+                        Expanded(
+                          child: imageFormField(
+                            _citizenshipBackPhoto,
+                            'Citizenship Back',
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
 
-                // gender form field
-                genderFormField(),
+                    const SizedBox(height: 20),
 
-                // citizenship number field
-                citizenshipNumberFormField(),
-
-                // pan number field
-                panNumberFormField(),
-
-                const SizedBox(height: 20),
-
-                // citizenship photo fields
-                Row(
-                  children: [
-                    // citizenship front photo field
-                    Expanded(
-                      child: imageFormField(
-                        _citizenshipFrontPhoto,
-                        'Citizenship Front',
-                      ),
+                    // passport size  photo field
+                    imageFormField(
+                      _passportSizePhoto,
+                      'Passport size photo',
                     ),
 
-                    const SizedBox(width: 10),
+                    const SizedBox(height: 20),
 
-                    // citizenship back photo field
-                    Expanded(
-                      child: imageFormField(
-                        _citizenshipBackPhoto,
-                        'Citizenship Back',
-                      ),
-                    ),
-                  ],
-                ),
+                    // submit button
+                    BlocConsumer<UploadKycBloc, UploadKycState>(
+                      listener: (context, state) {
+                        if (state is UploadKycStateLoading) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'Submitting KYC...',
+                          );
+                        }
+                        if (state is UploadKycStateSuccess) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'KYC submitted successfully',
+                          );
 
-                const SizedBox(height: 20),
-
-                // passport size  photo field
-                imageFormField(
-                  _passportSizePhoto,
-                  'Passport size photo',
-                ),
-
-                const SizedBox(height: 20),
-
-                // submit button
-                BlocConsumer<UploadKycBloc, UploadKycState>(
-                  listener: (context, state) {
-                    if (state is UploadKycStateLoading) {
-                      CustomToast().showToast(
-                        context: context,
-                        message: 'Submitting KYC...',
-                      );
-                    }
-                    if (state is UploadKycStateSuccess) {
-                      CustomToast().showToast(
-                        context: context,
-                        message: 'KYC submitted successfully',
-                      );
-
-                      Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ViewKYCScreen(),
-                              ),
-                            );
-                    } else if (state is UploadKycStateError) {
-                      CustomToast().showToast(
-                        context: context,
-                        message: 'KYC submission failed: ${state.message}',
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    return ElevatedButton(
-                      onPressed: () async {
-                        if (_formField.currentState!.validate()) {
-                          if (_citizenshipBackPhoto == null ||
-                              _citizenshipFrontPhoto == null ||
-                              _passportSizePhoto == null) {
-                            CustomToast().showToast(
-                              context: context,
-                              message: 'Please upload all the required photos',
-                            );
-                            return;
-                          }
-
-                          // form is valid
-                          // submit the form
-
-                          context
-                              .read<UploadKycBloc>()
-                              .add(UploadKycEventSubmitKYC(
-                                firstName: _firstNameController.text,
-                                lastName: _lastNameController.text,
-                                gender: _selectedGender!,
-                                citizenshipNumber: _citizenshipNumberController
-                                    .text
-                                    .toString(),
-                                panNumber:
-                                    (_panNumberController.text.isNotEmpty)
-                                        ? _panNumberController.text.toString()
-                                        : null,
-                                citizenshipFrontPhoto: _citizenshipFrontPhoto!,
-                                citizenshipBackPhoto: _citizenshipBackPhoto!,
-                                passportSizePhoto: _passportSizePhoto!,
-                              ));
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ViewKYCScreen(),
+                            ),
+                          );
+                        } else if (state is UploadKycStateError) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'KYC submission failed: ${state.message}',
+                          );
                         }
                       },
-                      child: const Text('Submit'),
-                    );
-                  },
+                      builder: (context, state) {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            if (_formField.currentState!.validate()) {
+                              if (_citizenshipBackPhoto == null ||
+                                  _citizenshipFrontPhoto == null ||
+                                  _passportSizePhoto == null) {
+                                CustomToast().showToast(
+                                  context: context,
+                                  message:
+                                      'Please upload all the required photos',
+                                );
+                                return;
+                              }
+
+                              // form is valid
+                              // submit the form
+
+                              context
+                                  .read<UploadKycBloc>()
+                                  .add(UploadKycEventSubmitKYC(
+                                    firstName: _firstNameController.text,
+                                    lastName: _lastNameController.text,
+                                    gender: _selectedGender!,
+                                    citizenshipNumber:
+                                        _citizenshipNumberController.text
+                                            .toString(),
+                                    panNumber: (_panNumberController
+                                            .text.isNotEmpty)
+                                        ? _panNumberController.text.toString()
+                                        : null,
+                                    citizenshipFrontPhoto:
+                                        _citizenshipFrontPhoto!,
+                                    citizenshipBackPhoto:
+                                        _citizenshipBackPhoto!,
+                                    passportSizePhoto: _passportSizePhoto!,
+                                  ));
+                            }
+                          },
+                          child: const Text('Submit'),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+          }
+          else{
+            return const Text('Error loading profile');
+          }
+          
+        },
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
     );
@@ -223,6 +258,7 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
         labelText: 'First Name  *',
       ),
       validator: nameValidator,
+      readOnly: true,
     );
   }
 
@@ -233,6 +269,7 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
         labelText: 'Last Name *',
       ),
       validator: nameValidator,
+      readOnly: true,
     );
   }
 

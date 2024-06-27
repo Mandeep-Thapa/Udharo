@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                   'Hello ${user?.userName ?? 'User'}',
                 ),
                 Text(
-                  'You have ${hasActiveTransaction ? 1 : 0} active transactions.',
+                  'You have ${hasActiveTransaction ? 'an' : 'no'} active transaction${hasActiveTransaction ? '' : 's'}.',
                 ),
 
                 // this button is for testing purpose

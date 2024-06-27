@@ -7,8 +7,12 @@ final class BrowseBorrowRequestStateInitial extends BrowseBorrowRequestState {}
 
 final class BrowseBorrowRequestStateLoaded extends BrowseBorrowRequestState {
   final BrowseBorrowRequestModel borrowRequests;
+  final UserProfileModel user;
 
-  BrowseBorrowRequestStateLoaded({required this.borrowRequests});
+  BrowseBorrowRequestStateLoaded({
+    required this.borrowRequests,
+    required this.user,
+  });
 }
 
 final class BrowseBorrowRequestStateError extends BrowseBorrowRequestState {
