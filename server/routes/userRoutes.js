@@ -2,7 +2,7 @@ const express = require("express");
 const {
   registerUser,
   loginUser,
-  getUserProfile,
+  getUserProfileWithTransactions,
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,
@@ -17,7 +17,7 @@ router.post("/register", registerUser);
 
 router.post("/login", loginUser);
 
-router.get("/profile", authenticate, getUserProfile);
+router.get("/profile", authenticate, getUserProfileWithTransactions);
 
 router.post("/send-verification-email", sendVerificationEmail);
 
