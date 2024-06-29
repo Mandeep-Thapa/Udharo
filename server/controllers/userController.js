@@ -8,6 +8,7 @@ const userMethods = require("../utils/userMethods");
 const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
 const KhaltiPayment = require("../models/khaltiPaymentModel");
 require("dotenv").config();
+const BorrowRequest = require("../models/borrowRequestModel");
 
 /*
   @desc Register a user
@@ -250,7 +251,6 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  // Initialize transactionsData as undefined for "User" role
   let transactionsData;
 
   try {
@@ -271,10 +271,11 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
       });
 
       transactionsData = formattedTransactions;
-    } else if (user.userRole === "Borrower") {
+    } else if (user.userRole === "Borrower" && transactionsData === undefined) {
+      // Only fetch and format borrowRequests if transactionsData is still undefined
       const borrowRequests = await BorrowRequest.find({ borrower: user._id });
 
-      const formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+      let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
         const amountToBeReturned =
           borrowRequest.amount +
           (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
@@ -287,9 +288,13 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
         };
       });
 
-      transactionsData = formattedBorrowRequests;
+      // Ensure uniqueness in transaction data
+      const uniqueTransactions = Array.from(
+        new Set(formattedBorrowRequests.map(JSON.stringify))
+      ).map(JSON.parse);
+
+      transactionsData = uniqueTransactions;
     } else if (user.userRole === "User") {
-      // For "User" role, do not fetch transactions
       transactionsData = undefined;
     } else {
       return res.status(400).json({
@@ -318,7 +323,6 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     userRole: user.userRole,
   };
 
-  // Add transactions data to the response if available
   if (transactionsData !== undefined) {
     responseData.transactions = transactionsData;
   }
@@ -328,7 +332,6 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     data: responseData,
   });
 });
-
 /*
   @desc Post Khalti payment details
   @route POST /api/user/khaltiPaymentInitialization
