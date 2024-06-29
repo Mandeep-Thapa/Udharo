@@ -3,7 +3,66 @@ const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
 const userMethods = require("../utils/userMethods");
 const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
-
+const Web3 = require("web3");
+const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+const contractABI=[[
+  {
+      "constant": false,
+      "inputs": [
+          {
+              "name": "_amount",
+              "type": "uint256"
+          },
+          {
+              "name": "_purpose",
+              "type": "string"
+          },
+          {
+              "name": "_interestRate",
+              "type": "uint256"
+          },
+          {
+              "name": "_paybackPeriod",
+              "type": "uint256"
+          }
+      ],
+      "name": "createBorrowRequest",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+  },
+  {
+      "anonymous": false,
+      "inputs": [
+          {
+              "indexed": false,
+              "name": "requestId",
+              "type": "uint256"
+          },
+          {
+              "indexed": false,
+              "name": "borrower",
+              "type": "address"
+          },
+          {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+          },
+          {
+              "indexed": false,
+              "name": "purpose",
+              "type": "string"
+          }
+      ],
+      "name": "BorrowRequestCreated",
+      "type": "event"
+  }
+]
+];
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const contract = new web3.eth.Contract(contractABI, contractAddress);
 // create a map to store the cron jobs
 const borrowRequestJobs = new Map();
 
