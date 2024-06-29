@@ -92,7 +92,7 @@ const createBorrowRequest = async (req, res) => {
 */
 const browseBorrowRequests = async (req, res) => {
   try {
-    // Simplified query to exclude borrow request with status expried or fully funded
+    // Simplified query to exclude borrow request with status expired or fully funded
     const query = {
       borrower: { $ne: req.user._id },
       status: { $nin: ["expired", "fully funded"] },
@@ -121,10 +121,7 @@ const browseBorrowRequests = async (req, res) => {
 */
 const approveBorrowRequest = async (req, res) => {
   try {
-    // sending amount to be fulfilled by a user
     const { amountToBeFulfilled } = req.body;
-
-    // finding the borrow request by id
     const borrowRequest = await BorrowRequest.findOne({
       _id: req.params.id,
     });
@@ -136,9 +133,6 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    console.log(borrowRequest);
-
-    // if borrow request status is expired
     if (borrowRequest.status === "expired") {
       return res.status(400).json({
         status: "Failed",
@@ -149,9 +143,6 @@ const approveBorrowRequest = async (req, res) => {
     const minAmount = borrowRequest.amount * 0.25;
     const maxAmount = borrowRequest.amount * 0.4;
 
-    console.log(minAmount, maxAmount, amountToBeFulfilled);
-
-    // check if the amount to be fulfilled is between 25% and 40% of the amount in the borrow request
     if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
         status: "Failed",
@@ -160,39 +151,28 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    // check if the maximum number of lenders is reached
     if (borrowRequest.numberOfLenders >= 4) {
       borrowRequest.status = "fully funded";
     } else {
       borrowRequest.status = "approved";
     }
 
-    borrowRequest.numberOfLenders += 1;
-
-    await borrowRequest.save();
-
-    // updating the user role to lender
-    await User.findByIdAndUpdate(req.user._id, {
-      hasActiveTransaction: true,
-      userRole: "Lender",
-    });
-
-    // Stop the cron job for the borrow request that has been approved
-    const job = borrowRequestJobs.get(req.params.id);
-    if (job) {
-      job.stop();
-      borrowRequestJobs.delete(req.params.id);
-    }
-
-    // save lender's details in borrowfulfillment model
-    const lenderName = req.user.fullName;
-    const returnAmount =
-      borrowRequest.amount +
-      (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
-
+    // Check if the user has already fulfilled the borrow request
     let borrowFulfillment = await BorrowFulfillment.findOne({
       borrowerName: borrowRequest.fullName,
     });
+
+    if (
+      borrowFulfillment &&
+      borrowFulfillment.lenders.some(
+        (lender) => lender.lenderName === req.user.fullName
+      )
+    ) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "You have already fulfilled this borrow request",
+      });
+    }
 
     if (!borrowFulfillment) {
       borrowFulfillment = new BorrowFulfillment({
@@ -203,15 +183,30 @@ const approveBorrowRequest = async (req, res) => {
 
     if (borrowFulfillment.lenders.length < 4) {
       borrowFulfillment.lenders.push({
-        lenderName,
+        lenderName: req.user.fullName,
         fulfilledAmount: amountToBeFulfilled,
-        returnAmount,
+        returnAmount:
+          amountToBeFulfilled +
+          (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
       });
+      borrowRequest.numberOfLenders += 1;
     } else {
       console.log("Maximum number of lenders reached");
     }
 
+    await borrowRequest.save();
     await borrowFulfillment.save();
+
+    await User.findByIdAndUpdate(req.user._id, {
+      hasActiveTransaction: true,
+      userRole: "Lender",
+    });
+
+    const job = borrowRequestJobs.get(req.params.id);
+    if (job) {
+      job.stop();
+      borrowRequestJobs.delete(req.params.id);
+    }
 
     res.status(200).json({
       status: "success",

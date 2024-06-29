@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
 const axios = require("axios");
 const userMethods = require("../utils/userMethods");
-
+const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
 const KhaltiPayment = require("../models/khaltiPaymentModel");
 require("dotenv").config();
 
@@ -238,7 +238,7 @@ const verifyEmail = async (req, res) => {
   @route GET /api/user/profile
   @access Private
 */
-const getUserProfile = asyncHandler(async (req, res) => {
+const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
   console.log("User: ", req.user);
   if (!req.user) {
     return res.status(401).json({ message: "Not authorized, token failed" });
@@ -246,25 +246,87 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
-  if (user) {
-    res.json({
-      status: "Success",
-      data: {
-        userName: user.fullName,
-        userId: user._id,
-        email: user.email,
-        isVerified: user.is_verifiedDetails,
-        hasActiveTransaction: user.hasActiveTransaction,
-        riskFactor: user.riskFactor,
-        totalMoneyInvested: user.totalMoneyInvested,
-        successfulRepayment: user.successfulRepayment,
-        lateRepayment: user.lateRepayment,
-        moneyInvestedDetails: user.moneyInvestedDetails,
-      },
-    });
-  } else {
+  if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
+
+  // Initialize transactionsData as undefined for "User" role
+  let transactionsData;
+
+  try {
+    if (user.userRole === "Lender") {
+      const transactions = await BorrowFulfillment.find({
+        "lender.lendername": user.fullName,
+      });
+
+      const formattedTransactions = transactions.map((transaction) => {
+        const lender = transaction.lenders.find(
+          (l) => l.lenderName === user.fullName
+        );
+        return {
+          borrowerName: transaction.borrowerName,
+          fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+          returnAmount: lender ? lender.returnAmount : undefined,
+        };
+      });
+
+      transactionsData = formattedTransactions;
+    } else if (user.userRole === "Borrower") {
+      const borrowRequests = await BorrowRequest.find({ borrower: user._id });
+
+      const formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+        const amountToBeReturned =
+          borrowRequest.amount +
+          (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+        return {
+          amount: borrowRequest.amount,
+          interestRate: borrowRequest.interestRate,
+          paybackPeriod: borrowRequest.paybackPeriod,
+          returnAmount: amountToBeReturned,
+        };
+      });
+
+      transactionsData = formattedBorrowRequests;
+    } else if (user.userRole === "User") {
+      // For "User" role, do not fetch transactions
+      transactionsData = undefined;
+    } else {
+      return res.status(400).json({
+        status: "Failed",
+        message: "User role is not supported for this operation",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: "Failed",
+      error: error.message,
+    });
+  }
+
+  const responseData = {
+    userName: user.fullName,
+    userId: user._id,
+    email: user.email,
+    isVerified: user.is_verifiedDetails,
+    hasActiveTransaction: user.hasActiveTransaction,
+    riskFactor: user.riskFactor,
+    totalMoneyInvested: user.totalMoneyInvested,
+    successfulRepayment: user.successfulRepayment,
+    lateRepayment: user.lateRepayment,
+    moneyInvestedDetails: user.moneyInvestedDetails,
+    userRole: user.userRole,
+  };
+
+  // Add transactions data to the response if available
+  if (transactionsData !== undefined) {
+    responseData.transactions = transactionsData;
+  }
+
+  res.json({
+    status: "Success",
+    data: responseData,
+  });
 });
 
 /*
@@ -411,7 +473,7 @@ const savePayment = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
-  getUserProfile,
+  getUserProfileWithTransactions,
   sendVerificationEmail,
   verifyEmail,
   paymentVerification,

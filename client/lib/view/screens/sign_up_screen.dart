@@ -16,7 +16,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isPasswordVisible = false;
 
   // text editing controllers
-  late final TextEditingController _nameController;
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _occupationController;
   late final TextEditingController _passwordController;
@@ -25,7 +26,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     // initialize text editing controllers
-    _nameController = TextEditingController();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
     _emailController = TextEditingController();
     _occupationController = TextEditingController();
     _passwordController = TextEditingController();
@@ -36,7 +38,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _occupationController.dispose();
     _passwordController.dispose();
@@ -62,8 +65,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   'Register with name, email and password',
                 ),
 
-                // name field
-                nameFormField(),
+                Row(
+                  children: [
+                    // first name field
+                    Expanded(
+                      child: firstNameFormField(),
+                    ),
+
+                    // last name field
+                    Expanded(
+                      child: lastNameFormField(),
+                    ),
+                  ],
+                ),
 
                 // email field
                 emailFormField(),
@@ -109,13 +123,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               context: context,
                               message: 'Registration failed: ${state.message}',
                             );
-                          }else if(state is RegisterStateLoading){
+                          } else if (state is RegisterStateLoading) {
                             CustomToast().showToast(
                               context: context,
                               message: 'Loading...',
                             );
                           }
-
                         },
                         builder: (context, state) {
                           return TextButton(
@@ -124,7 +137,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 // form is valid
                                 context.read<RegisterBloc>().add(
                                       RegiserEventMakeRegistration(
-                                        name: _nameController.text,
+                                        name: '${_firstNameController.text} ${_lastNameController.text}',
                                         email: _emailController.text,
                                         occupation: _occupationController.text,
                                         password: _passwordController.text,
@@ -161,28 +174,56 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // form fields
-  TextFormField nameFormField() {
+  TextFormField firstNameFormField() {
     return TextFormField(
-      controller: _nameController,
+      controller: _firstNameController,
       enableSuggestions: false,
       autocorrect: false,
       autofocus: true,
       keyboardType: TextInputType.name,
       decoration: const InputDecoration(
-        hintText: 'Full Name',
+        hintText: 'First Name',
       ),
       validator: (value) {
         if (value!.isEmpty) {
-          return 'Name cannot be empty';
+          return 'First Name cannot be empty';
         }
         if (value.startsWith(RegExp(r'[0-9]'))) {
-          return 'Name name cannot start with a number';
+          return 'First name cannot start with a number';
         }
         bool nameValid = RegExp(
           r"^[a-zA-Z\-'. ]+$",
         ).hasMatch(value);
         if (!nameValid) {
-          return "Enter valid Name";
+          return "Enter valid First Name";
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField lastNameFormField() {
+    return TextFormField(
+      controller: _lastNameController,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofocus: true,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+        hintText: 'Last Name',
+      ),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'Last Name cannot be empty';
+        }
+        if (value.startsWith(RegExp(r'[0-9]'))) {
+          return 'Last name cannot start with a number';
+        }
+        bool nameValid = RegExp(
+          r"^[a-zA-Z\-'. ]+$",
+        ).hasMatch(value);
+        if (!nameValid) {
+          return "Enter valid Last Name";
         }
         return null;
       },

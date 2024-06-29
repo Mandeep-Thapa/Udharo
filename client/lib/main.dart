@@ -72,6 +72,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<BrowseBorrowRequestBloc>(
           create: (context) => BrowseBorrowRequestBloc(
             BorrowRepository(),
+            UserRepository(),
           ),
         ),
         BlocProvider<BorrowHistoryBloc>(
