@@ -393,9 +393,9 @@ const getApprovedBorrowRequests = async (req, res) => {
   const requestId = req.params.id;
 
   try {
-    console.log(`Request ID: ${requestId}`);
-
     const borrowRequest = await BorrowRequest.findById(requestId);
+
+    //checking borrow request by passing id
 
     if (!borrowRequest) {
       console.log(`Borrow request with ID ${requestId} not found`);
