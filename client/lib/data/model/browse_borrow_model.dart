@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:udharo/constants/enums.dart';
+
 BrowseBorrowRequestModel browseBorrowRequestModelFromJson(String str) =>
     BrowseBorrowRequestModel.fromJson(json.decode(str));
 
@@ -100,15 +102,15 @@ class BorrowRequest {
 
   static String mapRisk(int? riskFactor) {
     if (riskFactor == 1) {
-      return 'Very High';
+      return RiskFactor.veryHigh.name;
     } else if (riskFactor == 2) {
-      return 'High';
+      return RiskFactor.high.name;
     } else if (riskFactor == 3) {
-      return 'Moderately High';
+      return RiskFactor.moderatelyHigh.name;
     } else if (riskFactor == 4) {
-      return 'Low';
+      return RiskFactor.low.name;
     } else if (riskFactor == 5) {
-      return 'Very Low';
+      return RiskFactor.veryLow.name;
     } else {
       return 'Unknown';
     }
