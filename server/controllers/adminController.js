@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
 const User = require("../models/registrationModel");
 const Kyc = require("../models/kycModel");
+const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
+const BorrowRequest = require("../models/borrowRequestModel");
 const Payment = require("../models/khaltiPaymentModel");
 const userMethods = require("../utils/userMethods");
 
@@ -382,6 +384,90 @@ const getUserRoleById = async (req, res) => {
   }
 };
 
+/*
+  @desc Get details of approved borrow requests
+  @routes GET /api/admin/approvedBorrowRequests/:id
+  @access Private
+*/
+const getApprovedBorrowRequests = async (req, res) => {
+  const requestId = req.params.id;
+
+  try {
+    console.log(`Request ID: ${requestId}`);
+
+    const borrowRequest = await BorrowRequest.findById(requestId);
+
+    if (!borrowRequest) {
+      console.log(`Borrow request with ID ${requestId} not found`);
+      return res.status(404).json({
+        status: "Failed",
+        message: "Borrow request not found",
+      });
+    }
+
+    console.log(`Borrow request status: ${borrowRequest.status}`);
+
+    if (borrowRequest.status !== "approved") {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Borrow request is not approved",
+      });
+    }
+
+    console.log(`Borrower Name: ${borrowRequest.fullName}`);
+
+    const borrowFulfillment = await BorrowFulfillment.findOne({
+      borrowerName: borrowRequest.fullName,
+    });
+
+    if (!borrowFulfillment) {
+      console.log(
+        `No borrow fulfillment found for borrower ${borrowRequest.fullName}`
+      );
+      return res.status(404).json({
+        status: "Failed",
+        message: "No lenders have fulfilled this borrow request",
+      });
+    }
+
+    const lenderDetails = [];
+
+    for (const lender of borrowFulfillment.lenders) {
+      const lenderRecord = await User.findOne({ fullName: lender.lenderName });
+
+      if (lenderRecord) {
+        lenderDetails.push({
+          lenderName: lenderRecord.fullName,
+          fulfilledAmount: lender.fulfilledAmount,
+          returnAmount: lender.returnAmount,
+        });
+      } else {
+        console.log(`Lender with name ${lender.lenderName} not found`);
+      }
+    }
+
+    const responseData = {
+      borrowRequestId: borrowRequest._id,
+      borrowerName: borrowRequest.fullName,
+      amountRequested: borrowRequest.amount,
+      numberOfLenders: lenderDetails.length,
+      lenders: lenderDetails,
+    };
+
+    res.status(200).json({
+      status: "Success",
+      data: responseData,
+    });
+  } catch (error) {
+    console.error(`Failed to fetch approved borrow requests: ${error.message}`);
+    res.status(500).json({
+      status: "Failed",
+      message: "Failed to fetch approved borrow requests",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -394,4 +480,5 @@ module.exports = {
   getUnverifiedUsers,
   getTransactionDetails,
   getUserRoleById,
+  getApprovedBorrowRequests,
 };
