@@ -240,7 +240,6 @@ const verifyEmail = async (req, res) => {
   @access Private
 */
 const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
-  console.log("User: ", req.user);
   if (!req.user) {
     return res.status(401).json({ message: "Not authorized, token failed" });
   }
@@ -314,6 +313,8 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     userId: user._id,
     email: user.email,
     isVerified: user.is_verifiedDetails,
+    rewardPoints: user.rewardPoints,
+    totalTransactions: user.totalTransactions,
     hasActiveTransaction: user.hasActiveTransaction,
     riskFactor: user.riskFactor,
     totalMoneyInvested: user.totalMoneyInvested,
@@ -399,15 +400,12 @@ const paymentVerification = async (req, res) => {
       config
     );
 
-    console.log(khaltiResponse.data);
-
     res.status(200).json({
       status: "Success",
       message: "Khalti payment details verified successfully",
       data: khaltiResponse.data,
     });
   } catch (error) {
-    console.log(error);
     res.status(400).json({
       status: "Failed",
       message: "Error in verifying khalti payment details",

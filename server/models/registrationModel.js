@@ -32,6 +32,10 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    totalTransactions: {
+      type: Number,
+      default: 0,
+    },
     hasActiveTransaction: {
       type: Boolean,
       default: false,
