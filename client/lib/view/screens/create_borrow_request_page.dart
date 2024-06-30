@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/create_borrow_request_bloc/create_borrow_request_bloc.dart';
+import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_toast.dart';
@@ -52,85 +53,116 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formField,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // amount field
-              amountFormField(),
+          child: BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (context, state) {
+              if (state is ProfileStateInitial) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is ProfileStateError) {
+                return Center(
+                  child: Text('Error loading user profile: ${state.message}'),
+                );
+              } else if (state is ProfileStateLoaded) {
+                final user = state.user.data;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // amount field
+                    amountFormField(),
 
-              // purpose field
-              purposeFormField(),
+                    // purpose field
+                    purposeFormField(),
 
-              // interest rate field
-              interestFormField(),
+                    // interest rate field
+                    interestFormField(),
 
-              // payback period field
-              paybackPeriodFormField(),
+                    // payback period field
+                    paybackPeriodFormField(),
 
-              const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-              BlocConsumer<CreateBorrowRequestBloc, CreateBorrowRequestState>(
-                listener: (context, state) {
-                  if (state is CreateBorrowRequestStateSuccess) {
-                    // show success message
-                    CustomToast().showToast(
-                      context: context,
-                      message:
-                          'Your borrow request has been created successfully',
-                    );
+                    BlocConsumer<CreateBorrowRequestBloc,
+                        CreateBorrowRequestState>(
+                      listener: (context, state) {
+                        if (state is CreateBorrowRequestStateSuccess) {
+                          // show success message
+                          CustomToast().showToast(
+                            context: context,
+                            message:
+                                'Your borrow request has been created successfully',
+                          );
 
-                    // clear the form fields
-                    _amountController.clear();
-                    _purposeController.clear();
-                    _interestRateController.clear();
-                    _paybackPeriodController.clear();
+                          // clear the form fields
+                          _amountController.clear();
+                          _purposeController.clear();
+                          _interestRateController.clear();
+                          _paybackPeriodController.clear();
 
-                    // clear bloc
-                    BlocProvider.of<CreateBorrowRequestBloc>(context).add(
-                      CreateBorrowRequestEventResetRequest(),
-                    );
+                          // clear bloc
+                          BlocProvider.of<CreateBorrowRequestBloc>(context).add(
+                            CreateBorrowRequestEventResetRequest(),
+                          );
 
-                    // navigate to home page
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomePage(),
-                      ),
-                    );
-                  } else if (state is CreateBorrowRequestStateError) {
-                    // show error message
+                          // navigate to home page
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                          );
+                        } else if (state is CreateBorrowRequestStateError) {
+                          // show error message
 
-                    CustomToast().showToast(
-                      context: context,
-                      message:
-                          'Error creating borrow request: ${state.message}',
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      if (_formField.currentState!.validate()) {
-                        // submit the form
-                        context.read<CreateBorrowRequestBloc>().add(
-                              CreateBorrowRequestEventSubmitRequest(
-                                amount: int.parse(_amountController.text),
-                                purpose: _purposeController.text,
-                                interestRate:
-                                    double.parse(_interestRateController.text),
-                                paybackPeriod:
-                                    int.parse(_paybackPeriodController.text),
-                              ),
-                            );
-                      }
-                    },
-                    child: const Text(
-                      'Create Request',
+                          CustomToast().showToast(
+                            context: context,
+                            message:
+                                'Error creating borrow request: ${state.message}',
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        return ElevatedButton(
+                          onPressed: (user != null &&
+                                  user.hasActiveTransaction != null &&
+                                  user.hasActiveTransaction!)
+                              ? null
+                              : () {
+                                  if (_formField.currentState!.validate()) {
+                                    // submit the form
+                                    context.read<CreateBorrowRequestBloc>().add(
+                                          CreateBorrowRequestEventSubmitRequest(
+                                            amount: int.parse(
+                                                _amountController.text),
+                                            purpose: _purposeController.text,
+                                            interestRate: double.parse(
+                                                _interestRateController.text),
+                                            paybackPeriod: int.parse(
+                                                _paybackPeriodController.text),
+                                          ),
+                                        );
+                                  }
+                                },
+                          child: (user != null &&
+                                  user.hasActiveTransaction != null &&
+                                  user.hasActiveTransaction!)
+                              ? const Text(
+                                  'Another transaction is already active',
+                                )
+                              : const Text(
+                                  'Create Borrow Request',
+                                ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ],
+                  ],
+                );
+              } else {
+                return const Center(
+                  child: Text('Error loading user profile'),
+                );
+              }
+            },
           ),
         ),
       ),

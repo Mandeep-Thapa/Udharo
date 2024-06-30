@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/view/screens/kyc_form_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
+import 'package:udharo/view/widget/custom_details_container.dart';
 import 'package:udharo/view/widget/sign_out_button.dart';
 
 class HomePage extends StatefulWidget {
@@ -68,6 +69,46 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   'You have ${hasActiveTransaction ? 'an' : 'no'} active transaction${hasActiveTransaction ? '' : 's'}.',
                 ),
+
+                // display information user role
+                user?.userRole?.toUpperCase() == 'BORROWER'
+                    ? CustomDetailsContainer(
+                        fields: [
+                          const Text(
+                            'You are a borrower.',
+                          ),
+                          Text(
+                            'Borrowed amount: ${user?.transactions?.first.amount ?? 0}',
+                          ),
+                          Text(
+                            'Interest Rate: ${user?.transactions?.first.interestRate ?? 0}',
+                          ),
+                          Text(
+                            'Payback Period: ${user?.transactions?.first.paybackPeriod ?? 0}',
+                          ),
+                          Text(
+                            'Return amount: ${user?.transactions?.first.returnAmount ?? 0}',
+                          ),
+                        ],
+                      )
+                    : user?.userRole?.toUpperCase() == 'LENDER'
+                        ? CustomDetailsContainer(
+                            fields: [
+                              const Text(
+                                'You are a borrower.',
+                              ),
+                              Text(
+                                'Borrower name: ${user?.transactions?.first.borrowerName ?? ''}',
+                              ),
+                              Text(
+                                'Fulfilled Amount: ${user?.transactions?.first.fulfilledAmount ?? 0}',
+                              ),
+                              Text(
+                                'Return amount: ${user?.transactions?.first.returnAmount ?? 0}',
+                              ),
+                            ],
+                          )
+                        : const Text('You are a user.'),
 
                 // this button is for testing purpose
                 // TextButton(
