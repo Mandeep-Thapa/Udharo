@@ -16,6 +16,7 @@ import 'package:udharo/service/register_bloc/register_bloc.dart';
 import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
+import 'package:udharo/theme/theme_class.dart';
 import 'package:udharo/view/screens/home_page.dart';
 import 'package:udharo/view/screens/sign_up_screen.dart';
 
@@ -106,10 +107,7 @@ class _MyAppState extends State<MyApp> {
             ],
             title: 'Udharo',
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              useMaterial3: true,
-            ),
+            theme: ThemeClass.defaultTheme,
             home:
                 widget.isUserLoggedIn ? const HomePage() : const SignUpScreen(),
           );

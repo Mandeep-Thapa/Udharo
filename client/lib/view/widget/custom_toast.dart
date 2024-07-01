@@ -10,9 +10,7 @@ class CustomToast {
       padding: const EdgeInsets.symmetric(),
       content: Text(
         message,
-        style: const TextStyle(
-          fontWeight: FontWeight.w400,
-        ),
+       
       ),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
