@@ -6,6 +6,7 @@ class ThemeClass {
   Color backgroundColor = const Color(0xff0F1717);
   Color primaryColor = const Color(0xff2F3833);
   Color secondaryColor = const Color(0xff03CC87);
+  Color navigationbarColor = const Color(0xff1C2924);
 
   Color textColorWhite = const Color(0xff8E9994);
   Color textColorBlack = const Color(0xff0F1717);
@@ -29,8 +30,13 @@ class ThemeClass {
     inputDecorationTheme: _themeClass._inputDecorationTheme(),
 
     // text selection theme
-    textSelectionTheme: _themeClass._textSelectionThemeData(), 
-    snackBarTheme:  _themeClass._snackBarThemeData(),
+    textSelectionTheme: _themeClass._textSelectionThemeData(),
+
+    // snackbar theme
+    snackBarTheme: _themeClass._snackBarThemeData(),
+
+    // bottom app bar theme
+    bottomAppBarTheme: _themeClass._bottomAppBarTheme(),
   );
 
   // functions:
@@ -60,7 +66,6 @@ class ThemeClass {
             WidgetStatePropertyAll<Color>(_themeClass.textColorWhite),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))),
-        
       ),
     );
   }
@@ -68,7 +73,6 @@ class ThemeClass {
   // input decoration theme
   InputDecorationTheme _inputDecorationTheme() {
     return InputDecorationTheme(
-      
       filled: true,
       fillColor: _themeClass.primaryColor,
       border: OutlineInputBorder(
@@ -113,6 +117,14 @@ class ThemeClass {
         color: _themeClass.textColorWhite,
         fontWeight: FontWeight.w400,
       ),
+    );
+  }
+
+  BottomAppBarTheme _bottomAppBarTheme() {
+    return BottomAppBarTheme(
+      color: _themeClass.navigationbarColor,
+      shape: const CircularNotchedRectangle(),
+      
     );
   }
 }
