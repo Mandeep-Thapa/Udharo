@@ -50,123 +50,141 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formField,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Register with name, email and password',
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Form(
+          key: _formField,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 30),
+
+              // go to sign in screen button
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
                 ),
-
-                Row(
-                  children: [
-                    // first name field
-                    Expanded(
-                      child: firstNameFormField(),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignInScreen(),
                     ),
-
-                    // last name field
-                    Expanded(
-                      child: lastNameFormField(),
-                    ),
-                  ],
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Create an account',
+                style: TextStyle(
+                  fontSize: 24,
                 ),
-
-                // email field
-                emailFormField(),
-
-                // occupation field
-                occupationFormField(),
-
-                // password field
-                passwordFormField(),
-
-                // confirm password field
-                confirmPasswordFormField(),
-
-                // buttons
-                Center(
-                  child: Column(
-                    children: [
-                      // sign up button
-
-                      BlocConsumer<RegisterBloc, RegisterState>(
-                        listener: (context, state) {
-                          if (state is RegisterStateSuccessSigningUp) {
-                            context.read<RegisterBloc>().add(
-                                  RegisterEventSendEmailVerification(
-                                    email: state.email,
-                                  ),
-                                );
-                          } else if (state
-                              is RegisterStateSuccessSendingVerificationEmail) {
-                            CustomToast().showToast(
-                              context: context,
-                              message: 'Registration successful',
-                            );
-
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignInScreen(),
-                              ),
-                            );
-                          } else if (state is RegisterStateError) {
-                            CustomToast().showToast(
-                              context: context,
-                              message: 'Registration failed: ${state.message}',
-                            );
-                          } else if (state is RegisterStateLoading) {
-                            CustomToast().showToast(
-                              context: context,
-                              message: 'Loading...',
-                            );
-                          }
-                        },
-                        builder: (context, state) {
-                          return TextButton(
-                            onPressed: () {
-                              if (_formField.currentState!.validate()) {
-                                // form is valid
-                                context.read<RegisterBloc>().add(
-                                      RegiserEventMakeRegistration(
-                                        name: '${_firstNameController.text} ${_lastNameController.text}',
-                                        email: _emailController.text,
-                                        occupation: _occupationController.text,
-                                        password: _passwordController.text,
-                                      ),
-                                    );
-                              }
-                            },
-                            child: const Text('Sign Up'),
-                          );
-                        },
-                      ),
-
-                      // already registered button
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignInScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text('Already Registered? Login!'),
-                      )
-                    ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Row(
+                children: [
+                  // first name field
+                  Expanded(child: firstNameFormField()),
+                  const SizedBox(
+                    width: 10,
                   ),
-                ),
-              ],
-            ),
+                  // last name field
+                  Expanded(
+                    child: lastNameFormField(),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              // email field
+              emailFormField(),
+
+              const SizedBox(
+                height: 20,
+              ),
+              // password field
+              passwordFormField(),
+
+              const SizedBox(
+                height: 20,
+              ),
+              // confirm password field
+              confirmPasswordFormField(),
+
+              const SizedBox(
+                height: 20,
+              ),
+              // occupation field
+              occupationFormField(),
+              const SizedBox(
+                height: 220,
+              ),
+              const Text(
+                'By creating an account, I agree to the Udharo\'s Terms of Service and Privacy Policy. I agree to the Udharo Terms of Service and Privacy Policy',
+              ),
+              const SizedBox(height: 20,),
+
+              // sign up button
+              BlocConsumer<RegisterBloc, RegisterState>(
+                listener: (context, state) {
+                  if (state is RegisterStateSuccessSigningUp) {
+                    context.read<RegisterBloc>().add(
+                          RegisterEventSendEmailVerification(
+                            email: state.email,
+                          ),
+                        );
+                  } else if (state
+                      is RegisterStateSuccessSendingVerificationEmail) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: 'Registration successful',
+                    );
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignInScreen(),
+                      ),
+                    );
+                  } else if (state is RegisterStateError) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: 'Registration failed: ${state.message}',
+                    );
+                  } else if (state is RegisterStateLoading) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: 'Loading...',
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formField.currentState!.validate()) {
+                          // form is valid
+                          context.read<RegisterBloc>().add(
+                                RegiserEventMakeRegistration(
+                                  name:
+                                      '${_firstNameController.text} ${_lastNameController.text}',
+                                  email: _emailController.text,
+                                  occupation: _occupationController.text,
+                                  password: _passwordController.text,
+                                ),
+                              );
+                        }
+                      },
+                      child: const Text('Sign Up'),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
