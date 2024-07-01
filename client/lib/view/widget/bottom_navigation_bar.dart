@@ -15,60 +15,69 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // home button
-          IconButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomePage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.home),
+          selectItems(
+            text: 'Home',
+            icon: Icons.home,
+            widget: const HomePage(),
+            context: context,
           ),
 
           // browse button
-          IconButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BrowseBorrowRequestsPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.search),
+          selectItems(
+            text: 'Search',
+            icon: Icons.search,
+            widget: const BrowseBorrowRequestsPage(),
+            context: context,
           ),
 
           // add button
-          IconButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreateBorrowRequestPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
+
+          selectItems(
+            text: 'Invest',
+            icon: Icons.arrow_circle_up,
+            widget: const CreateBorrowRequestPage(),
+            context: context,
           ),
 
-          // profile button
-          IconButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SettingsPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.person),
+          // settings button
+          selectItems(
+            text: 'Settings',
+            icon: Icons.settings,
+            widget: const SettingsPage(),
+            context: context,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // function to select items
+  GestureDetector selectItems({
+    required String text,
+    required IconData icon,
+    required Widget widget,
+    required BuildContext context,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => widget,
+          ),
+        );
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: Icon(icon),
+          ),
+          Expanded(
+            child: Text(text),
           ),
         ],
       ),
