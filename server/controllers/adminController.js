@@ -293,6 +293,8 @@ const verifyKYC = async (req, res) => {
     }
 user.is_verifiedDetails.is_kycVerified = !user.is_verifiedDetails.is_kycVerified;
 await user.save();
+await kyc.save();
+
 return res.status(200).json({
   status: "Success",
   message: user.is_verifiedDetails.is_kycVerified ? "KYC verified successfully" : "KYC unverified!",

@@ -28,10 +28,11 @@ interface KycDetailsProps {
 
 const KycDetails: React.FC = () => {
   const { _id } = useParams<{ _id: string }>();
-  const [kycdetails, setKycDetails] = useState<KycDetailsProps | null>(null);
+  const [kycdetails, setKycDetails] = useState<KycDetailsProps | null>();
   const [loading, setLoading] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalImage, setModalImage] = useState<string>("");
+
 
   useEffect(() => {
     const fetchKycDetails = async () => {
@@ -111,6 +112,7 @@ const KycDetails: React.FC = () => {
         }
         return prevState;
       });
+
       // toast.success(response.data.message);
       console.log(response);
     } catch (error) {
