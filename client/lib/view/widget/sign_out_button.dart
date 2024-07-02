@@ -8,10 +8,10 @@ import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/view/screens/sign_in_screen.dart';
 
 class SignOutButton {
-  TextButton signOutButton(
+  ElevatedButton signOutButton(
     BuildContext context,
   ) {
-    return TextButton(
+    return ElevatedButton(
       onPressed: () {
         // reset blocs
         BlocProvider.of<ProfileBloc>(context).add(
@@ -41,7 +41,7 @@ class SignOutButton {
           },
         );
       },
-      child: const Text('Sign Out'),
+      child: const Text('Signout'),
     );
   }
 }

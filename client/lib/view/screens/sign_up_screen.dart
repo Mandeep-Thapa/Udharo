@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/register_bloc/register_bloc.dart';
+import 'package:udharo/theme/theme_class.dart';
+import 'package:udharo/view/screens/privacy_and_policy_screen.dart';
 import 'package:udharo/view/screens/sign_in_screen.dart';
 import 'package:udharo/view/widget/custom_toast.dart';
 
@@ -122,10 +124,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(
                 height: 220,
               ),
-              const Text(
-                'By creating an account, I agree to the Udharo\'s Terms of Service and Privacy Policy. I agree to the Udharo Terms of Service and Privacy Policy',
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const PrivacyPolicyPage();
+                    },
+                  );
+                },
+                
+                child: Text.rich(TextSpan(
+                  text: 'By creating an account, I agree to the Udharo\'s ',
+                  children: [
+                    TextSpan(
+                      text: 'Terms of Service and Privacy Policy',
+                      style: TextStyle(
+                        color: ThemeClass().secondaryColor,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                )),
               ),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
 
               // sign up button
               BlocConsumer<RegisterBloc, RegisterState>(
