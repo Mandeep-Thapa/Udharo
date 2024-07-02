@@ -78,6 +78,8 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                   final borrowRequests =
                       state.borrowRequests.data?.borrowRequests;
                   final user = state.user.data;
+                  final isKycVerified =
+                      user?.isVerified?.isKycVerified ?? false;
 
                   if (borrowRequests == null || borrowRequests.isEmpty) {
                     return const Center(
@@ -177,10 +179,12 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                       user.hasActiveTransaction != null &&
                                       user.hasActiveTransaction!)
                                   ? 'Active Transaction Pending'
-                                  : 'Invest',
-                              onPressed: (user != null &&
-                                      user.hasActiveTransaction != null &&
-                                      user.hasActiveTransaction!)
+                                  : (!isKycVerified)
+                                      ? 'Unverified KYC'
+                                      : 'Invest',
+                              onPressed: (user != null ||
+                                      user?.hasActiveTransaction != null ||
+                                      user!.hasActiveTransaction! || !isKycVerified)
                                   ? null
                                   : () {
                                       _showInvestDialog(
