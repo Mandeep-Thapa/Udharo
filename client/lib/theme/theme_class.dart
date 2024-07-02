@@ -49,8 +49,14 @@ class ThemeClass {
       style: ButtonStyle(
         padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
             EdgeInsets.symmetric(vertical: 16.0)),
-        backgroundColor:
-            WidgetStatePropertyAll<Color>(_themeClass.secondaryColor),
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            // background color for disabled state
+            return _themeClass.primaryColor;
+          }
+          // return color for enabled state
+          return _themeClass.secondaryColor;
+        }),
         minimumSize:
             const WidgetStatePropertyAll<Size>(Size(double.infinity, 50.0)),
         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
