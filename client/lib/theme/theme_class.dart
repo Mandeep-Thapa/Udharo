@@ -37,6 +37,8 @@ class ThemeClass {
 
     // bottom app bar theme
     bottomAppBarTheme: _themeClass._bottomAppBarTheme(),
+
+    dividerColor: _themeClass.primaryColor,
   );
 
   // functions:
@@ -124,7 +126,6 @@ class ThemeClass {
     return BottomAppBarTheme(
       color: _themeClass.navigationbarColor,
       shape: const CircularNotchedRectangle(),
-      
     );
   }
 }
