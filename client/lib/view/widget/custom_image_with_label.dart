@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 class CustomImagewithLabel extends StatelessWidget {
   final String imageUrl;
   final String label;
+  final bool isnetworkImage;
   const CustomImagewithLabel({
     super.key,
     required this.imageUrl,
     required this.label,
+    this.isnetworkImage = true,
   });
 
   @override
@@ -14,6 +16,7 @@ class CustomImagewithLabel extends StatelessWidget {
     return Column(
       children: [
         // image received from the server
+        (isnetworkImage)?
         Image.network(
           imageUrl,
 
@@ -23,6 +26,9 @@ class CustomImagewithLabel extends StatelessWidget {
               Icons.error,
             );
           },
+        )
+        :Image.asset(
+          imageUrl,
         ),
         // spacing between the image and the label
         const SizedBox(height: 8),
