@@ -4,10 +4,12 @@ class CustomImagewithLabel extends StatelessWidget {
   final String imageUrl;
   final String label;
   final bool isnetworkImage;
+  final double height;
   const CustomImagewithLabel({
     super.key,
     required this.imageUrl,
     required this.label,
+    required this.height,
     this.isnetworkImage = true,
   });
 
@@ -19,6 +21,8 @@ class CustomImagewithLabel extends StatelessWidget {
         (isnetworkImage)?
         Image.network(
           imageUrl,
+          fit: BoxFit.cover,
+          height: height,
 
           // Display an error icon when image not found
           errorBuilder: (context, error, stackTrace) {
@@ -29,6 +33,8 @@ class CustomImagewithLabel extends StatelessWidget {
         )
         :Image.asset(
           imageUrl,
+          fit: BoxFit.cover,
+          height: height,
         ),
         // spacing between the image and the label
         const SizedBox(height: 8),

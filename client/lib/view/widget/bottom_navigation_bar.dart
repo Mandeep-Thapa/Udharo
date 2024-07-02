@@ -26,22 +26,23 @@ class CustomBottomNavigationBar extends StatelessWidget {
             context: context,
           ),
 
-          // browse button
+          // invest button
           selectItems(
-            text: 'Search',
-            icon: Icons.search,
+            text: 'Invest',
+            icon: Icons.arrow_circle_up,
             widget: const BrowseBorrowRequestsPage(),
             context: context,
           ),
 
-          // add button
-
+          // browse button
           selectItems(
-            text: 'Invest',
-            icon: Icons.arrow_circle_up,
+            text: 'Borrow',
+            icon: Icons.add_box_outlined,
             widget: const CreateBorrowRequestPage(),
             context: context,
           ),
+
+          
 
           // settings button
           selectItems(

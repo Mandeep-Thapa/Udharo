@@ -65,22 +65,35 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
                 );
               } else if (state is ProfileStateLoaded) {
                 final user = state.user.data;
+              final isKycVerified = user?.isVerified?.isKycVerified ?? false;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // amount field
                     amountFormField(),
+                    const SizedBox(
+                      height: 20,
+                    ),
 
                     // purpose field
                     purposeFormField(),
+                    const SizedBox(
+                      height: 20,
+                    ),
 
                     // interest rate field
                     interestFormField(),
+                    const SizedBox(
+                      height: 20,
+                    ),
 
                     // payback period field
                     paybackPeriodFormField(),
 
-                    const SizedBox(height: 16),
+                    
+
+                    const Spacer(),
 
                     BlocConsumer<CreateBorrowRequestBloc,
                         CreateBorrowRequestState>(
@@ -123,9 +136,9 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
                       },
                       builder: (context, state) {
                         return ElevatedButton(
-                          onPressed: (user != null &&
-                                  user.hasActiveTransaction != null &&
-                                  user.hasActiveTransaction!)
+                          onPressed: (user != null ||
+                                  user?.hasActiveTransaction != null ||
+                                  user!.hasActiveTransaction! || !isKycVerified)
                               ? null
                               : () {
                                   if (_formField.currentState!.validate()) {
@@ -143,14 +156,18 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
                                         );
                                   }
                                 },
-                          child: (user != null &&
-                                  user.hasActiveTransaction != null &&
-                                  user.hasActiveTransaction!)
+                          child: (user != null ||
+                                  user?.hasActiveTransaction != null ||
+                                  user!.hasActiveTransaction!)
                               ? const Text(
                                   'Another transaction is already active',
                                 )
-                              : const Text(
+                              :(isKycVerified)? 
+                              const Text(
                                   'Create Borrow Request',
+                                )
+                                :const Text(
+                                  'KYC not verified',
                                 ),
                         );
                       },

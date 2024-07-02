@@ -75,7 +75,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 20,
+              ),
               const Text(
                 'Create an account',
                 style: TextStyle(
@@ -88,7 +90,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Row(
                 children: [
                   // first name field
-                  Expanded(child: firstNameFormField()),
+                  Expanded(
+                    child: firstNameFormField(),
+                  ),
                   const SizedBox(
                     width: 10,
                   ),
@@ -133,7 +137,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     },
                   );
                 },
-                
                 child: Text.rich(TextSpan(
                   text: 'By creating an account, I agree to the Udharo\'s ',
                   children: [

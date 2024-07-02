@@ -23,7 +23,9 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Browse Borrow Requests'),
+        title: const Text(
+          'Invest in Borrow Requests',
+        ),
       ),
       body: Column(
         children: [
@@ -184,7 +186,8 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                       : 'Invest',
                               onPressed: (user != null ||
                                       user?.hasActiveTransaction != null ||
-                                      user!.hasActiveTransaction! || !isKycVerified)
+                                      user!.hasActiveTransaction! ||
+                                      !isKycVerified)
                                   ? null
                                   : () {
                                       _showInvestDialog(

@@ -47,46 +47,46 @@ class _AccountsPageState extends State<AccountsPage> {
         ),
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
-            if(state is ProfileStateInitial){
+            if (state is ProfileStateInitial) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            }else if(state is ProfileStateError){
-              return  Center(
+            } else if (state is ProfileStateError) {
+              return Center(
                 child: Text(state.message),
               );
-            }else if(state is ProfileStateLoaded){
-              final user= state.user.data;
-                            final isKycVerified = user?.isVerified?.isKycVerified ?? false;
+            } else if (state is ProfileStateLoaded) {
+              final user = state.user.data;
+              final isKycVerified = user?.isVerified?.isKycVerified ?? false;
 
-              return  Column(
-              children: [
-                const CustomSettingsOption(
-                  icon: Icons.person,
-                  title: 'Profile',
-                  widget: ProfilePage(),
-                ),
-                !isKycVerified?
-                const CustomSettingsOption(
-                  icon: Icons.update,
-                  title: 'Fill KYC',
-                  widget: KYCFormScreen(),
-                ):
-                const SizedBox.shrink(),
-                const CustomSettingsOption(
-                  icon: Icons.details_outlined,
-                  title: 'Fill KYC',
-                  widget: ViewKYCScreen(),
-                ),
-                const Spacer(),
-              ],
-            );
-            }else{
+              return Column(
+                children: [
+                  const CustomSettingsOption(
+                    icon: Icons.person,
+                    title: 'Profile',
+                    widget: ProfilePage(),
+                  ),
+                  !isKycVerified
+                      ? const CustomSettingsOption(
+                          icon: Icons.update,
+                          title: 'Fill KYC',
+                          widget: KYCFormScreen(),
+                        )
+                      : const SizedBox.shrink(),
+                  const CustomSettingsOption(
+                    icon: Icons.subtitles,
+                    title: 'View KYC',
+                    widget: ViewKYCScreen(),
+                  ),
+                  const Spacer(),
+                ],
+              );
+            } else {
               return const Center(
-                child: Text('Profile could not be loaded. Please try again later.'),
+                child: Text(
+                    'Profile could not be loaded. Please try again later.'),
               );
             }
-            
           },
         ),
       ),
