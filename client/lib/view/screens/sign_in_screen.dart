@@ -14,6 +14,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   bool _isPasswordVisible = false;
+  final _formField = GlobalKey<FormState>();
 
   // text editing controllers
   late final TextEditingController _emailController;
@@ -36,87 +37,129 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Form(
+          key: _formField,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Login with email and password',
+              // header Image
+              SizedBox(
+                width: double.infinity,
+                height: 300,
+                child: Image.asset(
+                  'lib/assets/sign_in_background_image.png',
+                  fit: BoxFit.contain,
+                ),
               ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text(
+                'Welcome to Udharo',
+                style: TextStyle(fontSize: 24),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(
+                'Get access to the tools you need to invest, spend, and put your money in motion.',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+
               // email field
               emailField(),
+              const SizedBox(height: 30,),
 
-              // password field
               passwordField(),
+              const SizedBox(
+                height: 10,
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    'Forgot your password?',
+                    style: TextStyle(
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 80,
+              ),
+              // login button
+              BlocConsumer<LoginBloc, LoginState>(
+                listener: (context, state) {
+                  if (state is LoginStateSuccess) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: 'Login successful',
+                    );
 
-              // buttons
-              Center(
-                child: Column(
-                  children: [
-                    // sign up button
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomePage(),
+                      ),
+                    );
 
-                    BlocConsumer<LoginBloc, LoginState>(
-                      listener: (context, state) {
-                        if (state is LoginStateSuccess) {
-                          CustomToast().showToast(
-                            context: context,
-                            message: 'Login successful',
-                          );
+                    BlocProvider.of<LoginBloc>(context).add(
+                      LoginEventResetLogin(),
+                    );
+                  } else if (state is LoginStateError) {
+                    CustomToast().showToast(
+                      context: context,
+                      message: 'Login failed: ${state.message}',
+                    );
 
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomePage(),
-                            ),
-                          );
-
-                          BlocProvider.of<LoginBloc>(context).add(
-                            LoginEventResetLogin(),
-                          );
-                        } else if (state is LoginStateError) {
-                          CustomToast().showToast(
-                            context: context,
-                            message: 'Login failed: ${state.message}',
-                          );
-
-                          BlocProvider.of<LoginBloc>(context).add(
-                            LoginEventResetLogin(),
-                          );
+                    BlocProvider.of<LoginBloc>(context).add(
+                      LoginEventResetLogin(),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formField.currentState!.validate()) {
+                          context.read<LoginBloc>().add(
+                                LoginEventSignIn(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                ),
+                              );
                         }
                       },
-                      builder: (context, state) {
-                        return TextButton(
-                          onPressed: () async {
-                            context.read<LoginBloc>().add(
-                                  LoginEventSignIn(
-                                    _emailController.text,
-                                    _passwordController.text,
-                                  ),
-                                );
-                          },
-                          child: const Text('Sign In'),
-                        );
-                      },
+                      child: const Text('Login'),
                     ),
-
-                    // already registered button
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text('Not Registered? Sign Up!'),
-                    )
-                  ],
+                  );
+                },
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              // go to  sign up screen button
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignUpScreen(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Don't have an account? Sign Up",
                 ),
               ),
             ],
@@ -127,8 +170,8 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   // form fields
-  TextField emailField() {
-    return TextField(
+  TextFormField emailField() {
+    return TextFormField(
       controller: _emailController,
       enableSuggestions: false,
       autocorrect: false,
@@ -137,11 +180,17 @@ class _SignInScreenState extends State<SignInScreen> {
       decoration: const InputDecoration(
         hintText: 'Email',
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your email';
+        }
+        return null;
+      },
     );
   }
 
-  TextField passwordField() {
-    return TextField(
+  TextFormField passwordField() {
+    return TextFormField(
       controller: _passwordController,
       obscureText: !_isPasswordVisible,
       enableSuggestions: false,
@@ -161,6 +210,12 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
         ),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your email';
+        }
+        return null;
+      },
     );
   }
 }

@@ -8,6 +8,7 @@ const userMethods = require("../utils/userMethods");
 const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
 const KhaltiPayment = require("../models/khaltiPaymentModel");
 require("dotenv").config();
+const BorrowRequest = require("../models/borrowRequestModel");
 
 /*
   @desc Register a user
@@ -239,7 +240,6 @@ const verifyEmail = async (req, res) => {
   @access Private
 */
 const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
-  console.log("User: ", req.user);
   if (!req.user) {
     return res.status(401).json({ message: "Not authorized, token failed" });
   }
@@ -250,7 +250,6 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  // Initialize transactionsData as undefined for "User" role
   let transactionsData;
 
   try {
@@ -271,10 +270,11 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
       });
 
       transactionsData = formattedTransactions;
-    } else if (user.userRole === "Borrower") {
+    } else if (user.userRole === "Borrower" && transactionsData === undefined) {
+      // Only fetch and format borrowRequests if transactionsData is still undefined
       const borrowRequests = await BorrowRequest.find({ borrower: user._id });
 
-      const formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+      let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
         const amountToBeReturned =
           borrowRequest.amount +
           (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
@@ -287,9 +287,13 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
         };
       });
 
-      transactionsData = formattedBorrowRequests;
+      // Ensure uniqueness in transaction data
+      const uniqueTransactions = Array.from(
+        new Set(formattedBorrowRequests.map(JSON.stringify))
+      ).map(JSON.parse);
+
+      transactionsData = uniqueTransactions;
     } else if (user.userRole === "User") {
-      // For "User" role, do not fetch transactions
       transactionsData = undefined;
     } else {
       return res.status(400).json({
@@ -309,6 +313,8 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     userId: user._id,
     email: user.email,
     isVerified: user.is_verifiedDetails,
+    rewardPoints: user.rewardPoints,
+    totalTransactions: user.totalTransactions,
     hasActiveTransaction: user.hasActiveTransaction,
     riskFactor: user.riskFactor,
     totalMoneyInvested: user.totalMoneyInvested,
@@ -318,7 +324,6 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     userRole: user.userRole,
   };
 
-  // Add transactions data to the response if available
   if (transactionsData !== undefined) {
     responseData.transactions = transactionsData;
   }
@@ -328,7 +333,6 @@ const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
     data: responseData,
   });
 });
-
 /*
   @desc Post Khalti payment details
   @route POST /api/user/khaltiPaymentInitialization
@@ -396,15 +400,12 @@ const paymentVerification = async (req, res) => {
       config
     );
 
-    console.log(khaltiResponse.data);
-
     res.status(200).json({
       status: "Success",
       message: "Khalti payment details verified successfully",
       data: khaltiResponse.data,
     });
   } catch (error) {
-    console.log(error);
     res.status(400).json({
       status: "Failed",
       message: "Error in verifying khalti payment details",

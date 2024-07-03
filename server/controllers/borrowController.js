@@ -189,6 +189,7 @@ const approveBorrowRequest = async (req, res) => {
           (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
       });
       borrowRequest.numberOfLenders += 1;
+      borrowRequest.amount -= amountToBeFulfilled;
     } else {
       console.log("Maximum number of lenders reached");
     }
@@ -197,6 +198,7 @@ const approveBorrowRequest = async (req, res) => {
     await borrowFulfillment.save();
 
     await User.findByIdAndUpdate(req.user._id, {
+      $inc: { moneyInvestedDetails: amountToBeFulfilled },
       hasActiveTransaction: true,
       userRole: "Lender",
     });

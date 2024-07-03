@@ -152,19 +152,14 @@ const AllUsers: React.FC = () => {
   return (
     <>
       <Navigationwrap>
-        <div className=" mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
+        <div className=" mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col ">
           <h1 className="font-bold text-3xl mx-3">All Users</h1>
           {error && <p className="error">{error}</p>}
           {loading ? (
-            <div className="flex justify-center mt-20 h-screen">
-              <div className="newtons-cradle">
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-                <div className="newtons-cradle__dot"></div>
-              </div>
-            </div>
-          ) : (
+               <div className="flex justify-center mt-10 h-screen">
+                 <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
+               </div>
+             ) : (
             <>
               <Table className="w-1/3 m-2 border-2  bg-custom-sudesh_grey">
                 <TableBody>
@@ -206,7 +201,7 @@ const AllUsers: React.FC = () => {
                         {user.hasKycDetails && (
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-orange-300 transition duration-500"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-custom-sudesh_yellow transition duration-500"
                               onClick={() => handleKycDetailsClick(user._id)}
                             >
                               KYC Details
@@ -216,7 +211,7 @@ const AllUsers: React.FC = () => {
                         {user.hasTransactionDetails && ( 
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-blue-300 transition duration-500"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_yellow transition duration-500 font-medium"
                               onClick={() => handleTransactionsClick(user._id)}
                             >
                               Transactions
@@ -224,11 +219,11 @@ const AllUsers: React.FC = () => {
                           </div>
                         )}
                         
-                        <div className="flex justify-center">
+                        {/* <div className="flex justify-center">
                           <button className="bg-custom-sudesh_black rounded-full hover:transition duration-700 text-2xl m-1 p-2 text-white font-bold">
                             <MdDelete />
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   ))}
