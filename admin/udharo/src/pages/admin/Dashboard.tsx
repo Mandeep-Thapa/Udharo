@@ -77,10 +77,12 @@ const Dashboard: React.FC = () => {
 <h1 className='text-2xl font-bold m-3'>Borrowers</h1>
 <span className=' text-4xl'><LiaBlenderSolid /></span>
 </div>
+<a href="/approvedborrowrequest">
 <div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_blue hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
-<h1 className='text-2xl font-bold m-3'>Account Management</h1>
+<h1 className='text-2xl font-bold m-3'>Approved Borrow Request</h1>
 <span className=' text-4xl'><FaUser /></span>
 </div>
+</a>
 <div className=" rounded-md hover:cursor-pointer bg-custom-sudesh_yellow hover:transition  duration-700 flex items-center flex-col m-3 p-3 h-36">
 <h1 className='text-2xl font-bold m-3'>Our Team</h1>
 <span className=' text-4xl'><HiUserGroup /></span>

@@ -41,7 +41,7 @@ router.get("/transactionDetails/:id", authenticate, getTransactionDetails);
 router.get("/role/:id", authenticate, getUserRoleById);
 
 router.get(
-  "/approvedBorrowRequests/:id",
+  "/approvedBorrowRequests",
   authenticate,
   getApprovedBorrowRequests
 );

@@ -188,10 +188,10 @@ const AllUsers: React.FC = () => {
                         <p className="p-2 ">{user.email}</p>
                         <p className="p-2 ">Risk Factor - {user.riskFactor}</p>
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col text-white">
                         <div className="">
                           <button
-                            className="border border-custom-sudesh_black font-medium bg-custom-sudesh_yellow rounded-md p-2 m-2 transition duration-500 "
+                            className="border border-custom-sudesh_black font-medium bg-custom-sudesh_black rounded-md p-2 m-2 transition duration-500 "
                             onClick={() => handleUserDetailsClick(user._id)}
                           >
                             User Details
@@ -201,7 +201,7 @@ const AllUsers: React.FC = () => {
                         {user.hasKycDetails && (
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-custom-sudesh_yellow transition duration-500"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_black transition duration-500"
                               onClick={() => handleKycDetailsClick(user._id)}
                             >
                               KYC Details
@@ -211,7 +211,7 @@ const AllUsers: React.FC = () => {
                         {user.hasTransactionDetails && ( 
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_yellow transition duration-500 font-medium"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_black transition duration-500 font-medium"
                               onClick={() => handleTransactionsClick(user._id)}
                             >
                               Transactions
