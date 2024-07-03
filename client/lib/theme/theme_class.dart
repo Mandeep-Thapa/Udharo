@@ -52,7 +52,7 @@ class ThemeClass {
         backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
           if (states.contains(WidgetState.disabled)) {
             // background color for disabled state
-            return _themeClass.primaryColor;
+            return _themeClass.navigationbarColor;
           }
           // return color for enabled state
           return _themeClass.secondaryColor;

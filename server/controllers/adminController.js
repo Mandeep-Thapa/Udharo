@@ -362,7 +362,7 @@ const verifyPan = async (req, res) => {
 };
 
 /*
-@desc Get user role by ID
+  @desc Get user role by ID
   @route GET /api/user/role/:id
   @access Public
 */
@@ -381,6 +381,75 @@ const getUserRoleById = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/*
+  @desc Get users whose role is user
+  @route GET /api/admin/userRole
+  @access Private
+*/
+const userRole = async (req, res) => {
+  try {
+    const users = await User.find({ userRole: "User" });
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+/*
+  @desc Get users whose role is lender
+  @route GET /api/admin/lenderRole
+  @access Private
+*/
+const lenderRole = async (req, res) => {
+  try {
+    const users = await User.fin({ userRole: "Lender" });
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+/*
+  @desc Get users whose role is borrower
+  @route GET /api/admin/borrowerRole
+  @access Private
+*/
+const borrowerRole = async (req, res) => {
+  try {
+    const users = await User.find({ userRole: "Borrower" });
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
   }
 };
 
@@ -466,4 +535,7 @@ module.exports = {
   getTransactionDetails,
   getUserRoleById,
   getApprovedBorrowRequests,
+  userRole,
+  lenderRole,
+  borrowerRole,
 };

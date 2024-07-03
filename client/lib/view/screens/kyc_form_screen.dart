@@ -95,7 +95,7 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
                           child: firstNameFormField(),
                         ),
 
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8.0,),
 
                         // last name field
                         Expanded(
@@ -103,13 +103,23 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
                         ),
                       ],
                     ),
+                        const SizedBox(
+                      height: 20,
+                    ),
+
 
                     // gender form field
                     genderFormField(),
+                    const SizedBox(
+                      height: 20,
+                    ),
 
                     // citizenship number field
                     citizenshipNumberFormField(),
-
+const SizedBox(
+                      height: 20,
+                    ),
+                    
                     // pan number field
                     panNumberFormField(),
 
@@ -146,9 +156,10 @@ class _KYCFormScreenState extends State<KYCFormScreen> {
                       'Passport size photo',
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 200),
 
                     // submit button
+                    
                     BlocConsumer<UploadKycBloc, UploadKycState>(
                       listener: (context, state) {
                         if (state is UploadKycStateLoading) {

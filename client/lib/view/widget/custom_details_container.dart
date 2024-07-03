@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:udharo/theme/theme_class.dart';
 
 class CustomDetailsContainer extends StatelessWidget {
   final List<Widget> fields;
@@ -25,6 +26,7 @@ class CustomDetailsContainer extends StatelessWidget {
       decoration: BoxDecoration(
         // border: Border.all(color: ThemeClass().secondaryColor),
         borderRadius: BorderRadius.circular(10.0),
+        color: ThemeClass().primaryColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

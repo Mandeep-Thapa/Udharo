@@ -224,13 +224,14 @@ class _HomePageState extends State<HomePage> {
                                 imageUrl: 'lib/assets/cash1.jpg',
                                 label: 'Invest Money',
                                 isnetworkImage: false,
+                                height: 180,
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(height: 10,),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 20,),
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
@@ -249,6 +250,7 @@ class _HomePageState extends State<HomePage> {
                                 imageUrl: 'lib/assets/cash2.jpg',
                                 label: 'Request Loan',
                                 isnetworkImage: false,
+                                height: 180,
                               ),
                               SizedBox(
                                 height: 10,
