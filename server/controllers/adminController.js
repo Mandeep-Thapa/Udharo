@@ -537,6 +537,42 @@ const getApprovedBorrowRequests = async (req, res) => {
   }
 };
 
+/*
+  @desc Khalti payment verification for admin
+  @route POST /api/admin/khaltiPaymentVerification
+  @access Private
+*/
+const paymentVerification = async (req, res) => {
+  try {
+    const { token, amount } = req.body;
+
+    const data = { token, amount };
+
+    const config = {
+      headers: {
+        Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+      },
+    };
+
+    const khaltiResponse = await axios.post(
+      "https://khalti.com/api/v2/payment/verify/",
+      data,
+      config
+    );
+
+    res.status(200).json({
+      status: "Success",
+      message: "Khalti payment verified successfully",
+      data: khaltiResponse.data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -553,4 +589,5 @@ module.exports = {
   userRole,
   lenderRole,
   borrowerRole,
+  paymentVerification,
 };

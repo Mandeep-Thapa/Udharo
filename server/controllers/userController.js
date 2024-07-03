@@ -103,17 +103,31 @@ const loginUser = async (req, res) => {
 
   // Aba email bata user nikalne
   try {
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select(
+      "+password is_verifiedDetails.is_emailVerified"
+    );
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ status: "Failed", message: "Invalid email or password" });
+    }
+
+    // check if the email is verified or not
+    if (!user.is_verifiedDetails.is_emailVerified) {
+      return res.status(403).json({
+        status: "Failed",
+        message: "Email is not verified. Please verify your email first",
+      });
     }
 
     // compairing unencrypted password with encrypted password from database
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ status: "Failed", message: "Invalid password" });
     }
 
     // Generating jsonwebtoken
@@ -131,7 +145,7 @@ const loginUser = async (req, res) => {
     res.json({ token });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ status: "Failed", message: error.message });
   }
 };
 
