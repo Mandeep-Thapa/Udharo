@@ -63,11 +63,10 @@ const token = localStorage.getItem("token");
   return (
     <Navigationwrap>
       <div className="mt-[76px] xs:ml-0 sm:ml-[260px] p-3 flex flex-col">
-    <div className="w-full mx-auto p-6 bg-yellow-50 rounded-lg shadow-lg">
-    <h1 className="text-2xl font-bold text-yellow-800 text-center mb-6">Transaction Details</h1>
+    <h1 className="font-bold text-3xl mx-3 mb-2">Transaction Details</h1>
     {loading ? (
                <div className="flex justify-center mt-10 h-screen">
-                 <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
+                 <div className="w-16 h-16 border-4 border-custom-sudesh_blue border-dotted rounded-full animate-spin"></div>
                </div>
              ) : (
       <>
@@ -76,16 +75,46 @@ const token = localStorage.getItem("token");
         ) : (
           transactions.length > 0 ? (
             transactions.map((transaction) => (
-              <div key={transaction._id} className="border border-yellow-300 p-4 m-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 transition duration-300 ">
-                <p><strong>Transaction ID:</strong> {transaction._id}</p>
-                <p><strong>Total Amount:</strong> {transaction.total_amount}</p>
-                <p><strong>Status:</strong> {transaction.status}</p>
-                <p><strong>Transaction ID:</strong> {transaction.transaction_id}</p>
-                <p><strong>Fee:</strong> {transaction.fee}</p>
-                <p><strong>Refunded:</strong> {transaction.refunded ? "Yes" : "No"}</p>
-                <p><strong>Paid At:</strong> {new Date(transaction.paid_at).toLocaleString()}</p>
-                <p><strong>Paid By:</strong> {transaction.paidByName}</p>
+              <div key={transaction._id} className="p-4 m-2 rounded-lg bg-custom-sudesh_blue transition duration-300">
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200">
+                  <tbody className="divide-y divide-gray-200 ">
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Transaction ID:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">{transaction._id}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Total Amount:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">${transaction.total_amount}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Status:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">{transaction.status}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Transaction ID:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">{transaction.transaction_id}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Fee:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">${transaction.fee}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Refunded:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">{transaction.refunded ? 'Yes' : 'No'}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Paid At:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">{new Date(transaction.paid_at).toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap"><strong>Paid By:</strong></td>
+                      <td className="px-6 py-4 whitespace-nowrap">{transaction.paidByName}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+            </div>
             ))
           ) : (
             <p className="text-center text-yellow-700">No transactions found.</p>
@@ -93,7 +122,6 @@ const token = localStorage.getItem("token");
         )}
       </>
     )}
-  </div>
   </div>
   </Navigationwrap>
   );

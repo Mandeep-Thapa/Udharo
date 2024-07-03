@@ -39,6 +39,8 @@ const UserDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [panVerified, setPanVerified] = useState<boolean>(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -47,7 +49,7 @@ const UserDetails: React.FC = () => {
           throw new Error('Authentication token not found!');
         }
 
-        const response = await axios.get(`http://localhost:3004/api/admin/userdetails/${_id}`, {
+        const response = await axios.get(`${API_BASE_URL}/userdetails/${_id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -121,7 +123,7 @@ const handlePanToggle = async () => {
 
       {loading ? (
                <div className="flex justify-center mt-10 h-screen">
-                 <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
+                 <div className="w-16 h-16 border-4 border-custom-sudesh_blue border-dotted rounded-full animate-spin"></div>
                </div>
              ) : (
       userDetails && (
@@ -170,7 +172,7 @@ const handlePanToggle = async () => {
           </tr>
         </tbody>
       </table>
-      <div className="flex flex-col gap-10 border-2 p-12 rounded-lg border-custom-sudesh_yellow ">
+      <div className="flex flex-col gap-10 border-2 p-12 rounded-lg border-custom-sudesh_black ">
        <span className='text-xl font-bold my-4'> Verifications</span>
         <div className="flex flex-col gap-16">
           <span className='flex gap-4 justify-center items-center font-bold'>Email:  {userDetails.isVerified.email ? (

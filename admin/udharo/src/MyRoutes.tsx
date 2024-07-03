@@ -9,8 +9,10 @@ import UserDetails from "./pages/admin/UserDetails";
 import KycDetails from "./pages/admin/KycDetails";
 import TransactionDetails from "./pages/admin/TransactionDetails";
 import ApprovedBorrowRequest from "./pages/admin/ApprovedBorrowRequest";
+import BorrowersRole from "./pages/admin/BorrowersRole";
 import KhaltiPayment from "./pages/admin/KhaltiPayment";
 import axios from "axios";
+import LenderRoleComponent from "./pages/admin/LendersRole";
 const MyRoutes = () => {
   const handleSuccess = async (payload: any) => {
     try {
@@ -45,14 +47,16 @@ const MyRoutes = () => {
             path="/payment"
             element={
               <KhaltiPayment
-                amount={1000} // Example amount, you can dynamically set this
-                purchaseOrderId="Order01" // Example order ID, you can dynamically set this
-                purchaseOrderName="Test Order" // Example order name, you can dynamically set this
+                amount={1000} 
+                purchaseOrderId="Order01"
+                purchaseOrderName="Test Order"
                 onSuccess={handleSuccess}
               />
             }
           />
           <Route path="/approvedborrowrequest" element={<ApprovedBorrowRequest />} />
+          <Route path="/borrowers" element={<BorrowersRole />} />
+          <Route path="/lenders" element={<LenderRoleComponent />} />
         </Route>
       </Routes>
     </Router>
