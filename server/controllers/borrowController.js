@@ -16,16 +16,13 @@ const createBorrowRequest = async (req, res) => {
   const { amount, purpose, interestRate, paybackPeriod } = req.body;
 
   // check if user is verified or not
-  // if (
-  //   !req.user.is_verifiedDetails.is_emailVerified ||
-  //   !req.user.is_verifiedDetails.is_kycVerified
-  // ) {
-  //   return res.status(400).json({
-  //     status: "Failed",
-  //     message:
-  //       "Your email and KYC is not verified. Please verify before creating a borrow request.",
-  //   });
-  // }
+  if (!req.user.is_verifiedDetails.is_kycVerified) {
+    return res.status(400).json({
+      status: "Failed",
+      message:
+        "Your KYC is not verified. Please verify before creating a borrow request.",
+    });
+  }
 
   try {
     const borrowRequest = new BorrowRequest({
@@ -140,18 +137,28 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    const minAmount = borrowRequest.amount * 0.25;
+    // Check if user's KYC is verified
+    const verifiedUser = await User.findById(req.user._id);
+    if (!verifiedUser.is_kycVerified) {
+      return res.status(400).json({
+        status: "Failed",
+        message:
+          "Your KYC is not verified. Please verify before accepting a borrow request.",
+      });
+    }
+
+    const minAmount = borrowRequest.amount * 0.2;
     const maxAmount = borrowRequest.amount * 0.4;
 
     if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
         status: "Failed",
         message:
-          "Amount to be fulfilled must be between 25% and 40% of the requested amount",
+          "Amount to be fulfilled must be between 20% and 40% of the requested amount",
       });
     }
 
-    if (borrowRequest.numberOfLenders >= 4) {
+    if (borrowRequest.numberOfLenders >= 5) {
       borrowRequest.status = "fully funded";
     } else {
       borrowRequest.status = "approved";
@@ -181,7 +188,7 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    if (borrowFulfillment.lenders.length < 4) {
+    if (borrowFulfillment.lenders.length < 5) {
       borrowFulfillment.lenders.push({
         lenderName: req.user.fullName,
         fulfilledAmount: amountToBeFulfilled,
