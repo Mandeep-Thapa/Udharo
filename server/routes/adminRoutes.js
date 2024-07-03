@@ -15,6 +15,9 @@ const {
   getTransactionDetails,
   getUserRoleById,
   getApprovedBorrowRequests,
+  userRole,
+  lenderRole,
+  borrowerRole,
 } = require("../controllers/adminController");
 const authenticate = require("../middleware/adminVerification");
 
@@ -39,6 +42,12 @@ router.get("/unverifiedUsers", authenticate, getUnverifiedUsers);
 router.get("/transactionDetails/:id", authenticate, getTransactionDetails);
 
 router.get("/role/:id", authenticate, getUserRoleById);
+
+router.get("/userRole", authenticate, userRole);
+
+router.get("/lenderRole", authenticate, lenderRole);
+
+router.get("/borrowerRole", authenticate, borrowerRole);
 
 router.get(
   "/approvedBorrowRequests/:id",
