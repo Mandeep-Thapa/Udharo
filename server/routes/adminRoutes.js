@@ -50,12 +50,8 @@ router.get("/lenderRole", authenticate, lenderRole);
 
 router.get("/borrowerRole", authenticate, borrowerRole);
 
-router.get(
-  "/approvedBorrowRequests/:id",
-  authenticate,
-  getApprovedBorrowRequests
-);
+router.get("/approvedBorrowRequests", authenticate, getApprovedBorrowRequests);
 
-router.post("/paymentVerification", authenticate, paymentVerification);
+// router.post("/paymentVerification", authenticate, paymentVerification);
 
 module.exports = router;
