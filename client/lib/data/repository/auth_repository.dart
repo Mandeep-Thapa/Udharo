@@ -4,18 +4,18 @@ import 'package:udharo/config.dart';
 
 class AuthRepository {
   // constants for token expiration
-  static const String _tokenKey = 'token';
+  static const String tokenKey = 'token';
 
   // method to save the token along with its expiration time
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(_tokenKey, token);
+    prefs.setString(tokenKey, token);
   }
 
   // method to clear the token and log out the user
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove(_tokenKey);
+    prefs.remove(tokenKey);
   }
 
   // sign in
@@ -56,8 +56,8 @@ class AuthRepository {
         return 'Login Success';
       } else {
         // handle error response
-        if (response.data['error'] != null) {
-          return response.data['error'];
+        if (response.data['message'] != null) {
+          return response.data['message'];
         } else {
           // generic error message
           return 'Login Unsuccessful';
@@ -67,9 +67,9 @@ class AuthRepository {
       // handle DioException
       if (e.response != null && e.response!.data != null) {
         // handle specific error message from the server
-        if (e.response!.data['error'] != null) {
+        if (e.response!.data['message'] != null) {
           // print('dio error message: ${e.response!.data['error']}');
-          return e.response!.data['error'];
+          return e.response!.data['message'];
         }
       }
       // generic error message

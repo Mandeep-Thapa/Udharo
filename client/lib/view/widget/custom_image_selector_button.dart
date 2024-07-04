@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:udharo/view/widget/custom_show_full_screen_image.dart';
 import 'package:udharo/view/widget/image_uploader.dart';
 
 class CustomImageSelectionButton extends StatelessWidget {
@@ -19,7 +20,20 @@ class CustomImageSelectionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (image != null) Image.file(image!),
+        if (image != null)
+          GestureDetector(
+            onTap: () {
+              CustomShowFullScreenImage().showFullScreenImage(
+                context,
+                image!.path,
+                isFileImage: true,
+                image: image,
+              );
+            },
+            child: Image.file(
+              image!,
+            ),
+          ),
         ElevatedButton(
           onPressed: () async {
             final photo = await ImageUploader().showImageSourceOptions(context);

@@ -105,6 +105,7 @@ import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/theme/theme_class.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_image_with_label.dart';
+import 'package:udharo/view/widget/custom_show_full_screen_image.dart';
 
 class ViewKYCScreen extends StatefulWidget {
   const ViewKYCScreen({super.key});
@@ -184,10 +185,13 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  
                                   GestureDetector(
                                     onTap: () {
-                                      _showFullScreenImage(context, kyc.photo!);
+                                      CustomShowFullScreenImage()
+                                          .showFullScreenImage(
+                                        context,
+                                        kyc.photo!,
+                                      );
                                     },
                                     child: CircleAvatar(
                                       radius: 100,
@@ -250,7 +254,6 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
                                 ],
                               ),
                               const SizedBox(height: 16.0),
-                              
                               const Divider(),
                               const SizedBox(height: 16.0),
                               Text(
@@ -274,7 +277,8 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
-                                        _showFullScreenImage(
+                                        CustomShowFullScreenImage()
+                                            .showFullScreenImage(
                                           context,
                                           kyc.citizenshipFrontPhoto!,
                                         );
@@ -296,8 +300,9 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
-                                        _showFullScreenImage(
-                                            context, kyc.citizenshipBackPhoto!);
+                                        CustomShowFullScreenImage()
+                                            .showFullScreenImage(context,
+                                                kyc.citizenshipBackPhoto!);
                                       },
                                       child: kyc.citizenshipBackPhoto != null
                                           ? CustomImagewithLabel(
@@ -332,22 +337,4 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
       ),
     );
   }
-}
-
-void _showFullScreenImage(BuildContext context, String imageUrl) {
-  showDialog(
-    context: context,
-    builder: (context) => Dialog(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.network(imageUrl),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    ),
-  );
 }
