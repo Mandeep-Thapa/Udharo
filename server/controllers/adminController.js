@@ -1,4 +1,3 @@
-const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
@@ -14,100 +13,149 @@ const userMethods = require("../utils/userMethods");
   @routes POST /api/admin/register
   @access public
 */
-const registerAdmin = asyncHandler(async (req, res) => {
-  let { email, password } = req.body;
-  email = email.trim();
-  password = password.trim();
+const registerAdmin = async (req, res) => {
+  try {
+    let { email, password } = req.body;
+    email = email.trim();
+    password = password.trim();
 
-  if (email == "" || password == "") {
-    res.status(400);
-    throw new Error("All fields are mandatory");
-  } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-    res
-      .status(400)
-      .json({ status: "Failed", message: "Invalid Email Entered" });
+    if (email == "" || password == "") {
+      return res.status(400).json({
+        status: "Failed",
+        message: "All fields are mandatory",
+      });
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Invalid Email entered",
+      });
+    }
+
+    const adminAvailable = await Admin.findOne({ email });
+    if (adminAvailable) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Admin already registered",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await Admin.create({
+      email,
+      password: hashedPassword,
+    });
+
+    console.log(`Admin created ${admin}`);
+
+    if (admin) {
+      return res.status(201).json({
+        status: "Success",
+        data: {
+          _id: admin._id,
+        },
+      });
+    } else {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Admin data is not valid",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
   }
-
-  const adminAvailable = await Admin.findOne({ email });
-  if (adminAvailable) {
-    res.status(400);
-    throw new Error("Admin already registered");
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const newAdmin = await Admin.create({
-    email,
-    password: hashedPassword,
-  });
-
-  console.log(`Admin created ${newAdmin}`);
-  if (newAdmin) {
-    res.status(201).json({ _id: newAdmin._id, email: newAdmin.email });
-  } else {
-    res.status(400);
-    throw new Error("Admin data is not valid");
-  }
-});
+};
 
 /*
   @desc Login an admin
   @routes POST /api/admin/login
   @access public
 */
-const loginAdmin = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+const loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    res.status(400);
-    throw new Error("Email and password are required");
-  }
-
-  const admin = await Admin.findOne({ email });
-
-  if (!admin) {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
-
-  const isMatch = await bcrypt.compare(password, admin.password);
-
-  if (!isMatch) {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
-
-  const token = jwt.sign(
-    { id: admin._id, email: admin.email },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "1h",
+    if (!email || !password) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "All fields are mandatory",
+      });
     }
-  );
 
-  res.status(200).json({ token });
-});
+    const admin = await Admin.findOne({ email });
+
+    if (!admin) {
+      return res.status(401).json({
+        stauts: "Failed",
+        message: "Invalid email entered",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Invalid password entered",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        token,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
 
 /*
   @desc admin details
   @routes POST /api/admin/admindetails
   @access private
 */
-const getAdminDetails = asyncHandler(async (req, res) => {
-  console.log(req.user.email);
-  const adminEmail = req.user.email;
+const getAdminDetails = async (req, res) => {
+  try {
+    const adminEmail = req.user.email;
 
-  const admin = await Admin.findOne({ email: adminEmail });
+    const admin = await Admin.findOne({ email: adminEmail });
 
-  if (!admin) {
-    res.status(404).json({ message: "Admin not found" });
-    return;
+    if (!admin) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Admin not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "Success",
+      message: {
+        email: admin.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
   }
-
-  res.status(200).json({
-    email: admin.email,
-  });
-});
+};
 
 /*
   @desc Get all users
@@ -362,7 +410,7 @@ const verifyPan = async (req, res) => {
 };
 
 /*
-@desc Get user role by ID
+  @desc Get user role by ID
   @route GET /api/user/role/:id
   @access Public
 */
@@ -385,78 +433,135 @@ const getUserRoleById = async (req, res) => {
 };
 
 /*
+  @desc Get users whose role is user
+  @route GET /api/admin/userRole
+  @access Private
+*/
+const userRole = async (req, res) => {
+  try {
+    const users = await User.find({ userRole: "User" });
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+/*
+  @desc Get users whose role is lender
+  @route GET /api/admin/lenderRole
+  @access Private
+*/
+const lenderRole = async (req, res) => {
+  try {
+    const users = await User.fin({ userRole: "Lender" });
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+/*
+  @desc Get users whose role is borrower
+  @route GET /api/admin/borrowerRole
+  @access Private
+*/
+const borrowerRole = async (req, res) => {
+  try {
+    const users = await User.find({ userRole: "Borrower" });
+
+    res.status(200).json({
+      status: "Success",
+      data: {
+        users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+/*
   @desc Get details of approved borrow requests
   @routes GET /api/admin/approvedBorrowRequests/:id
   @access Private
 */
 const getApprovedBorrowRequests = async (req, res) => {
-  const requestId = req.params.id;
-
   try {
-    const borrowRequest = await BorrowRequest.findById(requestId);
+    const borrowRequests = await BorrowRequest.find({ status: "approved" });
 
-    //checking borrow request by passing id
-
-    if (!borrowRequest) {
-      console.log(`Borrow request with ID ${requestId} not found`);
+    if (!borrowRequests || borrowRequests.length === 0) {
       return res.status(404).json({
         status: "Failed",
-        message: "Borrow request not found",
+        message: "No approved borrow requests found",
       });
     }
 
-    console.log(`Borrow request status: ${borrowRequest.status}`);
+    const approvedRequestsData = [];
 
-    if (borrowRequest.status !== "approved") {
-      return res.status(400).json({
-        status: "Failed",
-        message: "Borrow request is not approved",
+    for (const borrowRequest of borrowRequests) {
+      const borrowFulfillment = await BorrowFulfillment.findOne({
+        borrowerName: borrowRequest.fullName,
       });
-    }
 
-    console.log(`Borrower Name: ${borrowRequest.fullName}`);
+      if (borrowFulfillment) {
+        const lenderDetails = [];
 
-    const borrowFulfillment = await BorrowFulfillment.findOne({
-      borrowerName: borrowRequest.fullName,
-    });
+        for (const lender of borrowFulfillment.lenders) {
+          const lenderRecord = await User.findOne({
+            fullName: lender.lenderName,
+          });
 
-    if (!borrowFulfillment) {
-      console.log(
-        `No borrow fulfillment found for borrower ${borrowRequest.fullName}`
-      );
-      return res.status(404).json({
-        status: "Failed",
-        message: "No lenders have fulfilled this borrow request",
-      });
-    }
+          if (lenderRecord) {
+            lenderDetails.push({
+              lenderName: lenderRecord.fullName,
+              fulfilledAmount: lender.fulfilledAmount,
+              returnAmount: lender.returnAmount,
+            });
+          } else {
+            console.log(`Lender with name ${lender.lenderName} not found`);
+          }
+        }
 
-    const lenderDetails = [];
+        const responseData = {
+          borrowRequestId: borrowRequest._id,
+          borrowerName: borrowRequest.fullName,
+          amountRequested: borrowRequest.amount,
+          numberOfLenders: lenderDetails.length,
+          lenders: lenderDetails,
+        };
 
-    for (const lender of borrowFulfillment.lenders) {
-      const lenderRecord = await User.findOne({ fullName: lender.lenderName });
-
-      if (lenderRecord) {
-        lenderDetails.push({
-          lenderName: lenderRecord.fullName,
-          fulfilledAmount: lender.fulfilledAmount,
-          returnAmount: lender.returnAmount,
-        });
+        approvedRequestsData.push(responseData);
       } else {
-        console.log(`Lender with name ${lender.lenderName} not found`);
+        console.log(
+          `No borrow fulfillment found for borrower ${borrowRequest.fullName}`
+        );
       }
     }
 
-    const responseData = {
-      borrowRequestId: borrowRequest._id,
-      borrowerName: borrowRequest.fullName,
-      amountRequested: borrowRequest.amount,
-      numberOfLenders: lenderDetails.length,
-      lenders: lenderDetails,
-    };
-
     res.status(200).json({
       status: "Success",
-      data: responseData,
+      data: approvedRequestsData,
     });
   } catch (error) {
     console.error(`Failed to fetch approved borrow requests: ${error.message}`);
@@ -464,6 +569,42 @@ const getApprovedBorrowRequests = async (req, res) => {
       status: "Failed",
       message: "Failed to fetch approved borrow requests",
       error: error.message,
+    });
+  }
+};
+
+/*
+  @desc Khalti payment verification for admin
+  @route POST /api/admin/khaltiPaymentVerification
+  @access Private
+*/
+const paymentVerification = async (req, res) => {
+  try {
+    const { token, amount } = req.body;
+
+    const data = { token, amount };
+
+    const config = {
+      headers: {
+        Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+      },
+    };
+
+    const khaltiResponse = await axios.post(
+      "https://khalti.com/api/v2/payment/verify/",
+      data,
+      config
+    );
+
+    res.status(200).json({
+      status: "Success",
+      message: "Khalti payment verified successfully",
+      data: khaltiResponse.data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
     });
   }
 };
@@ -481,4 +622,8 @@ module.exports = {
   getTransactionDetails,
   getUserRoleById,
   getApprovedBorrowRequests,
+  userRole,
+  lenderRole,
+  borrowerRole,
+  paymentVerification,
 };

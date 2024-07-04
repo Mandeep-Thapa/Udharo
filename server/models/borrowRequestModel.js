@@ -24,12 +24,14 @@ const borowRequestSchema = new mongoose.Schema({
   },
   riskFactor: {
     type: Number,
-    required: [true, "Please specify the risk factor"],
     default: 1,
   },
   amount: {
     type: Number,
     required: [true, "Please specify the amount you want to borrow"],
+  },
+  amountRemaining: {
+    type: Number,
   },
   purpose: {
     type: String,
@@ -54,7 +56,7 @@ const borowRequestSchema = new mongoose.Schema({
   },
   numberOfLenders: {
     type: Number,
-    max: 4,
+    max: 5,
     default: 0,
   },
 });

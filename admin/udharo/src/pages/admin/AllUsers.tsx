@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navigationwrap from "../../components/Navigationwrap";
 import axios from "axios";
-import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -18,12 +17,13 @@ interface User {
   hasKycDetails?: boolean;
   hasTransactionDetails?: boolean;
 }
-const AllUsers: React.FC = () => {
+const AllUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [unverifiedUsers, setUnverifiedUsers] = useState<User[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     let isMounted = true;
 
@@ -36,14 +36,14 @@ const AllUsers: React.FC = () => {
         // console.log("Fetching all users...");
         const [response, unverifiedResponse] = await Promise.all([
 
-         axios.get( "http://localhost:3004/api/admin/allUsers", {
+         axios.get( `${API_BASE_URL}/allUsers`, {
 
            headers: {
              Authorization: `Bearer ${token}`,
            },
          }),
         axios.get(
-          "http://localhost:3004/api/admin/unverifiedUsers",
+          `${API_BASE_URL}/unverifiedUsers`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -61,7 +61,7 @@ const AllUsers: React.FC = () => {
             users.map(async (user: User) => {
               try {
                 const transactionResponse = await axios.get(
-                  `http://localhost:3004/api/admin/transactionDetails/${user._id}`,
+                  `${API_BASE_URL}/transactionDetails/${user._id}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token}`,
@@ -79,7 +79,7 @@ const AllUsers: React.FC = () => {
             users.map(async (user: User) => {
               try {
                 const kycResponse = await axios.get(
-                  `http://localhost:3004/api/admin/kycDetails/${user._id}`,
+                  `${API_BASE_URL}/kycDetails/${user._id}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token}`,
@@ -157,7 +157,7 @@ const AllUsers: React.FC = () => {
           {error && <p className="error">{error}</p>}
           {loading ? (
                <div className="flex justify-center mt-10 h-screen">
-                 <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
+                 <div className="w-16 h-16 border-4 border-custom-sudesh_blue border-dotted rounded-full animate-spin"></div>
                </div>
              ) : (
             <>
@@ -188,10 +188,10 @@ const AllUsers: React.FC = () => {
                         <p className="p-2 ">{user.email}</p>
                         <p className="p-2 ">Risk Factor - {user.riskFactor}</p>
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col text-white">
                         <div className="">
                           <button
-                            className="border border-custom-sudesh_black font-medium bg-custom-sudesh_yellow rounded-md p-2 m-2 transition duration-500 "
+                            className="border border-custom-sudesh_black font-medium bg-custom-sudesh_black rounded-md p-2 m-2 transition duration-500 "
                             onClick={() => handleUserDetailsClick(user._id)}
                           >
                             User Details
@@ -201,7 +201,7 @@ const AllUsers: React.FC = () => {
                         {user.hasKycDetails && (
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 hover:bg-custom-sudesh_yellow transition duration-500"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_black transition duration-500"
                               onClick={() => handleKycDetailsClick(user._id)}
                             >
                               KYC Details
@@ -211,7 +211,7 @@ const AllUsers: React.FC = () => {
                         {user.hasTransactionDetails && ( 
                           <div className="">
                             <button
-                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_yellow transition duration-500 font-medium"
+                              className="border border-custom-sudesh_black rounded-md p-2 m-2 bg-custom-sudesh_black transition duration-500 font-medium"
                               onClick={() => handleTransactionsClick(user._id)}
                             >
                               Transactions
