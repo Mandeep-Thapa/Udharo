@@ -20,6 +20,11 @@ const BorrowFulfillmentSchema = new mongoose.Schema({
       },
     },
   ],
+  borrowRequest: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BorrowRequest",
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("BorrowFulfillment", BorrowFulfillmentSchema);

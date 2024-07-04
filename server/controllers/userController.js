@@ -1,4 +1,3 @@
-const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -253,100 +252,130 @@ const verifyEmail = async (req, res) => {
   @route GET /api/user/profile
   @access Private
 */
-const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Not authorized, token failed" });
-  }
-
-  const user = await User.findById(req.user._id);
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  let transactionsData;
-
+const getUserProfileWithTransactions = async (req, res) => {
   try {
-    if (user.userRole === "Lender") {
-      const transactions = await BorrowFulfillment.find({
-        "lender.lendername": user.fullName,
-      });
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized, token failed" });
+    }
 
-      const formattedTransactions = transactions.map((transaction) => {
-        const lender = transaction.lenders.find(
-          (l) => l.lenderName === user.fullName
-        );
-        return {
-          borrowerName: transaction.borrowerName,
-          fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
-          returnAmount: lender ? lender.returnAmount : undefined,
-        };
-      });
+    const user = await User.findById(req.user._id);
 
-      transactionsData = formattedTransactions;
-    } else if (user.userRole === "Borrower" && transactionsData === undefined) {
-      // Only fetch and format borrowRequests if transactionsData is still undefined
-      const borrowRequests = await BorrowRequest.find({ borrower: user._id });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-      let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
-        const amountToBeReturned =
-          borrowRequest.amount +
-          (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+    let transactionsData;
 
-        return {
-          amount: borrowRequest.amount,
-          interestRate: borrowRequest.interestRate,
-          paybackPeriod: borrowRequest.paybackPeriod,
-          returnAmount: amountToBeReturned,
-        };
-      });
+    try {
+      if (user.userRole === "Lender") {
+        // Ensure BorrowFulfillment schema includes a reference to BorrowRequest
+        const transactions = await BorrowFulfillment.find({
+          "lender.lendername": user.fullName,
+        }).populate("borrowRequest"); // Attempt to populate borrowRequest
 
-      // Ensure uniqueness in transaction data
-      const uniqueTransactions = Array.from(
-        new Set(formattedBorrowRequests.map(JSON.stringify))
-      ).map(JSON.parse);
+        const formattedTransactions = transactions.map((transaction) => {
+          const lender = transaction.lenders.find(
+            (l) => l.lenderName === user.fullName
+          );
 
-      transactionsData = uniqueTransactions;
-    } else if (user.userRole === "User") {
-      transactionsData = undefined;
-    } else {
-      return res.status(400).json({
+          // Check if borrowRequest is populated
+          if (!transaction.borrowRequest) {
+            return {
+              borrowerName: transaction.borrowerName,
+              fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+              returnAmount: lender ? lender.returnAmount : undefined,
+              // Since borrowRequest is undefined, these fields cannot be populated
+              interestRate: undefined,
+              expectedReturnDate: undefined,
+            };
+          }
+
+          const expectedReturnDate = new Date(
+            transaction.borrowRequest.createdAt
+          );
+          expectedReturnDate.setDate(
+            expectedReturnDate.getDate() +
+              transaction.borrowRequest.paybackPeriod
+          );
+
+          return {
+            borrowerName: transaction.borrowerName,
+            fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+            returnAmount: lender ? lender.returnAmount : undefined,
+            interestRate: transaction.borrowRequest.interestRate,
+            expectedReturnDate: expectedReturnDate.toISOString().split("T")[0],
+          };
+        });
+
+        transactionsData = formattedTransactions;
+      } else if (
+        user.userRole === "Borrower" &&
+        transactionsData === undefined
+      ) {
+        const borrowRequests = await BorrowRequest.find({ borrower: user._id });
+
+        let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+          const amountToBeReturned =
+            borrowRequest.amount +
+            (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+          return {
+            amount: borrowRequest.amount,
+            interestRate: borrowRequest.interestRate,
+            paybackPeriod: borrowRequest.paybackPeriod,
+            returnAmount: amountToBeReturned,
+          };
+        });
+
+        const uniqueTransactions = Array.from(
+          new Set(formattedBorrowRequests.map(JSON.stringify))
+        ).map(JSON.parse);
+
+        transactionsData = uniqueTransactions;
+      } else if (user.userRole === "User") {
+        transactionsData = undefined;
+      } else {
+        return res.status(400).json({
+          status: "Failed",
+          message: "User role is not supported for this operation",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
         status: "Failed",
-        message: "User role is not supported for this operation",
+        error: error.message,
       });
     }
-  } catch (error) {
-    return res.status(500).json({
-      status: "Failed",
-      error: error.message,
+
+    const responseData = {
+      userName: user.fullName,
+      userId: user._id,
+      email: user.email,
+      isVerified: user.is_verifiedDetails,
+      rewardPoints: user.rewardPoints,
+      totalTransactions: user.totalTransactions,
+      hasActiveTransaction: user.hasActiveTransaction,
+      riskFactor: user.riskFactor,
+      totalMoneyInvested: user.totalMoneyInvested,
+      successfulRepayment: user.successfulRepayment,
+      lateRepayment: user.lateRepayment,
+      moneyInvestedDetails: user.moneyInvestedDetails,
+      userRole: user.userRole,
+    };
+
+    if (transactionsData !== undefined) {
+      responseData.transactions = transactionsData;
+    }
+
+    res.json({
+      status: "Success",
+      data: responseData,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
+};
 
-  const responseData = {
-    userName: user.fullName,
-    userId: user._id,
-    email: user.email,
-    isVerified: user.is_verifiedDetails,
-    rewardPoints: user.rewardPoints,
-    totalTransactions: user.totalTransactions,
-    hasActiveTransaction: user.hasActiveTransaction,
-    riskFactor: user.riskFactor,
-    totalMoneyInvested: user.totalMoneyInvested,
-    successfulRepayment: user.successfulRepayment,
-    lateRepayment: user.lateRepayment,
-    moneyInvestedDetails: user.moneyInvestedDetails,
-    userRole: user.userRole,
-  };
-
-  if (transactionsData !== undefined) {
-    responseData.transactions = transactionsData;
-  }
-
-  res.json({
-    status: "Success",
-    data: responseData,
-  });
-});
 /*
   @desc Post Khalti payment details
   @route POST /api/user/khaltiPaymentInitialization
