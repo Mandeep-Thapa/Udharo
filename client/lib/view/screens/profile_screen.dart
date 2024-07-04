@@ -7,7 +7,7 @@ import 'package:udharo/view/widget/custom_show_full_screen_image.dart';
 import 'package:udharo/view/widget/custom_transaction_detail_container.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
