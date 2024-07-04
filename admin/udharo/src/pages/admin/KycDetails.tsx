@@ -141,12 +141,12 @@ const KycDetails: React.FC = () => {
           <h1 className="font-bold text-3xl mx-3">KYC Details</h1>
           {loading ? (
             <div className="flex justify-center mt-10 h-screen">
-              <div className="w-16 h-16 border-4 border-yellow-500 border-dotted rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-custom-sudesh_blue border-dotted rounded-full animate-spin"></div>
             </div>
           ) : (
             kycdetails && (
               <div
-                className="mt-3 m-2 p-2 rounded-md flex flex-col border border-orange-300"
+                className="mt-3 m-2 p-2 rounded-md flex flex-col border border-custom-sudesh_blue"
                 key={_id}
               >
                 <div className="grid grid-cols-2">
@@ -163,7 +163,7 @@ const KycDetails: React.FC = () => {
                     </p>
                   </div>
                   <div className="flex flex-col items-start p-3 m-3 w-full">
-                    <div className="mb-2 p-1 w-full border  bg-custom-sudesh_yellow rounded-md">
+                    <div className="mb-2 p-1 w-full border  bg-custom-sudesh_blue rounded-md text-white   ">
                       <p className="font-bold p-2 flex gap-2 items-center">
                         <FaUser /> Full Name
                       </p>
@@ -174,7 +174,7 @@ const KycDetails: React.FC = () => {
                         {kycdetails.lastName}
                       </p>
                     </div>
-                    <div className="mb-2 p-1 w-full border bg-custom-sudesh_yellow rounded-md">
+                    <div className="mb-2 p-1 w-full border bg-custom-sudesh_blue rounded-md text-white">
                       <p className="font-bold p-2 flex gap-3 items-center">
                         <PiGenderNeuterBold />
                         Gender:
@@ -185,7 +185,7 @@ const KycDetails: React.FC = () => {
                           kycdetails.gender.slice(1)}
                       </p>
                     </div>
-                    <div className="mb-2 p-1 w-full border bg-custom-sudesh_yellow rounded-md">
+                    <div className="mb-2 p-1 w-full border bg-custom-sudesh_blue rounded-md text-white">
                       <p className="font-bold p-2 flex gap-3">
                         <FaUserTie />
                         Citizenship Number:
@@ -196,7 +196,7 @@ const KycDetails: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="mb-2 p-1 w-full border bg-custom-sudesh_yellow rounded-md">
+                    <div className="mb-2 p-1 w-full border bg-custom-sudesh_blue rounded-md text-white">
                       <p className="font-bold p-2 flex gap-3 items-center">
                         <MdOutlineVerified />
                         KYC Verified:
@@ -212,7 +212,7 @@ const KycDetails: React.FC = () => {
                         className={`px-4 py-2 rounded-md text-white ${
                           kycdetails.isKYCVerified
                             ? "bg-red-500 hover:bg-red-600"
-                            : "bg-green-500 hover:bg-green-600"
+                            : "bg-custom-sudesh_blue hover:bg-green-600"
                         }`}
                       >
                         {kycdetails.isKYCVerified
@@ -228,7 +228,7 @@ const KycDetails: React.FC = () => {
                     <img
                       src={kycdetails.citizenshipFrontPhoto}
                       alt="Citizenship Front Photo"
-                      className="w-full h-[300px] object-cover mx-auto rounded-md"
+                      className="w-full h-[300px] object-cover mx-auto rounded-md cursor-pointer"
                       onClick={() =>
                         handelphoto(kycdetails.citizenshipFrontPhoto)
                       }
@@ -239,7 +239,7 @@ const KycDetails: React.FC = () => {
                     <img
                       src={kycdetails.citizenshipBackPhoto}
                       alt="Citizenship Back Photo"
-                      className="hover:cursor-pointer w-full h-[300px] object-cover mx-auto rounded-md"
+                      className="hover:cursor-pointer w-full h-[300px] object-cover mx-auto rounded-md cursor-pointer"
                       onClick={() =>
                         handelphoto(kycdetails.citizenshipBackPhoto)
                       }
