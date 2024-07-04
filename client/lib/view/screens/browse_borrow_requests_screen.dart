@@ -184,9 +184,9 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                   : (!isKycVerified)
                                       ? 'Unverified KYC'
                                       : 'Invest',
-                              onPressed: (user != null ||
-                                      user?.hasActiveTransaction != null ||
-                                      user!.hasActiveTransaction! ||
+                              onPressed: (user != null &&
+                                      user.hasActiveTransaction != null &&
+                                      user.hasActiveTransaction! ||
                                       !isKycVerified)
                                   ? null
                                   : () {
