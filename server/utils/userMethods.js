@@ -29,13 +29,13 @@ const userMethods = {
   },
 
   updateMoneyInvested: function (moneyInvestedDetails) {
-    if (moneyInvestedDetails > 20000) {
+    if (moneyInvestedDetails > 200) {
       this.riskFactorDetails.moneyInvested = 5;
-    } else if (moneyInvestedDetails > 15000) {
+    } else if (moneyInvestedDetails > 150) {
       this.riskFactorDetails.moneyInvested = 4;
-    } else if (moneyInvestedDetails > 10000) {
+    } else if (moneyInvestedDetails > 100) {
       this.riskFactorDetails.moneyInvested = 3;
-    } else if (moneyInvestedDetails > 5000) {
+    } else if (moneyInvestedDetails > 50) {
       this.riskFactorDetails.moneyInvested = 2;
     } else {
       this.riskFactorDetails.moneyInvested = 1;
