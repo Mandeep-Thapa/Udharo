@@ -67,6 +67,7 @@ void main() {
       const email = 'test@example.com';
       const occupation = 'Developer';
       const password = 'password';
+      const phoneNumber = 1234567890;
 
       // mock the Dio response
       final response = Response(
@@ -85,6 +86,7 @@ void main() {
         email: email,
         occupation: occupation,
         password: password,
+        phoneNumber: phoneNumber,
       );
 
       // verify the internal logic
@@ -98,6 +100,7 @@ void main() {
           'email': email,
           'occupation': occupation,
           'password': password,
+          'phoneNumber': phoneNumber,
         },
         options: anyNamed('options'),
       )).called(1);

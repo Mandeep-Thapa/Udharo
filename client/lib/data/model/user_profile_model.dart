@@ -100,6 +100,7 @@ class Data {
 }
 
 class Transaction {
+  final String? transaction;
   final int? amount;
   final num? interestRate;
   final int? paybackPeriod;
@@ -108,6 +109,7 @@ class Transaction {
   final num? fulfilledAmount;
 
   Transaction({
+    this.transaction,
     this.amount,
     this.interestRate,
     this.paybackPeriod,
@@ -117,6 +119,7 @@ class Transaction {
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
+    transaction: json["transaction"],
     amount: json["amount"],
     interestRate: json["interestRate"],
     paybackPeriod: json["paybackPeriod"],
@@ -126,6 +129,7 @@ class Transaction {
   );
 
   Map<String, dynamic> toJson() => {
+    "transaction": transaction,
     "amount": amount,
     "interestRate": interestRate,
     "paybackPeriod": paybackPeriod,

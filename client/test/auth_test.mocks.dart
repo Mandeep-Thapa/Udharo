@@ -1143,6 +1143,7 @@ class MockAuthRepository extends _i1.Mock implements _i10.AuthRepository {
     required String? email,
     required String? occupation,
     required String? password,
+    required int? phoneNumber,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1153,6 +1154,7 @@ class MockAuthRepository extends _i1.Mock implements _i10.AuthRepository {
             #email: email,
             #occupation: occupation,
             #password: password,
+            #phoneNumber: phoneNumber,
           },
         ),
         returnValue: _i8.Future<String>.value(_i11.dummyValue<String>(
@@ -1165,6 +1167,7 @@ class MockAuthRepository extends _i1.Mock implements _i10.AuthRepository {
               #email: email,
               #occupation: occupation,
               #password: password,
+              #phoneNumber: phoneNumber,
             },
           ),
         )),
@@ -1179,6 +1182,7 @@ class MockAuthRepository extends _i1.Mock implements _i10.AuthRepository {
               #email: email,
               #occupation: occupation,
               #password: password,
+              #phoneNumber: phoneNumber,
             },
           ),
         )),

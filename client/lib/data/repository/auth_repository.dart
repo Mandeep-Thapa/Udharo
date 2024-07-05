@@ -83,7 +83,7 @@ class AuthRepository {
       "phoneNumber": phoneNumber,
     };
 
-    print('sending data: $data to $url');
+    // print('sending data: $data to $url');
 
     try {
       Response response = await dio.post(
