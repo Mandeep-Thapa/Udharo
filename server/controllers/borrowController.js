@@ -29,6 +29,7 @@ const createBorrowRequest = async (req, res) => {
       borrower: req.user._id,
       fullName: req.user.fullName,
       riskFactor: req.user.riskFactor,
+      phoneNumber: req.user.phoneNumber,
       amount,
       purpose,
       interestRate,
@@ -42,31 +43,35 @@ const createBorrowRequest = async (req, res) => {
       userRole: "Borrower",
     });
 
-    const userId = req.user._id;
-    const borrowRequestId = borrowRequest._id;
+    // Schedule the job to run 10 minutes after the borrow request is created
+    const tenMinutesInMilliseconds = 10 * 60 * 1000;
+    const scheduleTime = new Date(Date.now() + tenMinutesInMilliseconds);
 
-    const job = () => async () => {
-      const updateBorrowRequest = await BorrowRequest.findById(borrowRequestId);
+    const job = async () => {
+      const updateBorrowRequest = await BorrowRequest.findById(
+        borrowRequest._id
+      );
       if (!updateBorrowRequest.isAccepted) {
         updateBorrowRequest.isLocked = true;
-        // change the status to expired
         updateBorrowRequest.status = "expired";
         await updateBorrowRequest.save();
 
-        await User.findByIdAndUpdate(userId, {
+        await User.findByIdAndUpdate(req.user._id, {
           hasActiveTransaction: false,
           userRole: "User",
         });
       }
-      console.log("Ten minutes are over");
+      console.log(
+        "Ten minutes are over for borrow request:",
+        borrowRequest._id
+      );
     };
 
-    const scheduledJob = cron.schedule("*/10 * * * *", job(), {
-      scheduled: true,
-      timezone: "Asia/Kathmandu",
-    });
+    // Using setTimeout instead of cron to schedule a single delayed job
+    const timeoutId = setTimeout(job, tenMinutesInMilliseconds);
 
-    borrowRequestJobs.set(borrowRequest._id.toString(), scheduledJob);
+    // Optionally, store the timeoutId if you need to cancel the job later
+    borrowRequestJobs.set(borrowRequest._id.toString(), timeoutId);
 
     res.status(200).json({
       status: "Success",
@@ -137,7 +142,6 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    // Check if user's KYC is verified
     const verifiedUser = await User.findById(req.user._id);
     if (!verifiedUser.is_kycVerified) {
       return res.status(400).json({
@@ -164,7 +168,6 @@ const approveBorrowRequest = async (req, res) => {
       borrowRequest.status = "approved";
     }
 
-    // Check if the user has already fulfilled the borrow request
     let borrowFulfillment = await BorrowFulfillment.findOne({
       borrowerName: borrowRequest.fullName,
     });
@@ -211,10 +214,12 @@ const approveBorrowRequest = async (req, res) => {
       userRole: "Lender",
     });
 
-    const job = borrowRequestJobs.get(req.params.id);
+    // Remove the timer for the borrow request
+    const job = borrowRequestJobs.get(req.params.id.toString());
     if (job) {
-      job.stop();
-      borrowRequestJobs.delete(req.params.id);
+      clearTimeout(job); // Use clearTimeout if you used setTimeout to schedule the job
+      // If it's a cron job: job.stop();
+      borrowRequestJobs.delete(req.params.id.toString());
     }
 
     res.status(200).json({
