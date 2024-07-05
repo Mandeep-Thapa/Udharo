@@ -401,7 +401,7 @@ class BorrowRepository {
   // return money
   Future<void> returnMoney(
     String borrowId,
-    double amount,
+    int amount,
   ) async {
     String url = '${Config.baseUrl}/borrow/returnMoney/$borrowId';
 

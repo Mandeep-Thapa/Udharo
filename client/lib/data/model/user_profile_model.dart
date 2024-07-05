@@ -107,6 +107,7 @@ class Transaction {
   final num? returnAmount;
   final String? borrowerName;
   final num? fulfilledAmount;
+  final String? expectedReturnDate;
 
   Transaction({
     this.transaction,
@@ -116,6 +117,7 @@ class Transaction {
     this.returnAmount,
     this.borrowerName,
     this.fulfilledAmount,
+    this.expectedReturnDate,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
@@ -126,6 +128,7 @@ class Transaction {
     returnAmount: json["returnAmount"],
     borrowerName: json["borrowerName"],
     fulfilledAmount: json["fulfilledAmount"],
+    expectedReturnDate: json["expectedReturnDate"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -136,6 +139,7 @@ class Transaction {
     "returnAmount": returnAmount,
     "borrowerName": borrowerName,
     "fulfilledAmount": fulfilledAmount,
+    "expectedReturnDate": expectedReturnDate,
   };
 }
 
