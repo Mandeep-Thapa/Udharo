@@ -379,10 +379,12 @@ const getTransactionHistory = async (req, res) => {
 */
 const returnMoney = async (req, res) => {
   try {
-    // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findById(req.params.id);
+    const { amountReturned } = req.body;
+    const borrowRequestId = req.params.id;
+    const userId = req.user._id;
 
-    // if id not found
+    // Find the borrow request
+    const borrowRequest = await BorrowRequest.findById(borrowRequestId);
     if (!borrowRequest) {
       return res.status(404).json({
         status: "Failed",
@@ -390,53 +392,57 @@ const returnMoney = async (req, res) => {
       });
     }
 
-    // if borrow request is not approved
-    if (borrowRequest.status !== "approved") {
-      return res.status(400).json({
+    // Find the borrow fulfillment
+    const borrowFulfillment = await BorrowFulfillment.findOne({
+      borrowRequestId: borrowRequestId,
+    });
+    if (!borrowFulfillment) {
+      return res.status(404).json({
         status: "Failed",
-        message: "Borrow request is not approved",
+        message: "Borrow fulfillment not found",
       });
     }
 
-    // retrive the user
-    const user = await User.findById(req.user._id);
-
-    // checking if the payback period has expired
-    const paybackDedline = new Date(borrowRequest.createdAt);
-    paybackDedline.setDate(
-      paybackDedline.getDate() + borrowRequest.paybackPeriod
-    );
-
-    if (new Date() > paybackDedline) {
-      // if the payback period has expired, update the lateRepaymentDetail field
-      user.lateRepaymentDetails += 1;
-      userMethods.updateLateRepayment.call(user, user.lateRepaymentDetails);
-    } else {
-      // if the payback period has not expired, update the timelyRepaymentDetail field
-      user.timelyRepaymentDetails += 1;
-      userMethods.updateTimelyRepayment.call(user, user.timelyRepaymentDetails);
+    // Validate the amount returned
+    if (
+      amountReturned <= 0 ||
+      amountReturned > borrowFulfillment.returnAmount
+    ) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Invalid amount returned",
+      });
     }
 
-    // Update the user's risk factor
-    userMethods.calculateRiskFactor.call(user);
+    // calculate the time difference
+    const timeDifference = Math.floor(
+      (new Date() - borrowRequest.createdAt) / (1000 * 60 * 60)
+    );
 
-    await user.save();
+    // Find the user and update total transactions
+    const user = await User.findById(userId);
+    if (user) {
+      user.totalTransactions += 1;
 
-    borrowRequest.status = "returned";
-    await borrowRequest.save();
+      // check if the return is timely or late
+      if (timeDifference > borrowRequest.paybackPeriod) {
+        user.lateRepaymentDetails += 1;
+      } else {
+        user.timelyRepaymentDetails += 1;
+      }
 
-    // calculate the amount to be returned with interest
-    const amountToBeReturned =
-      borrowRequest.amount +
-      (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+      await user.save();
+    }
 
     res.status(200).json({
       status: "Success",
-      message: "Money returned successfully",
-      amountToBeReturned: amountToBeReturned,
+      message: "Amount returned successfully",
+      daysLate:
+        timeDifference > borrowRequest.paybackPeriod
+          ? timeDifference - borrowRequest.paybackPeriod
+          : 0,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: "Failed",
       message: error.message,
