@@ -34,6 +34,7 @@ const createBorrowRequest = async (req, res) => {
       purpose,
       interestRate,
       paybackPeriod,
+      amountRemaining: amount,
     });
 
     await borrowRequest.save();
@@ -205,7 +206,7 @@ const approveBorrowRequest = async (req, res) => {
           (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
       });
       borrowRequest.numberOfLenders += 1;
-      borrowRequest.amount -= amountToBeFulfilled;
+      borrowRequest.amountRemaining -= amountToBeFulfilled;
     } else {
       console.log("Maximum number of lenders reached");
     }
