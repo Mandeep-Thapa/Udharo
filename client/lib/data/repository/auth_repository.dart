@@ -71,6 +71,7 @@ class AuthRepository {
     required String email,
     required String occupation,
     required String password,
+    required int phoneNumber,
   }) async {
     String url = '${Config.baseUrl}/user/register';
 
@@ -79,7 +80,10 @@ class AuthRepository {
       "email": email,
       "password": password,
       "occupation": occupation,
+      "phoneNumber": phoneNumber,
     };
+
+    print('sending data: $data to $url');
 
     try {
       Response response = await dio.post(
@@ -95,8 +99,8 @@ class AuthRepository {
       if (response.statusCode == 200) {
         return 'SignUp Success';
       } else {
-        if (response.data['error'] != null) {
-          return response.data['error'];
+        if (response.data['message'] != null) {
+          return response.data['message'];
         } else {
           return 'SignUp Unsuccessful';
         }

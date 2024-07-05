@@ -13,12 +13,14 @@ class RegiserEventMakeRegistration extends RegisterEvent {
   final String email;
   final String occupation;
   final String password;
+  final int phoneNumber;
 
   const RegiserEventMakeRegistration({
     required this.name,
     required this.email,
     required this.password,
     required this.occupation,
+    required this.phoneNumber,
   });
 }
 
