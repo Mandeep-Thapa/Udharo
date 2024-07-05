@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/view/screens/change_password_screen.dart';
 import 'package:udharo/view/screens/kyc_form_screen.dart';
 import 'package:udharo/view/screens/profile_screen.dart';
 import 'package:udharo/view/screens/settings_page.dart';
@@ -78,9 +79,17 @@ class _AccountsPageState extends State<AccountsPage> {
                     title: 'View KYC',
                     widget: ViewKYCScreen(),
                   ),
+
+                  const CustomSettingsOption(
+                    icon: Icons.edit,
+                    title: 'Change Password',
+                    widget: ChangePasswordScreen(),
+                  ),
                   const Spacer(),
                 ],
               );
+
+              
             } else {
               return const Center(
                 child: Text(
