@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/theme/theme_class.dart';
+import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_show_full_screen_image.dart';
 import 'package:udharo/view/widget/custom_transaction_detail_container.dart';
 
@@ -82,14 +83,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   Container(
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          ThemeClass().secondaryColor,
-                          ThemeClass().primaryColor,
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
+                      // gradient: LinearGradient(
+                      //   colors: [
+                      //     ThemeClass().secondaryColor,
+                      //     ThemeClass().primaryColor,
+                      //   ],
+                      //   begin: Alignment.topCenter,
+                      //   end: Alignment.bottomCenter,
+                      // ),
                       borderRadius: BorderRadius.circular(12.0),
                       boxShadow: [
                         BoxShadow(
@@ -209,6 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         },
       ),
+      bottomNavigationBar: const CustomBottomNavigationBar(),
     );
   }
 }

@@ -101,6 +101,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/theme/theme_class.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
@@ -194,7 +195,7 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
                                       );
                                     },
                                     child: CircleAvatar(
-                                      radius: 100,
+                                      radius: 80,
                                       backgroundImage: kyc.photo != null
                                           ? NetworkImage(
                                               kyc.photo!,
@@ -223,31 +224,48 @@ class _ViewKYCScreenState extends State<ViewKYCScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 8.0),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          kyc.isKycVerified ?? false
-                                              ? Icon(Icons.check_circle,
-                                                  color: ThemeClass()
-                                                      .secondaryColor)
-                                              : Icon(Icons.error,
-                                                  color:
-                                                      ThemeClass().errorColor),
-                                          const SizedBox(width: 8.0),
-                                          Text(
-                                            kyc.isKycVerified ?? false
-                                                ? 'Verified'
-                                                : 'Not Verified',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: kyc.isKycVerified ?? false
-                                                  ? ThemeClass().secondaryColor
-                                                  : ThemeClass().errorColor,
-                                            ),
-                                          ),
-                                        ],
+                                      BlocBuilder<ProfileBloc, ProfileState>(
+                                        builder: (context, state) {
+                                          if (state is ProfileStateLoaded) {
+                                            final user = state.user.data;
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                user?.isVerified
+                                                            ?.isKycVerified ??
+                                                        false
+                                                    ? Icon(Icons.check_circle,
+                                                        color: ThemeClass()
+                                                            .secondaryColor)
+                                                    : Icon(Icons.error,
+                                                        color: ThemeClass()
+                                                            .errorColor),
+                                                const SizedBox(width: 8.0),
+                                                Text(
+                                                  user?.isVerified
+                                                              ?.isKycVerified ??
+                                                          false
+                                                      ? 'Verified'
+                                                      : 'Not Verified',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: user?.isVerified
+                                                                ?.isKycVerified ??
+                                                            false
+                                                        ? ThemeClass()
+                                                            .secondaryColor
+                                                        : ThemeClass()
+                                                            .errorColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          } else {
+                                            return const SizedBox.shrink();
+                                          }
+                                        },
                                       ),
                                     ],
                                   ),
