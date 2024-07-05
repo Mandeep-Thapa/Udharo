@@ -201,6 +201,7 @@ const getUserById = async (req, res) => {
         email: user.email,
         occupation: user.occupation,
         hasActiveTransaction: user.hasActiveTransaction,
+        phoneNumber: user.phoneNumber,
         isVerified: {
           email: user.is_verifiedDetails.is_emailVerified,
           kyc: user.is_verifiedDetails.is_kycVerified,

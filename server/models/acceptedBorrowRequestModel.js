@@ -18,6 +18,9 @@ const BorrowFulfillmentSchema = new mongoose.Schema({
         type: Number,
         min: 0,
       },
+      phoneNumber: {
+        type: Number,
+      },
     },
   ],
   borrowRequest: {

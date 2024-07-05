@@ -142,17 +142,10 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    const verifiedUser = await User.findById(req.user._id);
-    if (!verifiedUser.is_kycVerified) {
-      return res.status(400).json({
-        status: "Failed",
-        message:
-          "Your KYC is not verified. Please verify before accepting a borrow request.",
-      });
-    }
-
     const minAmount = borrowRequest.amount * 0.2;
     const maxAmount = borrowRequest.amount * 0.4;
+
+    console.log(minAmount, maxAmount);
 
     if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
