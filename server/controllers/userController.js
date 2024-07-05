@@ -335,6 +335,7 @@ const getUserProfileWithTransactions = async (req, res) => {
             (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
 
           return {
+            transaction: borrowRequest._id,
             amount: borrowRequest.amount,
             interestRate: borrowRequest.interestRate,
             paybackPeriod: borrowRequest.paybackPeriod,
