@@ -28,6 +28,7 @@ class Data {
   final String? userName;
   final String? userId;
   final String? email;
+  final int? phoneNumber;
   final IsVerified? isVerified;
   final bool? hasActiveTransaction;
   final int? riskFactor;
@@ -40,6 +41,7 @@ class Data {
     this.userName,
     this.userId,
     this.email,
+    this.phoneNumber,
     this.isVerified,
     this.hasActiveTransaction,
     this.riskFactor,
@@ -53,6 +55,7 @@ class Data {
     userName: json["userName"],
     userId: json["userId"],
     email: json["email"],
+    phoneNumber: json["phoneNumber"],
     isVerified: json["isVerified"] == null ? null : IsVerified.fromJson(json["isVerified"]),
     hasActiveTransaction: json["hasActiveTransaction"],
     riskFactor: json["riskFactor"],
@@ -68,6 +71,7 @@ class Data {
     "userName": userName,
     "userId": userId,
     "email": email,
+    "phoneNumber": phoneNumber,
     "isVerified": isVerified?.toJson(),
     "hasActiveTransaction": hasActiveTransaction,
     "riskFactor": riskFactor,

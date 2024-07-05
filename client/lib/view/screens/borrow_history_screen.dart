@@ -16,7 +16,7 @@ class _BorrowHistoryScreenState extends State<BorrowHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Browse Borrow Requests'),
+        title: const Text('History'),
       ),
       body: BlocBuilder<BorrowHistoryBloc, BorrowHistoryState>(
         builder: (context, state) {
