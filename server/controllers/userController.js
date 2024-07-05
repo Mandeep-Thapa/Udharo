@@ -283,25 +283,20 @@ const getUserProfileWithTransactions = async (req, res) => {
 
     try {
       if (user.userRole === "Lender") {
-        // Ensure BorrowFulfillment schema includes a reference to BorrowRequest
         const transactions = await BorrowFulfillment.find({
-          "lender.lendername": user.fullName,
-        }).populate("borrowRequest"); // Attempt to populate borrowRequest
+          "lenders.lenderName": user.fullName,
+        }).populate("borrowRequest");
 
         const formattedTransactions = transactions.map((transaction) => {
           const lender = transaction.lenders.find(
             (l) => l.lenderName === user.fullName
           );
 
-          // Check if borrowRequest is populated
           if (!transaction.borrowRequest) {
             return {
               borrowerName: transaction.borrowerName,
               fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
               returnAmount: lender ? lender.returnAmount : undefined,
-              // Since borrowRequest is undefined, these fields cannot be populated
-              interestRate: undefined,
-              expectedReturnDate: undefined,
             };
           }
 
@@ -327,7 +322,11 @@ const getUserProfileWithTransactions = async (req, res) => {
         user.userRole === "Borrower" &&
         transactionsData === undefined
       ) {
-        const borrowRequests = await BorrowRequest.find({ borrower: user._id });
+        // Adjusted query to include only 'pending' and 'approved' statuses
+        const borrowRequests = await BorrowRequest.find({
+          borrower: user._id,
+          status: { $in: ["pending", "approved"] },
+        });
 
         let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
           const amountToBeReturned =

@@ -24,6 +24,19 @@ const createBorrowRequest = async (req, res) => {
     });
   }
 
+  // Check if the user already has an active borrow request
+  const existingBorrowRequest = await BorrowRequest.findOne({
+    borrower: req.user_id,
+    status: { $in: ["pending", "approved"] },
+  });
+
+  if (existingBorrowRequest) {
+    return res.status(400).json({
+      status: "Failed",
+      message: "You already have an active borrow request",
+    });
+  }
+
   try {
     const borrowRequest = new BorrowRequest({
       borrower: req.user._id,
@@ -98,7 +111,7 @@ const browseBorrowRequests = async (req, res) => {
     // Simplified query to exclude borrow request with status expired or fully funded
     const query = {
       borrower: { $ne: req.user._id },
-      status: { $nin: ["expired", "fully funded"] },
+      status: { $nin: ["expired", "fully funded", "returned"] },
     };
 
     const borrowRequests = await BorrowRequest.find(query);
@@ -404,6 +417,14 @@ const returnMoney = async (req, res) => {
       });
     }
 
+    // check if the borrow request is fully funded or not
+    if (!["fully funded"].includes(borrowRequest.status)) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Borrow request is not fully funded",
+      });
+    }
+
     // Find the borrow fulfillment
     const borrowFulfillment = await BorrowFulfillment.findOne({
       borrowRequestId: borrowRequestId,
@@ -438,6 +459,7 @@ const returnMoney = async (req, res) => {
     const user = await User.findById(userId);
     if (user) {
       user.totalTransactions += 1;
+      user.hasActiveTransaction = false;
 
       // check if the return is timely or late
       if (timeDifference > borrowRequest.paybackPeriod) {
@@ -445,9 +467,12 @@ const returnMoney = async (req, res) => {
       } else {
         user.timelyRepaymentDetails += 1;
       }
-
       await user.save();
     }
+
+    // update borrow request status to returned
+    borrowRequest.status = "returned";
+    await borrowRequest.save();
 
     res.status(200).json({
       status: "Success",

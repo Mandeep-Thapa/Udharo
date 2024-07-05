@@ -97,9 +97,24 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
                 ));
               }
               if (state is ReturnMoneyStateKhaltiVerificationSuccess) {
+                final verificationData = state.success.data;
+                if (verificationData != null) {
+                  BlocProvider.of<ReturnMoneyBloc>(context).add(
+                    ReturnMoneyEventSaveKhaltiTransaction(
+                      idx: verificationData.idx!,
+                      amount: verificationData.amount!,
+                      senderName: verificationData.merchant!.name!,
+                      createdOn: verificationData.createdOn!.toString(),
+                      receiverName: verificationData.user!.name!,
+                      feeAmount: verificationData.feeAmount!,
+                    ),
+                  );
+                }
+              }
+              if(state is ReturnMoneyStatePaymentSaveSucess){
                 CustomToast().showToast(
                   context: context,
-                  message: 'Money Returned successful',
+                  message: 'Payment successful',
                 );
               }
             },
