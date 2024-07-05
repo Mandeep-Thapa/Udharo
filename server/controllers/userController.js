@@ -339,7 +339,6 @@ const getUserProfileWithTransactions = async (req, res) => {
             interestRate: borrowRequest.interestRate,
             paybackPeriod: borrowRequest.paybackPeriod,
             returnAmount: amountToBeReturned,
-            borrowRequest: borrowRequest.status,
           };
         });
 
