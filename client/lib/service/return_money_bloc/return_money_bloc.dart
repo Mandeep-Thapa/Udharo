@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
+import 'package:udharo/data/model/khalti_verification_success_model.dart';
 import 'package:udharo/data/repository/borrow_repository.dart';
 
 part 'return_money_event.dart';
@@ -13,13 +14,13 @@ class ReturnMoneyBloc extends Bloc<ReturnMoneyEvent, ReturnMoneyState> {
   ReturnMoneyBloc(this._borrowRepository) : super(ReturnMoneyStateInitial()) {
     on<ReturnMoneyEventMakeReturnRequest>(
       (event, emit) async {
-        try{
+        try {
           await _borrowRepository.returnMoney(
             event.borrowId,
             event.amount,
           );
-          emit(ReturnMoneyStateSuccess());
-        }on Exception catch(e){
+          emit(ReturnMoneyStateReturnSuccess());
+        } on Exception catch (e) {
           emit(ReturnMoneyStateError(e.toString()));
         }
       },
@@ -51,6 +52,23 @@ class ReturnMoneyBloc extends Bloc<ReturnMoneyEvent, ReturnMoneyState> {
           );
         } on Exception catch (e) {
           emit(ReturnMoneyStateError(e.toString()));
+        }
+      },
+    );
+    on<ReturnMoneyEventVerifyKhaltiTransaction>(
+      (event, emit) async {
+         try {
+          final verificationMessage =
+              await _borrowRepository.verifyKhaltiTransaction(
+            token: event.token,
+            amount: event.amount,
+          );
+
+          // print('Verification message: ${verificationMessage.data?.amount}');
+          emit(ReturnMoneyStateKhaltiVerificationSuccess(
+              success: verificationMessage));
+        } on Exception catch (e) {
+           emit(ReturnMoneyStateError(e.toString()));
         }
       },
     );

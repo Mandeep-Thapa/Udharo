@@ -14,7 +14,12 @@ final class ReturnMoneyStateKhaltiPaymentSuccess extends ReturnMoneyState {
 
 }
 
-final class ReturnMoneyStateSuccess extends ReturnMoneyState {}
+final class ReturnMoneyStateKhaltiVerificationSuccess extends ReturnMoneyState {
+  final KhaltiVerificationSuccessModel success;
+
+  ReturnMoneyStateKhaltiVerificationSuccess({required this.success});
+
+}
 
 final class ReturnMoneyStateError extends ReturnMoneyState {
   final String message;

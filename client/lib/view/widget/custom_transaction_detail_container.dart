@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/data/model/user_profile_model.dart';
 import 'package:udharo/service/return_money_bloc/return_money_bloc.dart';
 import 'package:udharo/theme/theme_class.dart';
+import 'package:udharo/view/widget/custom_toast.dart';
 
 class CustomTransactionDetailsContainer extends StatelessWidget {
   final String role;
@@ -77,17 +78,39 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
           ),
           BlocConsumer<ReturnMoneyBloc, ReturnMoneyState>(
             listener: (context, state) {
-              // TODO: implement listener
+              if (state is ReturnMoneyStateReturnSuccess) {
+                BlocProvider.of<ReturnMoneyBloc>(context).add(
+                  ReturnMoneyEventMakeKhaltiPayment(
+                    context: context,
+                    amount: user.transactions?.first.returnAmount?.toInt() ?? 0,
+                    productIdentity: user.transactions?.first.transaction ?? '',
+                    productName:
+                        'return money for ${user.transactions?.first.borrowerName ?? ''}',
+                  ),
+                );
+              }
+              if (state is ReturnMoneyStateKhaltiPaymentSuccess) {
+                BlocProvider.of<ReturnMoneyBloc>(context)
+                    .add(ReturnMoneyEventVerifyKhaltiTransaction(
+                  token: state.success.token,
+                  amount: state.success.amount,
+                ));
+              }
+              if (state is ReturnMoneyStateKhaltiVerificationSuccess) {
+                CustomToast().showToast(
+                  context: context,
+                  message: 'Money Returned successful',
+                );
+              }
             },
             builder: (context, state) {
               return ElevatedButton(
                 onPressed: () {
                   BlocProvider.of<ReturnMoneyBloc>(context).add(
-                    ReturnMoneyEventMakeKhaltiPayment(
-                      context: context,
-                      amount: user.transactions?.first.returnAmount?.toInt()?? 0,
-                      productIdentity: user.transactions?.first.transaction ?? '', 
-                      productName: 'return money for ${user.transactions?.first.borrowerName ?? ''}', 
+                    ReturnMoneyEventMakeReturnRequest(
+                      amount:
+                          user.transactions?.first.returnAmount?.toInt() ?? 0,
+                      borrowId: user.transactions?.first.transaction ?? '',
                     ),
                   );
                 },
@@ -111,15 +134,19 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
             height: 10,
           ),
           Text(
-            'Borrower name: ${user.transactions?.first.borrowerName ?? ''}',
+            'Borrower name: ${user.transactions?.last.borrowerName ?? ''}',
             style: subHeaderStyle,
           ),
           Text(
-            'Fulfilled Amount: ${user.transactions?.first.fulfilledAmount ?? 0}',
+            'Fulfilled Amount: ${user.transactions?.last.fulfilledAmount ?? 0}',
             style: subHeaderStyle,
           ),
           Text(
-            'Return amount: Rs.${user.transactions?.first.returnAmount ?? 0}',
+            'Return amount: Rs.${user.transactions?.last.returnAmount ?? 0}',
+            style: subHeaderStyle,
+          ),
+          Text(
+            'Expected Return Date: ${user.transactions?.last.expectedReturnDate ?? 'N/A'}',
             style: subHeaderStyle,
           ),
         ],

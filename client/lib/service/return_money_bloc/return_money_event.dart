@@ -1,14 +1,14 @@
 part of 'return_money_bloc.dart';
 
 @immutable
-sealed class ReturnMoneyEvent extends Equatable{
+sealed class ReturnMoneyEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
 
-class ReturnMoneyEventMakeReturnRequest extends ReturnMoneyEvent{
+class ReturnMoneyEventMakeReturnRequest extends ReturnMoneyEvent {
   final String borrowId;
-  final double amount;
+  final int amount;
 
   ReturnMoneyEventMakeReturnRequest({
     required this.borrowId,
@@ -19,13 +19,26 @@ class ReturnMoneyEventMakeReturnRequest extends ReturnMoneyEvent{
   List<Object> get props => [borrowId, amount];
 }
 
+class ReturnMoneyEventVerifyKhaltiTransaction extends ReturnMoneyEvent {
+  final String token;
+  final int amount;
+
+  ReturnMoneyEventVerifyKhaltiTransaction({
+    required this.token,
+    required this.amount,
+  });
+
+  @override
+  List<Object> get props => [token];
+}
+
 class ReturnMoneyEventMakeKhaltiPayment extends ReturnMoneyEvent {
   final BuildContext context;
   final int amount;
   final String productIdentity;
   final String productName;
 
-   ReturnMoneyEventMakeKhaltiPayment({
+  ReturnMoneyEventMakeKhaltiPayment({
     required this.context,
     required this.amount,
     required this.productIdentity,
@@ -40,4 +53,3 @@ class ReturnMoneyEventMakeKhaltiPayment extends ReturnMoneyEvent {
         productName,
       ];
 }
-
