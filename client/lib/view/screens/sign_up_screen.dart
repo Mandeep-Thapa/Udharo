@@ -21,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _emailController;
+  late final TextEditingController _phoneNumberController;
   late final TextEditingController _occupationController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
@@ -32,6 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();
     _occupationController = TextEditingController();
+  _phoneNumberController= TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
 
@@ -44,6 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _lastNameController.dispose();
     _emailController.dispose();
     _occupationController.dispose();
+    _phoneNumberController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -111,6 +114,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(
                 height: 20,
               ),
+              // phone number field
+              phoneNumberFormField(),
+
+              const SizedBox(
+                height: 20,
+              ),
               // password field
               passwordFormField(),
 
@@ -126,7 +135,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               // occupation field
               occupationFormField(),
               const SizedBox(
-                height: 220,
+                height: 50,
               ),
               GestureDetector(
                 onTap: () {
@@ -202,6 +211,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   email: _emailController.text,
                                   occupation: _occupationController.text,
                                   password: _passwordController.text,
+                                  phoneNumber: int.parse(_phoneNumberController.text),
                                 ),
                               );
                         }
@@ -325,6 +335,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ).hasMatch(value);
         if (!occupationValid) {
           return "Enter valid Occupation";
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField phoneNumberFormField() {
+    return TextFormField(
+      controller: _phoneNumberController,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofocus: true,
+      keyboardType: TextInputType.phone,
+      decoration: const InputDecoration(
+        hintText: 'Phone Number',
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Phone Number cannot be empty';
+        }
+        if (double.tryParse(value) == null) {
+          return 'Phone Number must be a number';
+        }
+        if (double.parse(value) < 0) {
+          return 'Phone Number cannot be negative';
+        }
+        if (double.parse(value) % 1 != 0) {
+          return 'Phone Number cannot be a decimal number';
+        }
+        if(value.length != 10) {
+          return 'Phone Number must be 10 digits long';
         }
         return null;
       },

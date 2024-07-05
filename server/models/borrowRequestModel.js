@@ -26,6 +26,9 @@ const borowRequestSchema = new mongoose.Schema({
     type: Number,
     default: 1,
   },
+  phoneNumber: {
+    type: Number,
+  },
   amount: {
     type: Number,
     required: [true, "Please specify the amount you want to borrow"],

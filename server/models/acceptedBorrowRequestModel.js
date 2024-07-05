@@ -18,8 +18,16 @@ const BorrowFulfillmentSchema = new mongoose.Schema({
         type: Number,
         min: 0,
       },
+      phoneNumber: {
+        type: Number,
+      },
     },
   ],
+  borrowRequest: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BorrowRequest",
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("BorrowFulfillment", BorrowFulfillmentSchema);

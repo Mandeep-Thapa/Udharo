@@ -18,6 +18,7 @@ class UploadKycBloc extends Bloc<UploadKycEvent, UploadKycState> {
         final response = await _kycRepository.uploadKYC(
           firstName: event.firstName,
           lastName: event.lastName,
+          phoneNumber: event.phoneNumber,
           gender: event.gender,
           citizenshipNumber: event.citizenshipNumber,
           citizenshipFrontPhoto: event.citizenshipFrontPhoto,

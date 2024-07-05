@@ -1,4 +1,3 @@
-const cron = require("node-cron");
 const BorrowRequest = require("../models/borrowRequestModel");
 const User = require("../models/registrationModel");
 const userMethods = require("../utils/userMethods");
@@ -16,26 +15,38 @@ const createBorrowRequest = async (req, res) => {
   const { amount, purpose, interestRate, paybackPeriod } = req.body;
 
   // check if user is verified or not
-  // if (
-  //   !req.user.is_verifiedDetails.is_emailVerified ||
-  //   !req.user.is_verifiedDetails.is_kycVerified
-  // ) {
-  //   return res.status(400).json({
-  //     status: "Failed",
-  //     message:
-  //       "Your email and KYC is not verified. Please verify before creating a borrow request.",
-  //   });
-  // }
+  if (!req.user.is_verifiedDetails.is_kycVerified) {
+    return res.status(400).json({
+      status: "Failed",
+      message:
+        "Your KYC is not verified. Please verify before creating a borrow request.",
+    });
+  }
+
+  // Check if the user already has an active borrow request
+  const existingBorrowRequest = await BorrowRequest.findOne({
+    borrower: req.user_id,
+    status: { $in: ["pending", "approved"] },
+  });
+
+  if (existingBorrowRequest) {
+    return res.status(400).json({
+      status: "Failed",
+      message: "You already have an active borrow request",
+    });
+  }
 
   try {
     const borrowRequest = new BorrowRequest({
       borrower: req.user._id,
       fullName: req.user.fullName,
       riskFactor: req.user.riskFactor,
+      phoneNumber: req.user.phoneNumber,
       amount,
       purpose,
       interestRate,
       paybackPeriod,
+      amountRemaining: amount,
     });
 
     await borrowRequest.save();
@@ -45,31 +56,35 @@ const createBorrowRequest = async (req, res) => {
       userRole: "Borrower",
     });
 
-    const userId = req.user._id;
-    const borrowRequestId = borrowRequest._id;
+    // Schedule the job to run 10 minutes after the borrow request is created
+    const tenMinutesInMilliseconds = 10 * 60 * 1000;
+    const scheduleTime = new Date(Date.now() + tenMinutesInMilliseconds);
 
-    const job = () => async () => {
-      const updateBorrowRequest = await BorrowRequest.findById(borrowRequestId);
+    const job = async () => {
+      const updateBorrowRequest = await BorrowRequest.findById(
+        borrowRequest._id
+      );
       if (!updateBorrowRequest.isAccepted) {
         updateBorrowRequest.isLocked = true;
-        // change the status to expired
         updateBorrowRequest.status = "expired";
         await updateBorrowRequest.save();
 
-        await User.findByIdAndUpdate(userId, {
+        await User.findByIdAndUpdate(req.user._id, {
           hasActiveTransaction: false,
           userRole: "User",
         });
       }
-      console.log("Ten minutes are over");
+      console.log(
+        "Ten minutes are over for borrow request:",
+        borrowRequest._id
+      );
     };
 
-    const scheduledJob = cron.schedule("*/10 * * * *", job(), {
-      scheduled: true,
-      timezone: "Asia/Kathmandu",
-    });
+    // Using setTimeout instead of cron to schedule a single delayed job
+    const timeoutId = setTimeout(job, tenMinutesInMilliseconds);
 
-    borrowRequestJobs.set(borrowRequest._id.toString(), scheduledJob);
+    // Optionally, store the timeoutId if you need to cancel the job later
+    borrowRequestJobs.set(borrowRequest._id.toString(), timeoutId);
 
     res.status(200).json({
       status: "Success",
@@ -95,7 +110,7 @@ const browseBorrowRequests = async (req, res) => {
     // Simplified query to exclude borrow request with status expired or fully funded
     const query = {
       borrower: { $ne: req.user._id },
-      status: { $nin: ["expired", "fully funded"] },
+      status: { $nin: ["expired", "fully funded", "returned"] },
     };
 
     const borrowRequests = await BorrowRequest.find(query);
@@ -133,6 +148,13 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
+    if (!req.user.is_verifiedDetails.is_kycVerified) {
+      return res.status(400).json({
+        status: "Failed",
+        message:
+          "Your KYC is not verified. Please verify before accepting the borrow request.",
+      });
+    }
     if (borrowRequest.status === "expired") {
       return res.status(400).json({
         status: "Failed",
@@ -140,26 +162,28 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    const minAmount = borrowRequest.amount * 0.25;
+    const minAmount = borrowRequest.amount * 0.2;
     const maxAmount = borrowRequest.amount * 0.4;
+
+    console.log(minAmount, maxAmount);
 
     if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
         status: "Failed",
         message:
-          "Amount to be fulfilled must be between 25% and 40% of the requested amount",
+          "Amount to be fulfilled must be between 20% and 40% of the requested amount",
       });
     }
 
-    if (borrowRequest.numberOfLenders >= 4) {
+    if (borrowRequest.numberOfLenders >= 5) {
       borrowRequest.status = "fully funded";
     } else {
       borrowRequest.status = "approved";
     }
 
-    // Check if the user has already fulfilled the borrow request
     let borrowFulfillment = await BorrowFulfillment.findOne({
       borrowerName: borrowRequest.fullName,
+      borrowRequest: borrowRequest._id, // Ensure we're matching the correct BorrowFulfillment
     });
 
     if (
@@ -178,19 +202,21 @@ const approveBorrowRequest = async (req, res) => {
       borrowFulfillment = new BorrowFulfillment({
         borrowerName: borrowRequest.fullName,
         lenders: [],
+        borrowRequest: borrowRequest._id,
       });
     }
 
-    if (borrowFulfillment.lenders.length < 4) {
+    if (borrowFulfillment.lenders.length < 5) {
       borrowFulfillment.lenders.push({
         lenderName: req.user.fullName,
         fulfilledAmount: amountToBeFulfilled,
+        phoneNumber: req.user.phoneNumber,
         returnAmount:
           amountToBeFulfilled +
           (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
       });
       borrowRequest.numberOfLenders += 1;
-      borrowRequest.amount -= amountToBeFulfilled;
+      borrowRequest.amountRemaining -= amountToBeFulfilled;
     } else {
       console.log("Maximum number of lenders reached");
     }
@@ -204,10 +230,11 @@ const approveBorrowRequest = async (req, res) => {
       userRole: "Lender",
     });
 
-    const job = borrowRequestJobs.get(req.params.id);
+    // Remove the timer for the borrow request
+    const job = borrowRequestJobs.get(req.params.id.toString());
     if (job) {
-      job.stop();
-      borrowRequestJobs.delete(req.params.id);
+      clearTimeout(job); // Use clearTimeout if you used setTimeout to schedule the job
+      borrowRequestJobs.delete(req.params.id.toString());
     }
 
     res.status(200).json({
@@ -367,10 +394,19 @@ const getTransactionHistory = async (req, res) => {
 */
 const returnMoney = async (req, res) => {
   try {
-    // finding the borrow request by id
-    const borrowRequest = await BorrowRequest.findById(req.params.id);
+    const { amountReturned } = req.body;
+    const borrowRequestId = req.params.id;
+    const userId = req.user._id;
 
-    // if id not found
+    if (!req.user.is_verifiedDetails.is_kycVerified) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Kyc not verified",
+      });
+    }
+
+    // Find the borrow request
+    const borrowRequest = await BorrowRequest.findById(borrowRequestId);
     if (!borrowRequest) {
       return res.status(404).json({
         status: "Failed",
@@ -378,53 +414,72 @@ const returnMoney = async (req, res) => {
       });
     }
 
-    // if borrow request is not approved
-    if (borrowRequest.status !== "approved") {
+    // check if the borrow request is fully funded or not
+    if (!["fully funded"].includes(borrowRequest.status)) {
       return res.status(400).json({
         status: "Failed",
-        message: "Borrow request is not approved",
+        message: "Borrow request is not fully funded",
       });
     }
 
-    // retrive the user
-    const user = await User.findById(req.user._id);
-
-    // checking if the payback period has expired
-    const paybackDedline = new Date(borrowRequest.createdAt);
-    paybackDedline.setDate(
-      paybackDedline.getDate() + borrowRequest.paybackPeriod
-    );
-
-    if (new Date() > paybackDedline) {
-      // if the payback period has expired, update the lateRepaymentDetail field
-      user.lateRepaymentDetails += 1;
-      userMethods.updateLateRepayment.call(user, user.lateRepaymentDetails);
-    } else {
-      // if the payback period has not expired, update the timelyRepaymentDetail field
-      user.timelyRepaymentDetails += 1;
-      userMethods.updateTimelyRepayment.call(user, user.timelyRepaymentDetails);
+    // Find the borrow fulfillment
+    const borrowFulfillment = await BorrowFulfillment.findOne({
+      borrowRequestId: borrowRequestId,
+    });
+    if (!borrowFulfillment) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Borrow fulfillment not found",
+      });
     }
 
-    // Update the user's risk factor
-    userMethods.calculateRiskFactor.call(user);
+    // Validate the amount returned
+    if (
+      amountReturned <= 0 ||
+      amountReturned > borrowFulfillment.returnAmount
+    ) {
+      return (
+        res.status,
+        (400).json({
+          status: "Failed",
+          message: "Invalid amount returned",
+        })
+      );
+    }
 
-    await user.save();
+    // calculate the time difference
+    const timeDifference = Math.floor(
+      (new Date() - borrowRequest.createdAt) / (1000 * 60 * 60)
+    );
 
+    // Find the user and update total transactions
+    const user = await User.findById(userId);
+    if (user) {
+      user.totalTransactions += 1;
+      user.hasActiveTransaction = false;
+
+      // check if the return is timely or late
+      if (timeDifference > borrowRequest.paybackPeriod) {
+        user.lateRepaymentDetails += 1;
+      } else {
+        user.timelyRepaymentDetails += 1;
+      }
+      await user.save();
+    }
+
+    // update borrow request status to returned
     borrowRequest.status = "returned";
     await borrowRequest.save();
 
-    // calculate the amount to be returned with interest
-    const amountToBeReturned =
-      borrowRequest.amount +
-      (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
-
     res.status(200).json({
       status: "Success",
-      message: "Money returned successfully",
-      amountToBeReturned: amountToBeReturned,
+      message: "Amount returned successfully",
+      daysLate:
+        timeDifference > borrowRequest.paybackPeriod
+          ? timeDifference - borrowRequest.paybackPeriod
+          : 0,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: "Failed",
       message: error.message,

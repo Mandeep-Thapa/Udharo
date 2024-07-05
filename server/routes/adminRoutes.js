@@ -18,6 +18,7 @@ const {
   userRole,
   lenderRole,
   borrowerRole,
+  paymentVerification,
 } = require("../controllers/adminController");
 const authenticate = require("../middleware/adminVerification");
 
@@ -49,10 +50,8 @@ router.get("/lenderRole", authenticate, lenderRole);
 
 router.get("/borrowerRole", authenticate, borrowerRole);
 
-router.get(
-  "/approvedBorrowRequests",
-  authenticate,
-  getApprovedBorrowRequests
-);
+router.get("/approvedBorrowRequests", authenticate, getApprovedBorrowRequests);
+
+router.post("/paymentVerification", authenticate, paymentVerification);
 
 module.exports = router;

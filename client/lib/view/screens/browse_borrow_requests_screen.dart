@@ -19,204 +19,220 @@ class BrowseBorrowRequestsPage extends StatefulWidget {
 class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
   int? _selectedRiskFactor;
 
+  void _initialize() {
+    BlocProvider.of<BrowseBorrowRequestBloc>(context)
+        .add(BrowseBorrowRequestEventLoadRequests());
+  }
+
+  @override
+  void initState() {
+    _initialize();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Invest in Borrow Requests',
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            // filter by risk factor
-            child: Wrap(
-              spacing: 8.0,
-              children: [
-                // all risk factors
-                ChoiceChip(
-                  label: const Text('All'),
-                  selected: _selectedRiskFactor == null,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      _selectedRiskFactor = null;
-                    });
-                  },
-                ),
-                // spread operator chips for each risk factor
-                ...RiskFactor.values.map(
-                  (riskFactor) {
-                    final int riskValue =
-                        RiskFactor.values.indexOf(riskFactor) + 1;
-                    return ChoiceChip(
-                      label: Text(
-                        RiskFactorExtension(riskFactor).name,
-                      ),
-                      selected: _selectedRiskFactor == riskValue,
-                      onSelected: (bool selected) {
-                        setState(() {
-                          _selectedRiskFactor = selected ? riskValue : null;
-                        });
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
+    return RefreshIndicator(
+      onRefresh: () async{
+        _initialize();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Invest in Borrow Requests',
           ),
-          Expanded(
-            child:
-                BlocBuilder<BrowseBorrowRequestBloc, BrowseBorrowRequestState>(
-              builder: (context, state) {
-                if (state is BrowseBorrowRequestStateInitial) {
-                  BlocProvider.of<BrowseBorrowRequestBloc>(context)
-                      .add(BrowseBorrowRequestEventLoadRequests());
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (state is BrowseBorrowRequestStateLoaded) {
-                  final borrowRequests =
-                      state.borrowRequests.data?.borrowRequests;
-                  final user = state.user.data;
-                  final isKycVerified =
-                      user?.isVerified?.isKycVerified ?? false;
-
-                  if (borrowRequests == null || borrowRequests.isEmpty) {
-                    return const Center(
-                      child: Text('No borrow requests found.'),
-                    );
-                  }
-
-                  // filter borrow requests by risk factor
-                  final filteredBorrowRequests = _selectedRiskFactor == null
-                      ? borrowRequests
-                      : borrowRequests
-                          .where((request) =>
-                              request.riskFactor == _selectedRiskFactor)
-                          .toList();
-
-                  return BlocConsumer<PaymentBloc, PaymentState>(
-                    listener: (context, state) {
-                      if (state is PaymentStateAcceptSuccess) {
-                        context.read<PaymentBloc>().add(
-                              PaymentEventMakeKhaltiPayment(
-                                context: context,
-                                amount: state.amount,
-                                productIdentity: state.borrowId,
-                                productName: 'Loan for: ${state.borrowId}',
-                              ),
-                            );
-                      } else if (state is PaymentStateKhaltiPaymentSuccess) {
-                        context.read<PaymentBloc>().add(
-                              PaymentEventVerifyKhaltiTransaction(
-                                token: state.success.token,
-                                amount: state.success.amount,
-                              ),
-                            );
-                      } else if (state
-                          is PaymentStateKhaltiPaymentVerificationSuccess) {
-                        final verificationData = state.success.data;
-                        if (verificationData != null) {
-                          context.read<PaymentBloc>().add(
-                                PaymentEventSaveKhaltiTransaction(
-                                  idx: verificationData.idx!,
-                                  amount: verificationData.amount!,
-                                  senderName: verificationData.merchant!.name!,
-                                  createdOn:
-                                      verificationData.createdOn!.toString(),
-                                  receiverName: verificationData.user!.name!,
-                                  feeAmount: verificationData.feeAmount!,
-                                ),
-                              );
-                        }
-                      } else if (state
-                          is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess) {
-                        CustomToast().showToast(
-                          context: context,
-                          message: 'Borrow request accepted successfully.',
-                        );
-                      } else if (state is PaymentStateError) {
-                        CustomToast().showToast(
-                          context: context,
-                          message: state.message,
-                        );
-                      }
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              // filter by risk factor
+              child: Wrap(
+                spacing: 8.0,
+                children: [
+                  // all risk factors
+                  ChoiceChip(
+                    label: const Text('All'),
+                    selected: _selectedRiskFactor == null,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        _selectedRiskFactor = null;
+                      });
                     },
-                    builder: (context, paymentState) {
-                      return SizedBox(
-                        child: ListView.builder(
-                          itemCount: filteredBorrowRequests.length,
-                          itemBuilder: (context, index) {
-                            final borrowRequest = filteredBorrowRequests[index];
-
-                            // display borrow request details
-                            return CustomDetailsContainer(
-                              fields: [
-                                Text(
-                                  'Borrower : ${borrowRequest.fullName}',
-                                ),
-                                Text(
-                                  'Purpose: ${borrowRequest.purpose}',
-                                ),
-                                Text(
-                                  'Amount: Rs.${borrowRequest.amount}',
-                                ),
-                                Text(
-                                  'Risk Factor: ${borrowRequest.riskFactor}',
-                                ),
-                                Text(
-                                  'Risk: ${borrowRequest.risk}',
-                                ),
-                                Text(
-                                  'Interest Rate: ${borrowRequest.interestRate}%',
-                                ),
-                                Text(
-                                  'Payback Period: ${borrowRequest.paybackPeriod} days',
-                                ),
-                              ],
-                              showButton: true,
-                              buttonName: (user != null &&
-                                      user.hasActiveTransaction != null &&
-                                      user.hasActiveTransaction!)
-                                  ? 'Active Transaction Pending'
-                                  : (!isKycVerified)
-                                      ? 'Unverified KYC'
-                                      : 'Invest',
-                              onPressed: (user != null ||
-                                      user?.hasActiveTransaction != null ||
-                                      user!.hasActiveTransaction! ||
-                                      !isKycVerified)
-                                  ? null
-                                  : () {
-                                      _showInvestDialog(
-                                        context,
-                                        borrowRequest.amount ?? 0,
-                                        borrowRequest.id ?? '',
-                                      );
-                                    },
-                            );
-                          },
+                  ),
+                  // spread operator chips for each risk factor
+                  ...RiskFactor.values.map(
+                    (riskFactor) {
+                      final int riskValue =
+                          RiskFactor.values.indexOf(riskFactor) + 1;
+                      return ChoiceChip(
+                        label: Text(
+                          RiskFactorExtension(riskFactor).name,
                         ),
+                        selected: _selectedRiskFactor == riskValue,
+                        onSelected: (bool selected) {
+                          setState(() {
+                            _selectedRiskFactor = selected ? riskValue : null;
+                          });
+                        },
                       );
                     },
-                  );
-                } else if (state is BrowseBorrowRequestStateError) {
-                  return Center(
-                    child: Text('Error: ${state.message}'),
-                  );
-                } else {
-                  return const Center(
-                    child: Text('Error fetching data. Please try again later.'),
-                  );
-                }
-              },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child:
+                  BlocBuilder<BrowseBorrowRequestBloc, BrowseBorrowRequestState>(
+                builder: (context, state) {
+                  if (state is BrowseBorrowRequestStateInitial) {
+                    BlocProvider.of<BrowseBorrowRequestBloc>(context)
+                        .add(BrowseBorrowRequestEventLoadRequests());
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is BrowseBorrowRequestStateLoaded) {
+                    final borrowRequests =
+                        state.borrowRequests.data?.borrowRequests;
+                    final user = state.user.data;
+                    final isKycVerified =
+                        user?.isVerified?.isKycVerified ?? false;
+      
+                    if (borrowRequests == null || borrowRequests.isEmpty) {
+                      return const Center(
+                        child: Text('No borrow requests found.'),
+                      );
+                    }
+      
+                    // filter borrow requests by risk factor
+                    final filteredBorrowRequests = _selectedRiskFactor == null
+                        ? borrowRequests
+                        : borrowRequests
+                            .where((request) =>
+                                request.riskFactor == _selectedRiskFactor)
+                            .toList();
+      
+                    return BlocConsumer<PaymentBloc, PaymentState>(
+                      listener: (context, state) {
+                        if (state is PaymentStateAcceptSuccess) {
+                          context.read<PaymentBloc>().add(
+                                PaymentEventMakeKhaltiPayment(
+                                  context: context,
+                                  amount: state.amount,
+                                  productIdentity: state.borrowId,
+                                  productName: 'Loan for: ${state.borrowId}',
+                                ),
+                              );
+                        } else if (state is PaymentStateKhaltiPaymentSuccess) {
+                          context.read<PaymentBloc>().add(
+                                PaymentEventVerifyKhaltiTransaction(
+                                  token: state.success.token,
+                                  amount: state.success.amount,
+                                ),
+                              );
+                        } else if (state
+                            is PaymentStateKhaltiPaymentVerificationSuccess) {
+                          final verificationData = state.success.data;
+                          if (verificationData != null) {
+                            context.read<PaymentBloc>().add(
+                                  PaymentEventSaveKhaltiTransaction(
+                                    idx: verificationData.idx!,
+                                    amount: verificationData.amount!,
+                                    senderName: verificationData.merchant!.name!,
+                                    createdOn:
+                                        verificationData.createdOn!.toString(),
+                                    receiverName: verificationData.user!.name!,
+                                    feeAmount: verificationData.feeAmount!,
+                                  ),
+                                );
+                          }
+                        } else if (state
+                            is PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: 'Borrow request accepted successfully.',
+                          );
+                        } else if (state is PaymentStateError) {
+                          CustomToast().showToast(
+                            context: context,
+                            message: state.message,
+                          );
+                        }
+                      },
+                      builder: (context, paymentState) {
+                        return SizedBox(
+                          child: ListView.builder(
+                            itemCount: filteredBorrowRequests.length,
+                            itemBuilder: (context, index) {
+                              final borrowRequest = filteredBorrowRequests[index];
+      
+                              // display borrow request details
+                              return CustomDetailsContainer(
+                                fields: [
+                                  Text(
+                                    'Borrower : ${borrowRequest.fullName}',
+                                  ),
+                                  Text(
+                                    'Purpose: ${borrowRequest.purpose}',
+                                  ),
+                                  Text(
+                                    'Amount: Rs.${borrowRequest.amount}',
+                                  ),
+                                  Text(
+                                    'Risk Factor: ${borrowRequest.riskFactor}',
+                                  ),
+                                  Text(
+                                    'Risk: ${borrowRequest.risk}',
+                                  ),
+                                  Text(
+                                    'Interest Rate: ${borrowRequest.interestRate}%',
+                                  ),
+                                  Text(
+                                    'Payback Period: ${borrowRequest.paybackPeriod} days',
+                                  ),
+                                ],
+                                showButton: true,
+                                buttonName: (user != null &&
+                                        user.hasActiveTransaction != null &&
+                                        user.hasActiveTransaction!)
+                                    ? 'Active Transaction Pending'
+                                    : (!isKycVerified)
+                                        ? 'Unverified KYC'
+                                        : 'Invest',
+                                onPressed: (user != null &&
+                                        user.hasActiveTransaction != null &&
+                                        user.hasActiveTransaction! ||
+                                        !isKycVerified)
+                                    ? null
+                                    : () {
+                                        _showInvestDialog(
+                                          context,
+                                          borrowRequest.amount ?? 0,
+                                          borrowRequest.id ?? '',
+                                        );
+                                      },
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  } else if (state is BrowseBorrowRequestStateError) {
+                    return Center(
+                      child: Text('Error: ${state.message}'),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text('Error fetching data. Please try again later.'),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: const CustomBottomNavigationBar(),
       ),
-      bottomNavigationBar: const CustomBottomNavigationBar(),
     );
   }
 
@@ -225,7 +241,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
     int amount,
     String borrowId,
   ) {
-    double minAmount = amount * 0.25;
+    double minAmount = amount * 0.20;
     double maxAmount = amount * 0.40;
     double selectedAmount = minAmount;
 

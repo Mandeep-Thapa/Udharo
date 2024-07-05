@@ -1,4 +1,3 @@
-const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -16,7 +15,7 @@ const BorrowRequest = require("../models/borrowRequestModel");
   @access public
 */
 const registerUser = async (req, res) => {
-  const { fullName, email, password, occupation } = req.body;
+  const { fullName, email, password, occupation, phoneNumber } = req.body;
 
   try {
     // checking if full name is empty
@@ -35,7 +34,21 @@ const registerUser = async (req, res) => {
       });
     }
 
-    if (email == "" || password == "" || fullName == "" || occupation == "") {
+    // checking if phoneNumber is empty
+    if (!phoneNumber) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Phone number is required",
+      });
+    }
+
+    if (
+      email == "" ||
+      password == "" ||
+      fullName == "" ||
+      occupation == "" ||
+      phoneNumber == ""
+    ) {
       return res.status(400).json({
         status: "Failed",
         message: "Eamil, password, full name and occupation are required",
@@ -66,6 +79,7 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
       fullName,
       occupation,
+      phoneNumber,
     });
 
     console.log(`User created: ${user}`);
@@ -103,17 +117,31 @@ const loginUser = async (req, res) => {
 
   // Aba email bata user nikalne
   try {
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select(
+      "+password is_verifiedDetails.is_emailVerified"
+    );
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ status: "Failed", message: "Invalid email or password" });
+    }
+
+    // check if the email is verified or not
+    if (!user.is_verifiedDetails.is_emailVerified) {
+      return res.status(403).json({
+        status: "Failed",
+        message: "Email is not verified. Please verify your email first",
+      });
     }
 
     // compairing unencrypted password with encrypted password from database
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ status: "Failed", message: "Invalid password" });
     }
 
     // Generating jsonwebtoken
@@ -131,7 +159,7 @@ const loginUser = async (req, res) => {
     res.json({ token });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ status: "Failed", message: error.message });
   }
 };
 
@@ -239,100 +267,131 @@ const verifyEmail = async (req, res) => {
   @route GET /api/user/profile
   @access Private
 */
-const getUserProfileWithTransactions = asyncHandler(async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Not authorized, token failed" });
-  }
-
-  const user = await User.findById(req.user._id);
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  let transactionsData;
-
+const getUserProfileWithTransactions = async (req, res) => {
   try {
-    if (user.userRole === "Lender") {
-      const transactions = await BorrowFulfillment.find({
-        "lender.lendername": user.fullName,
-      });
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authorized, token failed" });
+    }
 
-      const formattedTransactions = transactions.map((transaction) => {
-        const lender = transaction.lenders.find(
-          (l) => l.lenderName === user.fullName
-        );
-        return {
-          borrowerName: transaction.borrowerName,
-          fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
-          returnAmount: lender ? lender.returnAmount : undefined,
-        };
-      });
+    const user = await User.findById(req.user._id);
 
-      transactionsData = formattedTransactions;
-    } else if (user.userRole === "Borrower" && transactionsData === undefined) {
-      // Only fetch and format borrowRequests if transactionsData is still undefined
-      const borrowRequests = await BorrowRequest.find({ borrower: user._id });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-      let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
-        const amountToBeReturned =
-          borrowRequest.amount +
-          (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+    let transactionsData;
 
-        return {
-          amount: borrowRequest.amount,
-          interestRate: borrowRequest.interestRate,
-          paybackPeriod: borrowRequest.paybackPeriod,
-          returnAmount: amountToBeReturned,
-        };
-      });
+    try {
+      if (user.userRole === "Lender") {
+        const transactions = await BorrowFulfillment.find({
+          "lenders.lenderName": user.fullName,
+        }).populate("borrowRequest");
 
-      // Ensure uniqueness in transaction data
-      const uniqueTransactions = Array.from(
-        new Set(formattedBorrowRequests.map(JSON.stringify))
-      ).map(JSON.parse);
+        const formattedTransactions = transactions.map((transaction) => {
+          const lender = transaction.lenders.find(
+            (l) => l.lenderName === user.fullName
+          );
 
-      transactionsData = uniqueTransactions;
-    } else if (user.userRole === "User") {
-      transactionsData = undefined;
-    } else {
-      return res.status(400).json({
+          if (!transaction.borrowRequest) {
+            return {
+              borrowerName: transaction.borrowerName,
+              fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+              returnAmount: lender ? lender.returnAmount : undefined,
+            };
+          }
+
+          const expectedReturnDate = new Date(
+            transaction.borrowRequest.createdAt
+          );
+          expectedReturnDate.setDate(
+            expectedReturnDate.getDate() +
+              transaction.borrowRequest.paybackPeriod
+          );
+
+          return {
+            borrowerName: transaction.borrowerName,
+            fulfilledAmount: lender ? lender.fulfilledAmount : undefined,
+            returnAmount: lender ? lender.returnAmount : undefined,
+            interestRate: transaction.borrowRequest.interestRate,
+            expectedReturnDate: expectedReturnDate.toISOString().split("T")[0],
+          };
+        });
+
+        transactionsData = formattedTransactions;
+      } else if (
+        user.userRole === "Borrower" &&
+        transactionsData === undefined
+      ) {
+        // Adjusted query to include only 'pending' and 'approved' statuses
+        const borrowRequests = await BorrowRequest.find({
+          borrower: user._id,
+          status: { $in: ["pending", "approved"] },
+        });
+
+        let formattedBorrowRequests = borrowRequests.map((borrowRequest) => {
+          const amountToBeReturned =
+            borrowRequest.amount +
+            (borrowRequest.amount * (borrowRequest.interestRate + 1)) / 100;
+
+          return {
+            transaction: borrowRequest._id,
+            amount: borrowRequest.amount,
+            interestRate: borrowRequest.interestRate,
+            paybackPeriod: borrowRequest.paybackPeriod,
+            returnAmount: amountToBeReturned,
+          };
+        });
+
+        const uniqueTransactions = Array.from(
+          new Set(formattedBorrowRequests.map(JSON.stringify))
+        ).map(JSON.parse);
+
+        transactionsData = uniqueTransactions;
+      } else if (user.userRole === "User") {
+        transactionsData = undefined;
+      } else {
+        return res.status(400).json({
+          status: "Failed",
+          message: "User role is not supported for this operation",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
         status: "Failed",
-        message: "User role is not supported for this operation",
+        error: error.message,
       });
     }
-  } catch (error) {
-    return res.status(500).json({
-      status: "Failed",
-      error: error.message,
+
+    const responseData = {
+      userName: user.fullName,
+      userId: user._id,
+      email: user.email,
+      isVerified: user.is_verifiedDetails,
+      rewardPoints: user.rewardPoints,
+      totalTransactions: user.totalTransactions,
+      hasActiveTransaction: user.hasActiveTransaction,
+      phoneNumber: user.phoneNumber,
+      riskFactor: user.riskFactor,
+      totalMoneyInvested: user.totalMoneyInvested,
+      successfulRepayment: user.successfulRepayment,
+      lateRepayment: user.lateRepayment,
+      moneyInvestedDetails: user.moneyInvestedDetails,
+      userRole: user.userRole,
+    };
+
+    if (transactionsData !== undefined) {
+      responseData.transactions = transactionsData;
+    }
+
+    res.json({
+      status: "Success",
+      data: responseData,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
+};
 
-  const responseData = {
-    userName: user.fullName,
-    userId: user._id,
-    email: user.email,
-    isVerified: user.is_verifiedDetails,
-    rewardPoints: user.rewardPoints,
-    totalTransactions: user.totalTransactions,
-    hasActiveTransaction: user.hasActiveTransaction,
-    riskFactor: user.riskFactor,
-    totalMoneyInvested: user.totalMoneyInvested,
-    successfulRepayment: user.successfulRepayment,
-    lateRepayment: user.lateRepayment,
-    moneyInvestedDetails: user.moneyInvestedDetails,
-    userRole: user.userRole,
-  };
-
-  if (transactionsData !== undefined) {
-    responseData.transactions = transactionsData;
-  }
-
-  res.json({
-    status: "Success",
-    data: responseData,
-  });
-});
 /*
   @desc Post Khalti payment details
   @route POST /api/user/khaltiPaymentInitialization
@@ -421,8 +480,15 @@ const paymentVerification = async (req, res) => {
 */
 const savePayment = async (req, res) => {
   try {
-    const { idx, amount, fee_amount, created_on, senderName, receiverName } =
-      req.body;
+    const {
+      idx,
+      amount,
+      fee_amount,
+      created_on,
+      senderName,
+      receiverName,
+      purpose,
+    } = req.body;
     const paidById = req.user._id;
 
     // check if a payment with the same idx already exists
@@ -442,6 +508,7 @@ const savePayment = async (req, res) => {
       created_on,
       senderName,
       receiverName,
+      purpose,
     });
 
     console.log("Payment: ", payment);
