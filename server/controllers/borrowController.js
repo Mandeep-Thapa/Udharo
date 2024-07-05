@@ -204,8 +204,6 @@ const approveBorrowRequest = async (req, res) => {
         borrowerName: borrowRequest.fullName,
         lenders: [],
         borrowRequest: borrowRequest._id,
-
-        // Set the borrowRequest reference here
       });
     }
 

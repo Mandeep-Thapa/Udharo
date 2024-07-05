@@ -480,8 +480,15 @@ const paymentVerification = async (req, res) => {
 */
 const savePayment = async (req, res) => {
   try {
-    const { idx, amount, fee_amount, created_on, senderName, receiverName } =
-      req.body;
+    const {
+      idx,
+      amount,
+      fee_amount,
+      created_on,
+      senderName,
+      receiverName,
+      purpose,
+    } = req.body;
     const paidById = req.user._id;
 
     // check if a payment with the same idx already exists
@@ -501,6 +508,7 @@ const savePayment = async (req, res) => {
       created_on,
       senderName,
       receiverName,
+      purpose,
     });
 
     console.log("Payment: ", payment);
