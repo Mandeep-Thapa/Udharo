@@ -135,6 +135,13 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
+    if (!req.user.is_verifiedDetails.is_kycVerified) {
+      return res.status(400).json({
+        status: "Failed",
+        message:
+          "Your KYC is not verified. Please verify before accepting the borrow request.",
+      });
+    }
     if (borrowRequest.status === "expired") {
       return res.status(400).json({
         status: "Failed",
@@ -163,6 +170,7 @@ const approveBorrowRequest = async (req, res) => {
 
     let borrowFulfillment = await BorrowFulfillment.findOne({
       borrowerName: borrowRequest.fullName,
+      borrowRequest: borrowRequest._id, // Ensure we're matching the correct BorrowFulfillment
     });
 
     if (
@@ -181,6 +189,9 @@ const approveBorrowRequest = async (req, res) => {
       borrowFulfillment = new BorrowFulfillment({
         borrowerName: borrowRequest.fullName,
         lenders: [],
+        borrowRequest: borrowRequest._id,
+
+        // Set the borrowRequest reference here
       });
     }
 
@@ -188,6 +199,7 @@ const approveBorrowRequest = async (req, res) => {
       borrowFulfillment.lenders.push({
         lenderName: req.user.fullName,
         fulfilledAmount: amountToBeFulfilled,
+        phoneNumber: req.user.phoneNumber,
         returnAmount:
           amountToBeFulfilled +
           (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
@@ -211,7 +223,6 @@ const approveBorrowRequest = async (req, res) => {
     const job = borrowRequestJobs.get(req.params.id.toString());
     if (job) {
       clearTimeout(job); // Use clearTimeout if you used setTimeout to schedule the job
-      // If it's a cron job: job.stop();
       borrowRequestJobs.delete(req.params.id.toString());
     }
 
@@ -376,6 +387,13 @@ const returnMoney = async (req, res) => {
     const borrowRequestId = req.params.id;
     const userId = req.user._id;
 
+    if (!req.user.is_verifiedDetails.is_kycVerified) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Kyc not verified",
+      });
+    }
+
     // Find the borrow request
     const borrowRequest = await BorrowRequest.findById(borrowRequestId);
     if (!borrowRequest) {
@@ -401,10 +419,13 @@ const returnMoney = async (req, res) => {
       amountReturned <= 0 ||
       amountReturned > borrowFulfillment.returnAmount
     ) {
-      return res.status(400).json({
-        status: "Failed",
-        message: "Invalid amount returned",
-      });
+      return (
+        res.status,
+        (400).json({
+          status: "Failed",
+          message: "Invalid amount returned",
+        })
+      );
     }
 
     // calculate the time difference
