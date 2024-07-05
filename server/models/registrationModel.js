@@ -32,6 +32,12 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    phoneNumber: {
+      type: Number,
+      minlength: 10,
+      required: [true, "Please provide your phone number"],
+      unique: true,
+    },
     totalTransactions: {
       type: Number,
       default: 0,
@@ -45,6 +51,7 @@ const userSchema = new Schema(
       default: "User",
       enum: ["User", "Borrower", "Lender"],
     },
+
     riskFactorDetails: {
       verificationStatus: {
         type: Number,

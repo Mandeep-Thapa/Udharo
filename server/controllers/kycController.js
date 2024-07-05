@@ -23,6 +23,7 @@ const uploadKyc = async (req, res) => {
       "gender",
       "citizenshipNumber",
       "panNumber",
+      "phoneNumber",
     ];
 
     for (let field of requiredFields) {
@@ -44,6 +45,7 @@ const uploadKyc = async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       gender: req.body.gender,
+      phoneNumber: req.body.phoneNumber,
       photo: photoResponse.secure_url,
       citizenshipNumber: req.body.citizenshipNumber,
       citizenshipFrontPhoto: citizenshipFrontPhotoResponse.secure_url,
