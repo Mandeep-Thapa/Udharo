@@ -7,6 +7,7 @@ const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
 const BorrowRequest = require("../models/borrowRequestModel");
 const Payment = require("../models/khaltiPaymentModel");
 const userMethods = require("../utils/userMethods");
+const axios = require("axios");
 
 /*
   @desc Register an admin
@@ -603,6 +604,7 @@ const paymentVerification = async (req, res) => {
       data: khaltiResponse.data,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: "Failed",
       message: error.message,
