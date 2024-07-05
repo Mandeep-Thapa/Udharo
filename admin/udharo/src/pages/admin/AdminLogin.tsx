@@ -77,7 +77,7 @@ useEffect(() => {
         </svg>
         <input type="password" id="password" className="bg-gray-200 rounded pl-12 py-2 md:py-4 focus:outline-none w-full" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-black mb-1">{error}</p>}
       <button className="bg-black font-medium p-2 md:p-4 text-white uppercase w-full rounded" type='submit'>Login</button>
 <div className="flex justify-end">
       <a href='/register' className='font-bold rounded-md p-2'>Register?</a></div>

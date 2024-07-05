@@ -47,9 +47,9 @@ const MyRoutes = () => {
             path="/payment"
             element={
               <KhaltiPayment
-                amount={1000} 
-                purchaseOrderId="Order01"
-                purchaseOrderName="Test Order"
+                amount={100}
+                purchaseOrderId="1234"
+                purchaseOrderName="Test Product"
                 onSuccess={handleSuccess}
               />
             }
