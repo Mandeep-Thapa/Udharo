@@ -15,7 +15,7 @@ const BorrowRequest = require("../models/borrowRequestModel");
   @access public
 */
 const registerUser = async (req, res) => {
-  const { fullName, email, password, occupation } = req.body;
+  const { fullName, email, password, occupation, phoneNumber } = req.body;
 
   try {
     // checking if full name is empty
@@ -34,7 +34,21 @@ const registerUser = async (req, res) => {
       });
     }
 
-    if (email == "" || password == "" || fullName == "" || occupation == "") {
+    // checking if phoneNumber is empty
+    if (!phoneNumber) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Phone number is required",
+      });
+    }
+
+    if (
+      email == "" ||
+      password == "" ||
+      fullName == "" ||
+      occupation == "" ||
+      phoneNumber == ""
+    ) {
       return res.status(400).json({
         status: "Failed",
         message: "Eamil, password, full name and occupation are required",
@@ -65,6 +79,7 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
       fullName,
       occupation,
+      phoneNumber,
     });
 
     console.log(`User created: ${user}`);
@@ -355,6 +370,7 @@ const getUserProfileWithTransactions = async (req, res) => {
       rewardPoints: user.rewardPoints,
       totalTransactions: user.totalTransactions,
       hasActiveTransaction: user.hasActiveTransaction,
+      phoneNumber: user.phoneNumber,
       riskFactor: user.riskFactor,
       totalMoneyInvested: user.totalMoneyInvested,
       successfulRepayment: user.successfulRepayment,
