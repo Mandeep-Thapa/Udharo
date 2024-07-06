@@ -464,7 +464,7 @@ const userRole = async (req, res) => {
 */
 const lenderRole = async (req, res) => {
   try {
-    const users = await User.fin({ userRole: "Lender" });
+    const users = await User.find({ userRole: "Lender" });
 
     res.status(200).json({
       status: "Success",
