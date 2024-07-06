@@ -17,7 +17,6 @@ const ApprovedBorrowRequest = () => {
             'Authorization': `Bearer ${token}`
           }
         });
-        console.log(response.data.data)
         setApprovedRequests(response.data.data);
       } catch (err) {
         if (axios.isAxiosError(err)) {
@@ -79,27 +78,27 @@ const ApprovedBorrowRequest = () => {
                         </span>
 
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap uppercase">Rs{request.amountRequested}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{request.borrowRequestStatus}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">Rs {request.amountRequested}</td>
+                        <td className="px-6 py-4 whitespace-nowrap uppercase">{request.borrowRequestStatus}</td>
                         <td className="px-6 py-4 whitespace-nowrap">{request.numberOfLenders}</td>
  
                         <td className="px-6 py-4 whitespace-nowrap">
                           {request.lenders.map((lender, id) => (
                             <div key={id} className="mt-2">
                               <p><strong>Lender Name:</strong> {lender.lenderName}</p>
-                              <p><strong>Fulfilled Amount:</strong> Rs{lender.fulfilledAmount}</p>
-                              <p><strong>Return Amount:</strong> Rs{lender.returnAmount}</p>
+                              <p><strong>Fulfilled Amount:</strong> Rs {lender.fulfilledAmount}</p>
+                              <p><strong>Return Amount:</strong> Rs {lender.returnAmount}</p>
                              
                             </div>
                           ))}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">${request.amountRequested - request.lenders.reduce((sum, lender) => sum + lender.fulfilledAmount, 0)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">Rs {request.amountRequested - request.lenders.reduce((sum, lender) => sum + lender.fulfilledAmount, 0)}</td>
                         
                         <td>
                        {
                         request.lenders.map((lender, id) => (
                             <div key={id} className="mt-2">
-                              <p><strong>Return Amount:</strong> ${lender.returnAmount}</p>
+                              <p><strong>Return Amount:</strong> Rs {lender.returnAmount}</p>
                               <KhaltiPayment amount={lender.returnAmount} onSuccess={handlePaymentSuccess} />
                             </div>
                           ))

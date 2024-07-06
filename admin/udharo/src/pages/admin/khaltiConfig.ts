@@ -25,7 +25,6 @@ const config = {
             purpose: purpose,
           };
           axios.post("http://localhost:3004/api/user/saveKhaltiPaymentDetails", paymentData).then(response => {
-            console.log(response.data); 
             alert('Payment Successful');
           })
           .catch(error => {
