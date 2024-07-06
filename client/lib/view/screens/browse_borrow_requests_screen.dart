@@ -177,6 +177,17 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                   ),
                                   Text(
                                     'Amount: Rs.${borrowRequest.amount}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Remaining Amount: Rs.${borrowRequest.amountRemaining}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   Text(
                                     'Risk Factor: ${borrowRequest.riskFactor}',
@@ -209,6 +220,7 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
                                           context,
                                           borrowRequest.amount ?? 0,
                                           borrowRequest.id ?? '',
+                                          borrowRequest.amountRemaining ?? 0,
                                         );
                                       },
                               );
@@ -237,88 +249,96 @@ class _BrowseBorrowRequestsPageState extends State<BrowseBorrowRequestsPage> {
   }
 
   void _showInvestDialog(
-    BuildContext context,
-    int amount,
-    String borrowId,
-  ) {
-    double minAmount = amount * 0.20;
-    double maxAmount = amount * 0.40;
-    double selectedAmount = minAmount;
+  BuildContext context,
+  int amount,
+  String borrowId,
+  int amountRemaining,
+) {
+  double minAmount = amount * 0.20;
+  double maxAmount = amount * 0.40;
 
-    TextEditingController amountController =
-        TextEditingController(text: selectedAmount.toInt().toString());
-    FocusNode focusNode = FocusNode();
+  // Adjust maxAmount to be the lesser of 40% of the total amount or the remaining amount
+  if (maxAmount > amountRemaining) {
+    maxAmount = amountRemaining.toDouble();
+  }
 
-    CustomDialogBox.showCustomDialogBox(
-      context,
-      'Invest in Borrow Request',
-      StatefulBuilder(
-        builder: (context, setState) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select the amount to invest (between ${minAmount.toInt()} and ${maxAmount.toInt()})',
+  double selectedAmount = minAmount;
+
+  TextEditingController amountController =
+      TextEditingController(text: selectedAmount.toInt().toString());
+  FocusNode focusNode = FocusNode();
+
+  CustomDialogBox.showCustomDialogBox(
+    context,
+    'Invest in Borrow Request',
+    StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Select the amount to invest (between ${minAmount.toInt()} and ${maxAmount.toInt()})',
+            ),
+            Slider(
+              min: minAmount,
+              max: maxAmount,
+              divisions: (maxAmount - minAmount).toInt(),
+              value: selectedAmount,
+              label: selectedAmount.toInt().toString(),
+              onChanged: (value) {
+                setState(() {
+                  selectedAmount = value;
+                  amountController.text = selectedAmount.toInt().toString();
+                });
+              },
+            ),
+            Text(
+              'Selected Amount: Rs. ${selectedAmount.toInt()}',
+            ),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Enter Amount',
               ),
-              Slider(
-                min: minAmount,
-                max: maxAmount,
-                divisions: (maxAmount - minAmount).toInt(),
-                value: selectedAmount,
-                label: selectedAmount.toInt().toString(),
-                onChanged: (value) {
+              focusNode: focusNode,
+              onChanged: (value) {},
+              onEditingComplete: () {
+                double? inputAmount = double.tryParse(amountController.text);
+                if (inputAmount != null) {
+                  if (inputAmount < minAmount) {
+                    inputAmount = minAmount;
+                  } else if (inputAmount > maxAmount) {
+                    inputAmount = maxAmount;
+                  }
                   setState(() {
-                    selectedAmount = value;
+                    selectedAmount = inputAmount!;
                     amountController.text = selectedAmount.toInt().toString();
                   });
-                },
-              ),
-              Text(
-                'Selected Amount: Rs. ${selectedAmount.toInt()}',
-              ),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Enter Amount',
-                ),
-                focusNode: focusNode,
-                onChanged: (value) {},
-                onEditingComplete: () {
-                  double? inputAmount = double.tryParse(amountController.text);
-                  if (inputAmount != null) {
-                    if (inputAmount < minAmount) {
-                      inputAmount = minAmount;
-                    } else if (inputAmount > maxAmount) {
-                      inputAmount = maxAmount;
-                    }
-                    setState(() {
-                      selectedAmount = inputAmount!;
-                      amountController.text = selectedAmount.toInt().toString();
-                    });
-                  }
-                  focusNode.unfocus();
-                },
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Warning: Investing is a high-risk activity and may result in loss of funds. Please ensure you understand the risks involved before investing.',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          );
-        },
-      ),
-      () {
-        context.read<PaymentBloc>().add(
-              PaymentEventAcceptBorrowRequest(
-                amount: selectedAmount.toInt(),
-                productIdentity: borrowId,
-              ),
-            );
-        Navigator.of(context).pop();
+                }
+                focusNode.unfocus();
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Warning: Investing is a high-risk activity and may result in loss of funds. Please ensure you understand the risks involved before investing.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        );
       },
-      buttonName: 'I understand the risks and want to invest',
-    );
-  }
+    ),
+    () {
+      context.read<PaymentBloc>().add(
+            PaymentEventAcceptBorrowRequest(
+              amount: selectedAmount.toInt(),
+              productIdentity: borrowId,
+            ),
+          );
+      Navigator.of(context).pop();
+    },
+    buttonName: 'I understand the risks and want to invest',
+  );
+}
+
 }
