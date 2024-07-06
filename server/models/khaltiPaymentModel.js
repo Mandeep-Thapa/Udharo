@@ -7,6 +7,7 @@ const paymentDetailsSchema = new mongoose.Schema({
   created_on: String,
   senderName: String,
   receiverName: String,
+  purpose: String,
 });
 
 const KhaltiPayment = mongoose.model("KhaltiPayment", paymentDetailsSchema);

@@ -5,14 +5,27 @@ import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:udharo/data/model/khalti_verification_success_model.dart';
 import 'package:udharo/data/repository/borrow_repository.dart';
 
-part 'payment_event.dart';
-part 'payment_state.dart';
+part 'return_money_event.dart';
+part 'return_money_state.dart';
 
-class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
+class ReturnMoneyBloc extends Bloc<ReturnMoneyEvent, ReturnMoneyState> {
   final BorrowRepository _borrowRepository;
-  PaymentBloc(this._borrowRepository) : super(PaymentStateInitial()) {
-    // make khalti payment
-    on<PaymentEventMakeKhaltiPayment>(
+
+  ReturnMoneyBloc(this._borrowRepository) : super(ReturnMoneyStateInitial()) {
+    on<ReturnMoneyEventMakeReturnRequest>(
+      (event, emit) async {
+        try {
+          await _borrowRepository.returnMoney(
+            event.borrowId,
+            event.amount,
+          );
+          emit(ReturnMoneyStateReturnSuccess());
+        } on Exception catch (e) {
+          emit(ReturnMoneyStateError(e.toString()));
+        }
+      },
+    );
+    on<ReturnMoneyEventMakeKhaltiPayment>(
       (event, emit) async {
         try {
           // make payment
@@ -30,40 +43,21 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               PaymentPreference.khalti,
             ],
             onSuccess: (success) {
-              emit(PaymentStateKhaltiPaymentSuccess(success: success));
+              emit(ReturnMoneyStateKhaltiPaymentSuccess(success: success));
               // print('Success: ${success.token}');
             },
             onFailure: (failure) {
-              emit(PaymentStateError(failure.message));
+              emit(ReturnMoneyStateError(failure.message));
             },
           );
         } on Exception catch (e) {
-          emit(PaymentStateError(e.toString()));
+          emit(ReturnMoneyStateError(e.toString()));
         }
       },
     );
-    // accept borrow request
-    on<PaymentEventAcceptBorrowRequest>(
+    on<ReturnMoneyEventVerifyKhaltiTransaction>(
       (event, emit) async {
-        try {
-          // print('Accepting borrow request: ${event.amount}');
-          await _borrowRepository.acceptBorrowRequest(
-            event.productIdentity,
-            event.amount,
-          );
-          emit(PaymentStateAcceptSuccess(
-            amount: event.amount,
-            borrowId: event.productIdentity,
-          ));
-        } on Exception catch (e) {
-          emit(PaymentStateError(e.toString()));
-        }
-      },
-    );
-    // verify khalti transaction
-    on<PaymentEventVerifyKhaltiTransaction>(
-      (event, emit) async {
-        try {
+         try {
           final verificationMessage =
               await _borrowRepository.verifyKhaltiTransaction(
             token: event.token,
@@ -71,15 +65,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           );
 
           // print('Verification message: ${verificationMessage.data?.amount}');
-          emit(PaymentStateKhaltiPaymentVerificationSuccess(
+          emit(ReturnMoneyStateKhaltiVerificationSuccess(
               success: verificationMessage));
         } on Exception catch (e) {
-          emit(PaymentStateError(e.toString()));
+           emit(ReturnMoneyStateError(e.toString()));
         }
       },
     );
-    // save khalti transaction
-    on<PaymentEventSaveKhaltiTransaction>(
+    on<ReturnMoneyEventSaveKhaltiTransaction>(
       (event, emit) async {
         try {
           await _borrowRepository.saveKhaltiTransaction(
@@ -89,19 +82,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             receiverName: event.receiverName,
             createdOn: event.createdOn,
             feeAmount: event.feeAmount,
-            purpose: 'lend',
+            purpose: 'return',
           );
-          emit(PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess());
+          emit(ReturnMoneyStatePaymentSaveSucess());
         } on Exception catch (e) {
-          emit(PaymentStateError(e.toString()));
+          emit(ReturnMoneyStateError(e.toString()));
         }
       },
     );
-    // reset payment bloc
-    // on<PaymentEventResetPayment>(
-    //   (event, emit) {
-    //     emit(PaymentStateInitial());
-    //   },
-    // );
   }
 }

@@ -11,6 +11,7 @@ sealed class UploadKycEvent extends Equatable {
 class UploadKycEventSubmitKYC extends UploadKycEvent {
   final String firstName;
   final String lastName;
+  final int phoneNumber;
   final String gender;
   final String citizenshipNumber;
   final String? panNumber;
@@ -21,6 +22,7 @@ class UploadKycEventSubmitKYC extends UploadKycEvent {
   const UploadKycEventSubmitKYC({
     required this.firstName,
     required this.lastName,
+    required this.phoneNumber,
     required this.gender,
     required this.citizenshipNumber,
     required this.panNumber,

@@ -6,6 +6,7 @@ import 'package:udharo/view/screens/browse_borrow_requests_screen.dart';
 import 'package:udharo/view/screens/create_borrow_request_page.dart';
 import 'package:udharo/view/screens/kyc_form_screen.dart';
 import 'package:udharo/view/screens/profile_screen.dart';
+import 'package:udharo/view/screens/view_kyc_screen.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
 import 'package:udharo/view/widget/custom_image_with_label.dart';
 import 'package:udharo/view/widget/custom_transaction_detail_container.dart';
@@ -131,9 +132,17 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // navigate to KYC verification screen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ViewKYCScreen(),
+                              ),
+                            );
+                          },
                           child: const Text(
-                            'Add Funds',
+                            'See KYC Details',
                           ),
                         ),
                       ),
@@ -142,9 +151,17 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // navigate to View Profile screen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ProfilePage(),
+                              ),
+                            );
+                          },
                           child: const Text(
-                            'Payback',
+                            'View Profile',
                           ),
                         ),
                       ),

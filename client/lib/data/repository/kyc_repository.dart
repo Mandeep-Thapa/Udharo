@@ -10,6 +10,7 @@ class KYCRepository {
   Future<String> uploadKYC({
     required String firstName,
     required String lastName,
+    required int phoneNumber,
     required String gender,
     required String citizenshipNumber,
     String? panNumber,
@@ -33,6 +34,7 @@ class KYCRepository {
         'firstName': firstName,
         'lastName': lastName,
         'gender': gender,
+        'phoneNumber': phoneNumber,
         'citizenshipNumber': citizenshipNumber,
         if (panNumber != null) 'panNumber': panNumber,
         'photo': await MultipartFile.fromFile(

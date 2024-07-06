@@ -136,9 +136,9 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
                       },
                       builder: (context, state) {
                         return ElevatedButton(
-                          onPressed: (user != null ||
-                                  user?.hasActiveTransaction != null ||
-                                  user!.hasActiveTransaction! || !isKycVerified)
+                          onPressed: (user != null &&
+                                  user.hasActiveTransaction != null &&
+                                  user.hasActiveTransaction! || !isKycVerified)
                               ? null
                               : () {
                                   if (_formField.currentState!.validate()) {
@@ -156,9 +156,9 @@ class _CreateBorrowRequestPageState extends State<CreateBorrowRequestPage> {
                                         );
                                   }
                                 },
-                          child: (user != null ||
-                                  user?.hasActiveTransaction != null ||
-                                  user!.hasActiveTransaction!)
+                          child: ((user != null &&
+                                  user.hasActiveTransaction != null) &&
+                                  user.hasActiveTransaction!)
                               ? const Text(
                                   'Another transaction is already active',
                                 )

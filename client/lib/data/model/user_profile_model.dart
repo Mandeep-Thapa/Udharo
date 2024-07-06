@@ -28,6 +28,7 @@ class Data {
   final String? userName;
   final String? userId;
   final String? email;
+  final int? phoneNumber;
   final IsVerified? isVerified;
   final bool? hasActiveTransaction;
   final int? riskFactor;
@@ -40,6 +41,7 @@ class Data {
     this.userName,
     this.userId,
     this.email,
+    this.phoneNumber,
     this.isVerified,
     this.hasActiveTransaction,
     this.riskFactor,
@@ -53,6 +55,7 @@ class Data {
     userName: json["userName"],
     userId: json["userId"],
     email: json["email"],
+    phoneNumber: json["phoneNumber"],
     isVerified: json["isVerified"] == null ? null : IsVerified.fromJson(json["isVerified"]),
     hasActiveTransaction: json["hasActiveTransaction"],
     riskFactor: json["riskFactor"],
@@ -68,6 +71,7 @@ class Data {
     "userName": userName,
     "userId": userId,
     "email": email,
+    "phoneNumber": phoneNumber,
     "isVerified": isVerified?.toJson(),
     "hasActiveTransaction": hasActiveTransaction,
     "riskFactor": riskFactor,
@@ -96,38 +100,50 @@ class Data {
 }
 
 class Transaction {
+  final String? transaction;
   final int? amount;
   final num? interestRate;
   final int? paybackPeriod;
   final num? returnAmount;
+  final String? status;
   final String? borrowerName;
   final num? fulfilledAmount;
+  final String? expectedReturnDate;
 
   Transaction({
+    this.transaction,
     this.amount,
     this.interestRate,
     this.paybackPeriod,
     this.returnAmount,
+    this.status,
     this.borrowerName,
     this.fulfilledAmount,
+    this.expectedReturnDate,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
+    transaction: json["transaction"],
     amount: json["amount"],
     interestRate: json["interestRate"],
     paybackPeriod: json["paybackPeriod"],
     returnAmount: json["returnAmount"],
+    status: json["status"],
     borrowerName: json["borrowerName"],
     fulfilledAmount: json["fulfilledAmount"],
+    expectedReturnDate: json["expectedReturnDate"],
   );
 
   Map<String, dynamic> toJson() => {
+    "transaction": transaction,
     "amount": amount,
     "interestRate": interestRate,
     "paybackPeriod": paybackPeriod,
     "returnAmount": returnAmount,
+    "status": status,
     "borrowerName": borrowerName,
     "fulfilledAmount": fulfilledAmount,
+    "expectedReturnDate": expectedReturnDate,
   };
 }
 

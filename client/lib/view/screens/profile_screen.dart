@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
+import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
+import 'package:udharo/theme/theme_class.dart';
 import 'package:udharo/view/widget/bottom_navigation_bar.dart';
-import 'package:udharo/view/widget/custom_details_container.dart';
-import 'package:udharo/view/widget/sign_out_button.dart';
+import 'package:udharo/view/widget/custom_show_full_screen_image.dart';
+import 'package:udharo/view/widget/custom_transaction_detail_container.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -30,20 +32,172 @@ class _ProfilePageState extends State<ProfilePage> {
             final isKYCVerified = user?.isVerified?.isKycVerified ?? false;
             final isPanVerified = user?.isVerified?.isPanVerified ?? false;
             final isFullyVerified = isKYCVerified && isPanVerified;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomDetailsContainer(
-                  fields: [
-                    Text('Name : ${user?.userName ?? 'N/A'}'),
-                    Text('Email: ${user?.email ?? 'N/A'}'),
-                    Text(
-                      'Verification Status: ${isFullyVerified ? 'Verified' : (!isPanVerified && isKYCVerified) ? 'KYC verified without PAN' : 'Not Verified'}',
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BlocBuilder<ViewKycBloc, ViewKycState>(
+                    builder: (context, state) {
+                      if (state is ViewKycStateInitial) {
+                        BlocProvider.of<ViewKycBloc>(context)
+                            .add(ViewKycEventLoadKYC());
+                        return const SizedBox.shrink();
+                      } else if (state is ViewKycStateLoaded) {
+                        final kyc = state.kyc.data;
+                        if (kyc == null) {
+                          return const SizedBox.shrink();
+                        }
+                        return Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              CustomShowFullScreenImage().showFullScreenImage(
+                                context,
+                                kyc.photo!,
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 100,
+                              backgroundImage: kyc.photo != null
+                                  ? NetworkImage(
+                                      kyc.photo!,
+                                    )
+                                  : const AssetImage(
+                                      'assets/default_avatar.png',
+                                    ) as ImageProvider,
+                            ),
+                          ),
+                        );
+                      } else if (state is ViewKycStateError) {
+                        return const Center(
+                          child: Text(
+                            'Error loading KYC details',
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      // gradient: LinearGradient(
+                      //   colors: [
+                      //     ThemeClass().secondaryColor,
+                      //     ThemeClass().primaryColor,
+                      //   ],
+                      //   begin: Alignment.topCenter,
+                      //   end: Alignment.bottomCenter,
+                      // ),
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ThemeClass().primaryColor.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    Text('risk: ${user?.risk ?? 'N/A'}'),
-                  ],
-                )
-              ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Welcome,',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          user?.userName ?? 'N/A',
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.email,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              user?.email ?? 'N/A',
+                              style: const TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.verified_user,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              isFullyVerified
+                                  ? 'Verified'
+                                  : (!isPanVerified && isKYCVerified)
+                                      ? 'KYC verified without PAN'
+                                      : 'Not Verified',
+                              style: const TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Risk Details',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Risk Factor: ${user?.riskFactor ?? 'N/A'}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Risk Level: ${user?.risk ?? 'N/A'}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTransactionDetailsContainer(
+                    role: user?.userRole ?? '',
+                    user: user!,
+                  ),
+                ],
+              ),
             );
           } else if (state is ProfileStateError) {
             return Center(
@@ -56,16 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         },
       ),
-      bottomNavigationBar: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          // check if the state is not an error, then show the bottom navigation bar
-          if (state is! ProfileStateError) {
-            return const CustomBottomNavigationBar();
-          } else {
-            return SignOutButton().signOutButton(context);
-          }
-        },
-      ),
+      bottomNavigationBar: const CustomBottomNavigationBar(),
     );
   }
 }

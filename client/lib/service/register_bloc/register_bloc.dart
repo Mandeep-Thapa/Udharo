@@ -19,6 +19,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
             email: event.email,
             occupation: event.occupation,
             password: event.password,
+            phoneNumber: event.phoneNumber,
           );
           if (message == 'SignUp Success') {
             emit(RegisterStateSuccessSigningUp(email: event.email));
