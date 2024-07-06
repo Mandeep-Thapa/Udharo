@@ -21,7 +21,8 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         password: password
       });
 if(response.data){
-      const token = response.data.token;
+      const token = response.data.data.token;
+      console.log(response.data.data);
       //Store gareko token lai
       localStorage.setItem('token', token);
       //authentication cookie with expiration time

@@ -50,6 +50,7 @@ const KycDetails: React.FC = () => {
           }
         );
         setKycDetails(response.data.messgae);
+        console.log(response.data)
         setLoading(false);
       } catch (error) {
         if (axios.isAxiosError(error)) {
