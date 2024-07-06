@@ -1,4 +1,15 @@
 const userMethods = {
+  ensureRiskFactorDetailsInitialized: function () {
+    if (!this.riskFactorDetails) {
+      this.riskFactorDetails = {
+        verificationStatus: 0,
+        moneyInvested: 0,
+        timelyRepayment: 0,
+        lateRepayment: 0,
+      };
+    }
+  },
+
   calculateRiskFactor: function () {
     this.riskFactor = Math.round(
       (this.riskFactorDetails.verificationStatus * 5 +

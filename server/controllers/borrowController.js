@@ -133,15 +133,12 @@ const browseBorrowRequests = async (req, res) => {
 const approveBorrowRequest = async (req, res) => {
   try {
     const { amountToBeFulfilled } = req.body;
-    const borrowRequest = await BorrowRequest.findOne({
-      _id: req.params.id,
-    });
+    const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
 
     if (!borrowRequest) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Borrow request not found",
-      });
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Borrow request not found" });
     }
 
     if (!req.user.is_verifiedDetails.is_kycVerified) {
@@ -161,8 +158,6 @@ const approveBorrowRequest = async (req, res) => {
     const minAmount = borrowRequest.amount * 0.2;
     const maxAmount = borrowRequest.amount * 0.4;
 
-    console.log(minAmount, maxAmount);
-
     if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
         status: "Failed",
@@ -179,7 +174,7 @@ const approveBorrowRequest = async (req, res) => {
 
     let borrowFulfillment = await BorrowFulfillment.findOne({
       borrowerName: borrowRequest.fullName,
-      borrowRequest: borrowRequest._id, // Ensure we're matching the correct BorrowFulfillment
+      borrowRequest: borrowRequest._id,
     });
 
     if (
@@ -195,8 +190,6 @@ const approveBorrowRequest = async (req, res) => {
     }
 
     if (!borrowFulfillment) {
-      console.log("if statement call vayo aba status save huncha");
-      console.log(borrowRequest.status, borrowRequest.fullName);
       borrowFulfillment = new BorrowFulfillment({
         borrowRequestStatus: borrowRequest.status,
         borrowerName: borrowRequest.fullName,
@@ -219,37 +212,28 @@ const approveBorrowRequest = async (req, res) => {
       });
       borrowRequest.numberOfLenders += 1;
       borrowRequest.amountRemaining -= amountToBeFulfilled;
-    } else {
-      console.log("Maximum number of lenders reached");
     }
 
     await borrowRequest.save();
     await borrowFulfillment.save();
 
-    await User.findByIdAndUpdate(req.user._id, {
-      $inc: { moneyInvestedDetails: amountToBeFulfilled },
-      hasActiveTransaction: true,
-      userRole: "Lender",
-    });
+    // Update user's money invested and risk factor
+    const user = await User.findById(req.user._id);
+    user.moneyInvestedDetails += amountToBeFulfilled;
+    userMethods.updateMoneyInvested.call(user, user.moneyInvestedDetails);
+    userMethods.calculateRiskFactor.call(user);
+    await user.save();
 
     // Remove the timer for the borrow request
     const job = borrowRequestJobs.get(req.params.id.toString());
     if (job) {
-      clearTimeout(job); // Use clearTimeout if you used setTimeout to schedule the job
+      clearTimeout(job);
       borrowRequestJobs.delete(req.params.id.toString());
     }
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        borrowFulfillment,
-      },
-    });
+    res.status(200).json({ status: "success", data: { borrowFulfillment } });
   } catch (error) {
-    res.status(400).json({
-      status: "fail",
-      message: error.message,
-    });
+    res.status(400).json({ status: "fail", message: error.message });
   }
 };
 
@@ -401,22 +385,18 @@ const returnMoney = async (req, res) => {
     const userId = req.user._id;
 
     if (!req.user.is_verifiedDetails.is_kycVerified) {
-      return res.status(400).json({
-        status: "Failed",
-        message: "Kyc not verified",
-      });
+      return res
+        .status(400)
+        .json({ status: "Failed", message: "Kyc not verified" });
     }
 
-    // Find the borrow request
     const borrowRequest = await BorrowRequest.findById(borrowRequestId);
     if (!borrowRequest) {
-      return res.status(404).json({
-        status: "Failed",
-        message: "Borrow request not found",
-      });
+      return res
+        .status(404)
+        .json({ status: "Failed", message: "Borrow request not found" });
     }
 
-    // check if the borrow request is fully funded or not
     if (!["fully funded"].includes(borrowRequest.status)) {
       return res.status(400).json({
         status: "Failed",
@@ -424,52 +404,48 @@ const returnMoney = async (req, res) => {
       });
     }
 
-    // Find the borrow fulfillment
     const borrowFulfillment = await BorrowFulfillment.findOne({
       borrowRequestId: borrowRequestId,
     });
     if (!borrowFulfillment) {
-      return res.status(404).json({
-        status: "Failed",
-        message: "Borrow fulfillment not found",
-      });
+      return res
+        .status(404)
+        .json({ status: "Failed", message: "Borrow fulfillment not found" });
     }
 
-    // Validate the amount returned
     if (
       amountReturned <= 0 ||
       amountReturned > borrowFulfillment.returnAmount
     ) {
-      return (
-        res.status,
-        (400).json({
-          status: "Failed",
-          message: "Invalid amount returned",
-        })
-      );
+      return res
+        .status(400)
+        .json({ status: "Failed", message: "Invalid amount returned" });
     }
 
-    // calculate the time difference
     const timeDifference = Math.floor(
       (new Date() - borrowRequest.createdAt) / (1000 * 60 * 60)
     );
 
-    // Find the user and update total transactions
     const user = await User.findById(userId);
     if (user) {
       user.totalTransactions += 1;
       user.hasActiveTransaction = false;
 
-      // check if the return is timely or late
       if (timeDifference > borrowRequest.paybackPeriod) {
         user.lateRepaymentDetails += 1;
+        userMethods.updateLateRepayment.call(user, user.lateRepaymentDetails);
       } else {
         user.timelyRepaymentDetails += 1;
+        userMethods.updateTimelyRepayment.call(
+          user,
+          user.timelyRepaymentDetails
+        );
       }
+
+      userMethods.calculateRiskFactor.call(user);
       await user.save();
     }
 
-    // update borrow request status to returned
     borrowRequest.status = "returned";
     await borrowRequest.save();
 
@@ -482,10 +458,7 @@ const returnMoney = async (req, res) => {
           : 0,
     });
   } catch (error) {
-    res.status(500).json({
-      status: "Failed",
-      message: error.message,
-    });
+    res.status(500).json({ status: "Failed", message: error.message });
   }
 };
 
