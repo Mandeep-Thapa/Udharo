@@ -195,8 +195,12 @@ const approveBorrowRequest = async (req, res) => {
     }
 
     if (!borrowFulfillment) {
+      console.log("if statement call vayo aba status save huncha");
+      console.log(borrowRequest.status, borrowRequest.fullName);
       borrowFulfillment = new BorrowFulfillment({
+        borrowRequestStatus: borrowRequest.status,
         borrowerName: borrowRequest.fullName,
+        borrowerId: borrowRequest.borrower._id,
         lenders: [],
         borrowRequest: borrowRequest._id,
       });
@@ -204,6 +208,7 @@ const approveBorrowRequest = async (req, res) => {
 
     if (borrowFulfillment.lenders.length < 5) {
       borrowFulfillment.lenders.push({
+        lenderId: req.user._id,
         lenderName: req.user.fullName,
         fulfilledAmount: amountToBeFulfilled,
         phoneNumber: req.user.phoneNumber,
@@ -236,7 +241,7 @@ const approveBorrowRequest = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: {
-        borrowRequest,
+        borrowFulfillment,
       },
     });
   } catch (error) {

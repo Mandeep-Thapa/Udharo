@@ -539,6 +539,7 @@ const getApprovedBorrowRequests = async (req, res) => {
               lenderName: lenderRecord.fullName,
               fulfilledAmount: lender.fulfilledAmount,
               returnAmount: lender.returnAmount,
+              lenderId: lender.lenderId,
             });
           } else {
             console.log(`Lender with name ${lender.lenderName} not found`);
@@ -550,6 +551,7 @@ const getApprovedBorrowRequests = async (req, res) => {
           borrowerName: borrowRequest.fullName,
           amountRequested: borrowRequest.amount,
           numberOfLenders: lenderDetails.length,
+          borrowRequestStatus: borrowFulfillment.borrowRequestStatus,
           lenders: lenderDetails,
         };
 

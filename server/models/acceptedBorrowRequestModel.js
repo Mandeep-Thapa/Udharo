@@ -4,8 +4,17 @@ const BorrowFulfillmentSchema = new mongoose.Schema({
   borrowerName: {
     type: String,
   },
+  borrowRequestStatus: {
+    type: String,
+  },
+  borrowerId: {
+    type: String,
+  },
   lenders: [
     {
+      lenderId: {
+        type: String,
+      },
       lenderName: {
         type: String,
       },

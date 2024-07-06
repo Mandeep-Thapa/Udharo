@@ -43,13 +43,13 @@ const userMethods = {
   },
 
   updateTimelyRepayment: function (timelyRepaymentDetails) {
-    if (timelyRepaymentDetails > 20) {
+    if (timelyRepaymentDetails > 15) {
       this.riskFactorDetails.timelyRepayment = 5;
-    } else if (timelyRepaymentDetails > 15) {
-      this.riskFactorDetails.timelyRepayment = 4;
     } else if (timelyRepaymentDetails > 10) {
-      this.riskFactorDetails.timelyRepayment = 3;
+      this.riskFactorDetails.timelyRepayment = 4;
     } else if (timelyRepaymentDetails > 5) {
+      this.riskFactorDetails.timelyRepayment = 3;
+    } else if (timelyRepaymentDetails > 2) {
       this.riskFactorDetails.timelyRepayment = 2;
     } else {
       this.riskFactorDetails.timelyRepayment = 1;
@@ -57,13 +57,13 @@ const userMethods = {
   },
 
   updateLateRepayment: function (lateRepaymentDetails) {
-    if (lateRepaymentDetails > 20) {
+    if (lateRepaymentDetails > 15) {
       this.riskFactorDetails.lateRepayment = 1;
-    } else if (lateRepaymentDetails > 15) {
-      this.riskFactorDetails.lateRepayment = 2;
     } else if (lateRepaymentDetails > 10) {
-      this.riskFactorDetails.lateRepayment = 3;
+      this.riskFactorDetails.lateRepayment = 2;
     } else if (lateRepaymentDetails > 5) {
+      this.riskFactorDetails.lateRepayment = 3;
+    } else if (lateRepaymentDetails > 2) {
       this.riskFactorDetails.lateRepayment = 4;
     } else {
       this.riskFactorDetails.lateRepayment = 5;
