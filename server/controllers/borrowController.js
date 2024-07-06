@@ -201,6 +201,7 @@ const approveBorrowRequest = async (req, res) => {
         borrowRequestStatus: borrowRequest.status,
         borrowerName: borrowRequest.fullName,
         borrowerId: borrowRequest.borrower._id,
+        remainingAmount: borrowRequest.amountRemaining - amountToBeFulfilled,
         lenders: [],
         borrowRequest: borrowRequest._id,
       });
