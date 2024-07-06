@@ -540,6 +540,7 @@ const getApprovedBorrowRequests = async (req, res) => {
               fulfilledAmount: lender.fulfilledAmount,
               returnAmount: lender.returnAmount,
               lenderId: lender.lenderId,
+              phoneNumber: lender.phoneNumber,
             });
           } else {
             console.log(`Lender with name ${lender.lenderName} not found`);
@@ -552,6 +553,7 @@ const getApprovedBorrowRequests = async (req, res) => {
           amountRequested: borrowRequest.amount,
           numberOfLenders: lenderDetails.length,
           borrowRequestStatus: borrowFulfillment.borrowRequestStatus,
+          remainingAmount: borrowFulfillment.remainingAmount,
           lenders: lenderDetails,
         };
 

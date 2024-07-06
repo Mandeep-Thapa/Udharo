@@ -10,6 +10,9 @@ const BorrowFulfillmentSchema = new mongoose.Schema({
   borrowerId: {
     type: String,
   },
+  remainingAmount: {
+    type: Number,
+  },
   lenders: [
     {
       lenderId: {
