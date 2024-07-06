@@ -23,16 +23,12 @@ const createBorrowRequest = async (req, res) => {
     });
   }
 
-  // Check if the user already has an active borrow request
-  const existingBorrowRequest = await BorrowRequest.findOne({
-    borrower: req.user_id,
-    status: { $in: ["pending", "approved"] },
-  });
-
-  if (existingBorrowRequest) {
+  // Check if the user already has an active transaction
+  if (req.user.hasActiveTransaction) {
     return res.status(400).json({
       status: "Failed",
-      message: "You already have an active borrow request",
+      message:
+        "You cannot create a new borrow request while having an active transaction",
     });
   }
 
