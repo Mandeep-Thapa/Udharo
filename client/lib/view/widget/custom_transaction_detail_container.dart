@@ -48,6 +48,12 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
       fontSize: 20,
       fontWeight: FontWeight.bold,
     );
+    if(user.transactions == null || user.transactions!.isEmpty){
+      return const Text(
+        'You have no active transactions.',
+        style: headerStyle,
+      );
+    }
 
     if (role.toUpperCase() == 'BORROWER') {
       return Column(
@@ -119,7 +125,8 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
               }
             },
             builder: (context, state) {
-              return ElevatedButton(
+              if((user.transactions?.last.status?.toUpperCase() == 'FULLY FUNDED')){
+                return ElevatedButton(
                 onPressed: () {
                   BlocProvider.of<ReturnMoneyBloc>(context).add(
                     ReturnMoneyEventMakeReturnRequest(
@@ -133,6 +140,10 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
                   'Return Money',
                 ),
               );
+              }else{
+                return const SizedBox.shrink();
+              }
+              
             },
           ),
         ],
