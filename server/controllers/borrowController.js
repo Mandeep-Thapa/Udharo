@@ -23,16 +23,12 @@ const createBorrowRequest = async (req, res) => {
     });
   }
 
-  // Check if the user already has an active borrow request
-  const existingBorrowRequest = await BorrowRequest.findOne({
-    borrower: req.user_id,
-    status: { $in: ["pending", "approved"] },
-  });
-
-  if (existingBorrowRequest) {
+  // Check if the user already has an active transaction
+  if (req.user.hasActiveTransaction) {
     return res.status(400).json({
       status: "Failed",
-      message: "You already have an active borrow request",
+      message:
+        "You cannot create a new borrow request while having an active transaction",
     });
   }
 
@@ -199,8 +195,12 @@ const approveBorrowRequest = async (req, res) => {
     }
 
     if (!borrowFulfillment) {
+      console.log("if statement call vayo aba status save huncha");
+      console.log(borrowRequest.status, borrowRequest.fullName);
       borrowFulfillment = new BorrowFulfillment({
+        borrowRequestStatus: borrowRequest.status,
         borrowerName: borrowRequest.fullName,
+        borrowerId: borrowRequest.borrower._id,
         lenders: [],
         borrowRequest: borrowRequest._id,
       });
@@ -208,6 +208,7 @@ const approveBorrowRequest = async (req, res) => {
 
     if (borrowFulfillment.lenders.length < 5) {
       borrowFulfillment.lenders.push({
+        lenderId: req.user._id,
         lenderName: req.user.fullName,
         fulfilledAmount: amountToBeFulfilled,
         phoneNumber: req.user.phoneNumber,
@@ -240,7 +241,7 @@ const approveBorrowRequest = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: {
-        borrowRequest,
+        borrowFulfillment,
       },
     });
   } catch (error) {

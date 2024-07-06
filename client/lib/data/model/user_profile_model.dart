@@ -105,6 +105,7 @@ class Transaction {
   final num? interestRate;
   final int? paybackPeriod;
   final num? returnAmount;
+  final String? status;
   final String? borrowerName;
   final num? fulfilledAmount;
   final String? expectedReturnDate;
@@ -115,6 +116,7 @@ class Transaction {
     this.interestRate,
     this.paybackPeriod,
     this.returnAmount,
+    this.status,
     this.borrowerName,
     this.fulfilledAmount,
     this.expectedReturnDate,
@@ -126,6 +128,7 @@ class Transaction {
     interestRate: json["interestRate"],
     paybackPeriod: json["paybackPeriod"],
     returnAmount: json["returnAmount"],
+    status: json["status"],
     borrowerName: json["borrowerName"],
     fulfilledAmount: json["fulfilledAmount"],
     expectedReturnDate: json["expectedReturnDate"],
@@ -137,6 +140,7 @@ class Transaction {
     "interestRate": interestRate,
     "paybackPeriod": paybackPeriod,
     "returnAmount": returnAmount,
+    "status": status,
     "borrowerName": borrowerName,
     "fulfilledAmount": fulfilledAmount,
     "expectedReturnDate": expectedReturnDate,

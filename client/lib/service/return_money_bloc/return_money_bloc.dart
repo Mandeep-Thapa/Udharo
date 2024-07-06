@@ -72,5 +72,23 @@ class ReturnMoneyBloc extends Bloc<ReturnMoneyEvent, ReturnMoneyState> {
         }
       },
     );
+    on<ReturnMoneyEventSaveKhaltiTransaction>(
+      (event, emit) async {
+        try {
+          await _borrowRepository.saveKhaltiTransaction(
+            idx: event.idx,
+            amount: event.amount,
+            sendername: event.senderName,
+            receiverName: event.receiverName,
+            createdOn: event.createdOn,
+            feeAmount: event.feeAmount,
+            purpose: 'return',
+          );
+          emit(ReturnMoneyStatePaymentSaveSucess());
+        } on Exception catch (e) {
+          emit(ReturnMoneyStateError(e.toString()));
+        }
+      },
+    );
   }
 }

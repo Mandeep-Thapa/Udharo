@@ -7,6 +7,7 @@ const BorrowFulfillment = require("../models/acceptedBorrowRequestModel");
 const BorrowRequest = require("../models/borrowRequestModel");
 const Payment = require("../models/khaltiPaymentModel");
 const userMethods = require("../utils/userMethods");
+const axios = require("axios");
 
 /*
   @desc Register an admin
@@ -538,6 +539,7 @@ const getApprovedBorrowRequests = async (req, res) => {
               lenderName: lenderRecord.fullName,
               fulfilledAmount: lender.fulfilledAmount,
               returnAmount: lender.returnAmount,
+              lenderId: lender.lenderId,
             });
           } else {
             console.log(`Lender with name ${lender.lenderName} not found`);
@@ -549,6 +551,7 @@ const getApprovedBorrowRequests = async (req, res) => {
           borrowerName: borrowRequest.fullName,
           amountRequested: borrowRequest.amount,
           numberOfLenders: lenderDetails.length,
+          borrowRequestStatus: borrowFulfillment.borrowRequestStatus,
           lenders: lenderDetails,
         };
 
@@ -603,6 +606,7 @@ const paymentVerification = async (req, res) => {
       data: khaltiResponse.data,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: "Failed",
       message: error.message,
