@@ -26,3 +26,6 @@ final class ReturnMoneyStateError extends ReturnMoneyState {
 
   ReturnMoneyStateError(this.message);
 }
+
+final class ReturnMoneyStatePaymentSaveSucess extends ReturnMoneyState {}
+

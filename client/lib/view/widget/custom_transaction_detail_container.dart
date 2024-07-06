@@ -48,6 +48,12 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
       fontSize: 20,
       fontWeight: FontWeight.bold,
     );
+    if(user.transactions == null || user.transactions!.isEmpty){
+      return const Text(
+        'You have no active transactions.',
+        style: headerStyle,
+      );
+    }
 
     if (role.toUpperCase() == 'BORROWER') {
       return Column(
@@ -97,14 +103,30 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
                 ));
               }
               if (state is ReturnMoneyStateKhaltiVerificationSuccess) {
+                final verificationData = state.success.data;
+                if (verificationData != null) {
+                  BlocProvider.of<ReturnMoneyBloc>(context).add(
+                    ReturnMoneyEventSaveKhaltiTransaction(
+                      idx: verificationData.idx!,
+                      amount: verificationData.amount!,
+                      senderName: verificationData.merchant!.name!,
+                      createdOn: verificationData.createdOn!.toString(),
+                      receiverName: verificationData.user!.name!,
+                      feeAmount: verificationData.feeAmount!,
+                    ),
+                  );
+                }
+              }
+              if(state is ReturnMoneyStatePaymentSaveSucess){
                 CustomToast().showToast(
                   context: context,
-                  message: 'Money Returned successful',
+                  message: 'Payment successful',
                 );
               }
             },
             builder: (context, state) {
-              return ElevatedButton(
+              if((user.transactions?.last.status?.toUpperCase() == 'FULLY FUNDED')){
+                return ElevatedButton(
                 onPressed: () {
                   BlocProvider.of<ReturnMoneyBloc>(context).add(
                     ReturnMoneyEventMakeReturnRequest(
@@ -118,6 +140,10 @@ class CustomTransactionDetailsContainer extends StatelessWidget {
                   'Return Money',
                 ),
               );
+              }else{
+                return const SizedBox.shrink();
+              }
+              
             },
           ),
         ],

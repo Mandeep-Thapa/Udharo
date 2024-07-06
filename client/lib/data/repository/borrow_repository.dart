@@ -330,6 +330,7 @@ class BorrowRepository {
     required String sendername,
     required String receiverName,
     required int feeAmount,
+    required String purpose,
   }) async {
     String url = '${Config.baseUrl}/user/saveKhaltiPaymentDetails';
 
@@ -347,6 +348,7 @@ class BorrowRepository {
       "senderName": sendername,
       "receiverName ": receiverName,
       "fee_amount": feeAmount,
+      "purpose": purpose,
     };
 
     // api call

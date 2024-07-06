@@ -53,3 +53,25 @@ class ReturnMoneyEventMakeKhaltiPayment extends ReturnMoneyEvent {
         productName,
       ];
 }
+
+
+class ReturnMoneyEventSaveKhaltiTransaction extends ReturnMoneyEvent {
+  final String idx;
+  final int amount;
+  final String createdOn;
+  final String senderName;
+  final String receiverName;
+  final int feeAmount;
+
+   ReturnMoneyEventSaveKhaltiTransaction({
+    required this.idx,
+    required this.amount,
+    required this.senderName,
+    required this.createdOn,
+    required this.receiverName,
+    required this.feeAmount,
+  });
+
+  @override
+  List<Object> get props => [idx];
+}

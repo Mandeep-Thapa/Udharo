@@ -89,6 +89,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             receiverName: event.receiverName,
             createdOn: event.createdOn,
             feeAmount: event.feeAmount,
+            purpose: 'lend',
           );
           emit(PaymentStateKhaltiPaymentSaveKhaltiPaymentSuccess());
         } on Exception catch (e) {

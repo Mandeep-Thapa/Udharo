@@ -57,6 +57,7 @@ class BorrowRequest {
   int? riskFactor;
   String? risk;
   int? amount;
+  int? amountRemaining;
   String? purpose;
   num? interestRate;
   int? paybackPeriod;
@@ -68,6 +69,7 @@ class BorrowRequest {
     this.fullName,
     this.riskFactor,
     this.amount,
+    this.amountRemaining,
     this.purpose,
     this.interestRate,
     this.paybackPeriod,
@@ -81,6 +83,7 @@ class BorrowRequest {
         fullName: json["fullName"],
         riskFactor: json["riskFactor"],
         amount: json["amount"],
+        amountRemaining: json["amountRemaining"],
         purpose: json["purpose"],
         interestRate: json["interestRate"],
         paybackPeriod: json["paybackPeriod"],
@@ -94,6 +97,7 @@ class BorrowRequest {
         "fullName": fullName,
         "riskFactor": riskFactor,
         "amount": amount,
+        "amountRemaining": amountRemaining,
         "purpose": purpose,
         "interestRate": interestRate,
         "paybackPeriod": paybackPeriod,
