@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const User = require("../models/registrationModel");
@@ -539,6 +540,122 @@ const savePayment = async (req, res) => {
   }
 };
 
+/*
+  @desc Forgot password
+  @route POST /api/user/forgotPassword
+  @access public
+*/
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User with the email does not exist",
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    // Set token expiry(1 hour)
+    const resetTokenExpiry = Date.now() + 3600000;
+
+    // Update user with reset token and expiry
+    await User.updateOne(
+      { _id: user._id },
+      {
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: resetTokenExpiry,
+      }
+    );
+
+    // Send email with reset link
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      to: user.email,
+      from: "passwordreset@yourdomain.com",
+      subject: "Password Reset",
+      text:
+        `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
+        `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
+        `http://${req.headers.host}/reset-password/${resetToken}\n\n` +
+        `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({ message: "Error sending email" });
+      }
+      res.status(200).json({ message: "Email sent", data: { resetToken } });
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+/*
+  @desc Change password
+  @route POST /api/user/changePassword/:token
+  @access public
+*/
+const changePassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Passwords do not match",
+      });
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPassowrdExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.stauts(400).json({
+        stauts: "Failed",
+        message: "Password reset token is invalid or has expired",
+      });
+    }
+
+    // Hash the new password here
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({
+      status: "Success",
+      message:
+        "Password changed successfully. Please login with your new password",
+    });
+  } catch (error) {
+    res.statsu(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -547,4 +664,6 @@ module.exports = {
   verifyEmail,
   paymentVerification,
   savePayment,
+  forgotPassword,
+  changePassword,
 };
