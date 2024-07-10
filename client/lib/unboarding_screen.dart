@@ -17,10 +17,6 @@ class _UnboardingScreenState extends State<UnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: ThemeClass().backgroundColor,
-        title: const Text('Unboarding Screen'),
-      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (int page) {
@@ -91,12 +87,21 @@ class OnboardingPage extends StatelessWidget {
         children: [
           Text(
             text,
-            style: TextStyle(fontSize: 24, color: Colors.white),
+            style: const TextStyle(fontSize: 24, color: Colors.white),
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
+          const SizedBox(height: 20),
+          TextButton(
             onPressed: onPressed,
             child: Text(buttonText),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: ThemeClass().secondaryColor,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+            ),
           ),
         ],
       ),
