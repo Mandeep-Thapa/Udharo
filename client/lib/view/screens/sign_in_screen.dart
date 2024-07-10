@@ -92,7 +92,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 20),
               // login button
               BlocConsumer<LoginBloc, LoginState>(
                 listener: (context, state) {

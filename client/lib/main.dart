@@ -18,8 +18,8 @@ import 'package:udharo/service/upload_kyc_bloc/upload_kyc_bloc.dart';
 import 'package:udharo/service/user_profile_bloc/profile_bloc.dart';
 import 'package:udharo/service/view_KYC_bloc/view_kyc_bloc.dart';
 import 'package:udharo/theme/theme_class.dart';
+import 'package:udharo/unboarding_screen.dart';
 import 'package:udharo/view/screens/home_page.dart';
-import 'package:udharo/view/screens/sign_in_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -114,8 +114,10 @@ class _MyAppState extends State<MyApp> {
             title: 'Udharo',
             debugShowCheckedModeBanner: false,
             theme: ThemeClass.defaultTheme,
-            home:
-                widget.isUserLoggedIn ? const HomePage() : const SignInScreen(),
+            // home: const UnboardingScreen()
+            home: widget.isUserLoggedIn
+                ? const HomePage()
+                : const UnboardingScreen(),
           );
         },
       ),
