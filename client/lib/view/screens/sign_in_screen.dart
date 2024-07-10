@@ -180,14 +180,14 @@ class _SignInScreenState extends State<SignInScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   emailField(_forgotEmailController),
-                  const SizedBox(height: 16),
-                  passwordField('New Password', _newPasswordController),
-                  const SizedBox(height: 16),
+                  // const SizedBox(height: 16),
+                  // passwordField('New Password', _newPasswordController),
+                  // const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       // handle password reset logic
                     },
-                    child: const Text('Reset Password'),
+                    child: const Text('Continue'),
                   ),
                 ],
               ),

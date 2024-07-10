@@ -558,17 +558,17 @@ const forgotPassword = async (req, res) => {
     }
 
     // Generate reset token
-    const resetToken = crypto.randomBytes(20).toString("hex");
+    const otp = Math.floor(100000 + Math.random() * 900000);
 
-    // Set token expiry(1 hour)
-    const resetTokenExpiry = Date.now() + 3600000;
+    // Set OTP expiry(1 hour)
+    const otpExpiry = Date.now() + 3600000;
 
     // Update user with reset token and expiry
     await User.updateOne(
       { _id: user._id },
       {
-        resetPasswordToken: resetToken,
-        resetPasswordExpires: resetTokenExpiry,
+        resetPasswordToken: otp,
+        resetPasswordExpires: otpExpiry,
       }
     );
 
@@ -587,8 +587,8 @@ const forgotPassword = async (req, res) => {
       subject: "Password Reset",
       text:
         `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
-        `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
-        `http://${req.headers.host}/reset-password/${resetToken}\n\n` +
+        `Your OTP is : ${otp}\n\n` +
+        `This OTP is valid for 1 hour only.\n\n` +
         `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
     };
 
@@ -596,7 +596,7 @@ const forgotPassword = async (req, res) => {
       if (error) {
         return res.status(500).json({ message: "Error sending email" });
       }
-      res.status(200).json({ message: "Email sent", data: { resetToken } });
+      res.status(200).json({ message: "Email sent", data: { otp } });
     });
   } catch (error) {
     res.status(500).json({
@@ -631,7 +631,7 @@ const changePassword = async (req, res) => {
     if (!user) {
       return res.stauts(400).json({
         stauts: "Failed",
-        message: "Password reset token is invalid or has expired",
+        message: "Password reset OTP is invalid or has expired",
       });
     }
 
