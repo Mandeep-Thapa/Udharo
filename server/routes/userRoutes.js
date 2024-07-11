@@ -10,6 +10,7 @@ const {
   savePayment,
   forgotPassword,
   changePassword,
+  changeCurrentPassword,
 } = require("../controllers/userController");
 const authenticate = require("../middleware/verification");
 
@@ -32,5 +33,7 @@ router.post("/saveKhaltiPaymentDetails", authenticate, savePayment);
 router.post("/forgotPassword", forgotPassword);
 
 router.post("/changePasword/:token", changePassword);
+
+router.post("/changeCurrentPassword", authenticate, changeCurrentPassword);
 
 module.exports = router;

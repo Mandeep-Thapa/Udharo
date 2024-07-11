@@ -12,7 +12,7 @@ const authenticateAdmin = async (req, res, next) => {
     try {
       token = req.headers.authorization.split("")[1];
       console.log(token);
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       console.log(decoded);
 
       req.user = await Admin.findOne({ email: decoded.email });

@@ -656,6 +656,54 @@ const changePassword = async (req, res) => {
   }
 };
 
+/*
+  @desc Change current password of the user
+  @route POST /api/user/changeCurrentPassword
+  @access private
+*/
+const changeCurrentPassword = async (req, res) => {
+  try {
+    const { password, newPassword } = req.body;
+
+    if (!password || !newPassword) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Please provide both current and new password",
+      });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+
+    if (!user) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Current password is incorrect",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({
+      status: "Success",
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -666,4 +714,5 @@ module.exports = {
   savePayment,
   forgotPassword,
   changePassword,
+  changeCurrentPassword,
 };
