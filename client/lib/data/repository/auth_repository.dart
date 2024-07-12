@@ -20,51 +20,50 @@ class AuthRepository {
   }
 
   Future<String> signIn(String email, String password) async {
-  String url = '${Config.baseUrl}/user/login';
+    String url = '${Config.baseUrl}/user/login';
 
-  final data = {
-    "email": email,
-    "password": password,
-  };
+    final data = {
+      "email": email,
+      "password": password,
+    };
 
-  try {
-    Response response = await dio.post(
-      url,
-      data: data,
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
+    try {
+      Response response = await dio.post(
+        url,
+        data: data,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
 
-    // print('Response Status Code: ${response.statusCode}');
-    // print('Response Data: ${response.data}');
+      // print('Response Status Code: ${response.statusCode}');
+      // print('Response Data: ${response.data}');
 
-    if (response.statusCode == 200 && response.data['token'] != null) {
-      final token = response.data['token'];
-      // print('Token: $token');
-      await saveToken(token);
-      return 'Login Success';
-    } else {
-      if (response.data['message'] != null) {
-        return response.data['message'];
+      if (response.statusCode == 200 && response.data['token'] != null) {
+        final token = response.data['token'];
+        // print('Token: $token');
+        await saveToken(token);
+        return 'Login Success';
       } else {
-        return 'Login Unsuccessful';
+        if (response.data['message'] != null) {
+          return response.data['message'];
+        } else {
+          return 'Login Unsuccessful';
+        }
       }
-    }
-  } on DioException catch (e) {
-    if (e.response != null && e.response!.data != null) {
-      if (e.response!.data['message'] != null) {
-        return e.response!.data['message'];
+    } on DioException catch (e) {
+      if (e.response != null && e.response!.data != null) {
+        if (e.response!.data['message'] != null) {
+          return e.response!.data['message'];
+        }
       }
+      return 'Login Unsuccessful';
+    } catch (e) {
+      return 'Login Unsuccessful';
     }
-    return 'Login Unsuccessful';
-  } catch (e) {
-    return 'Login Unsuccessful';
   }
-}
-
 
   Future<String> signUp({
     required String fullName,
@@ -153,6 +152,47 @@ class AuthRepository {
       return 'Could not send verification';
     } catch (e) {
       return 'Could not send verification';
+    }
+  }
+
+  Future<String> forgotPassword(String email) async {
+    String url = '${Config.baseUrl}/user/forgotPasswrod';
+
+    final data = {
+      "email": email,
+    };
+
+    try {
+      Response response = await dio.post(
+        url,
+        data: data,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // Assuming the API returns a success message in the response
+        return response.data['message'] ??
+            'Password reset email sent successfully';
+      } else {
+        // Handle other status codes or missing data in the response
+        return response.data['message'] ??
+            'Failed to send password reset email';
+      }
+    } on DioException catch (e) {
+      // Handle Dio exceptions, such as network errors
+      if (e.response != null &&
+          e.response!.data != null &&
+          e.response!.data['message'] != null) {
+        return e.response!.data['message'];
+      }
+      return 'Failed to send password reset email';
+    } catch (e) {
+      // Handle any other exceptions
+      return 'An unexpected error occurred';
     }
   }
 }

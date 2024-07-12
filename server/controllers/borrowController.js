@@ -132,9 +132,7 @@ const browseBorrowRequests = async (req, res) => {
 const approveBorrowRequest = async (req, res) => {
   try {
     const { amountToBeFulfilled } = req.body;
-    const borrowRequest = await BorrowRequest.findOne({
-      _id: req.params.id,
-    });
+    const borrowRequest = await BorrowRequest.findOne({ _id: req.params.id });
 
     if (!borrowRequest) {
       return res.status(404).json({
@@ -150,6 +148,7 @@ const approveBorrowRequest = async (req, res) => {
           "Your KYC is not verified. Please verify before accepting the borrow request.",
       });
     }
+
     if (borrowRequest.status === "expired") {
       return res.status(400).json({
         status: "Failed",
@@ -159,8 +158,6 @@ const approveBorrowRequest = async (req, res) => {
 
     const minAmount = borrowRequest.amount * 0.2;
     const maxAmount = borrowRequest.amount * 0.4;
-
-    console.log(minAmount, maxAmount);
 
     if (amountToBeFulfilled < minAmount || amountToBeFulfilled > maxAmount) {
       return res.status(400).json({
@@ -172,7 +169,7 @@ const approveBorrowRequest = async (req, res) => {
 
     let borrowFulfillment = await BorrowFulfillment.findOne({
       borrowerName: borrowRequest.fullName,
-      borrowRequest: borrowRequest._id, // Ensure we're matching the correct BorrowFulfillment
+      borrowRequest: borrowRequest._id,
     });
 
     if (
@@ -188,8 +185,6 @@ const approveBorrowRequest = async (req, res) => {
     }
 
     if (!borrowFulfillment) {
-      console.log("if statement call vayo aba status save huncha");
-      console.log(borrowRequest.status, borrowRequest.fullName);
       borrowFulfillment = new BorrowFulfillment({
         borrowRequestStatus: borrowRequest.status,
         borrowerName: borrowRequest.fullName,
@@ -200,27 +195,34 @@ const approveBorrowRequest = async (req, res) => {
       });
     }
 
-    if (borrowFulfillment.lenders.length < 5) {
-      borrowFulfillment.lenders.push({
-        lenderId: req.user._id,
-        lenderName: req.user.fullName,
-        fulfilledAmount: amountToBeFulfilled,
-        phoneNumber: req.user.phoneNumber,
-        returnAmount:
-          amountToBeFulfilled +
-          (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
+    if (borrowFulfillment.lenders.length >= 5) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Maximum number of lenders reached",
       });
-      borrowRequest.numberOfLenders += 1;
-      borrowRequest.amountRemaining -= amountToBeFulfilled;
+    }
 
-      // Update status if conditions are met
-      if (borrowRequest.amountRemaining === 0 || borrowRequest.numberOfLenders === 5) {
-        borrowRequest.status = "fully funded";
-      } else {
-        borrowRequest.status = "approved";
-      }
+    borrowFulfillment.lenders.push({
+      lenderId: req.user._id,
+      lenderName: req.user.fullName,
+      fulfilledAmount: amountToBeFulfilled,
+      phoneNumber: req.user.phoneNumber,
+      returnAmount:
+        amountToBeFulfilled +
+        (amountToBeFulfilled * (borrowRequest.interestRate + 1)) / 100,
+    });
+
+    borrowRequest.numberOfLenders += 1;
+    borrowRequest.amountRemaining -= amountToBeFulfilled;
+
+    // Update status if conditions are met
+    if (
+      borrowRequest.amountRemaining === 0 ||
+      borrowRequest.numberOfLenders === 5
+    ) {
+      borrowRequest.status = "fully funded";
     } else {
-      console.log("Maximum number of lenders reached");
+      borrowRequest.status = "approved";
     }
 
     await borrowRequest.save();
@@ -252,7 +254,6 @@ const approveBorrowRequest = async (req, res) => {
     });
   }
 };
-
 
 /*
   @desc Reject borrow request

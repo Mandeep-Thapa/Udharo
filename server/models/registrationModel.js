@@ -38,6 +38,14 @@ const userSchema = new Schema(
       required: [true, "Please provide your phone number"],
       unique: true,
     },
+    resetPasswordToken: {
+      type: String,
+      required: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      required: false,
+    },
     totalTransactions: {
       type: Number,
       default: 0,

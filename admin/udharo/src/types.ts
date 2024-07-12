@@ -3,6 +3,7 @@ export interface Lender {
    lenderName: string;
    fulfilledAmount: number;
    returnAmount: number;
+    status: string;
  }
  
  export interface ApprovedRequest {
@@ -10,6 +11,7 @@ export interface Lender {
    amountRequested: number;
    numberOfLenders: number;
    lenders: Lender[];
+   borrowRequestStatus: string;
  }
  export interface BorrowerRole {
   id: string;
